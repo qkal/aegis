@@ -25,18 +25,18 @@ import type { AegisPolicy, ToolPattern } from "./schema.js";
  * Discriminated union on `verdict`.
  */
 export type PolicyDecision =
-	| { readonly verdict: "allow"; readonly matchedRule: string }
+	| { readonly verdict: "allow"; readonly matchedRule: string; }
 	| {
-			readonly verdict: "deny";
-			readonly matchedRule: string;
-			readonly reason: string;
-	  }
+		readonly verdict: "deny";
+		readonly matchedRule: string;
+		readonly reason: string;
+	}
 	| {
-			readonly verdict: "ask";
-			readonly matchedRule: string;
-			readonly prompt: string;
-	  }
-	| { readonly verdict: "default_deny"; readonly reason: string };
+		readonly verdict: "ask";
+		readonly matchedRule: string;
+		readonly prompt: string;
+	}
+	| { readonly verdict: "default_deny"; readonly reason: string; };
 
 /**
  * Tools whose argument is a shell command line. For these tools the
@@ -171,7 +171,7 @@ export function expandToolCall(toolCall: string): readonly string[] {
  * Parse a tool-call string of the form `Name(arg)`. Returns null if the
  * string does not conform so callers can fall back to literal matching.
  */
-function parseToolCall(toolCall: string): { name: string; arg: string } | null {
+function parseToolCall(toolCall: string): { name: string; arg: string; } | null {
 	const open = toolCall.indexOf("(");
 	if (open <= 0 || !toolCall.endsWith(")")) return null;
 	const name = toolCall.slice(0, open);

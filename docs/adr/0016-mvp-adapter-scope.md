@@ -39,12 +39,12 @@ base meaningfully.
 
 The **MVP** (Phase 1) ships Tier-1-class support for **four** platforms:
 
-| Platform | MVP Tier | Integration surface | Reason |
-|---|---|---|---|
-| **Claude Code** | Tier 1 | `~/.claude/settings.json` hooks + MCP server registration | Largest user base; reference implementation. |
-| **Codex CLI** | Tier 1L | `~/.codex/config.toml` + `~/.codex/hooks.json` (feature flag `codex_hooks`); MCP via `[mcp_servers.aegis]` | Hooks GA in 2026; matcher limited to `Bash` today, MCP fills the gap. |
-| **OpenCode** | Tier 1 | `~/.config/opencode/plugins/aegis.ts` plugin + `opencode.json` MCP entry | Documented plugin SDK with full event coverage. |
-| **AmpCode** | Tier 3 | `~/.amp/settings.json` `amp.mcpServers.aegis` + project `.amp/AGENTS.md` routing instructions | MCP-only; honest tier reporting via `capabilities()`. |
+| Platform        | MVP Tier | Integration surface                                                                                        | Reason                                                                |
+| --------------- | -------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Claude Code** | Tier 1   | `~/.claude/settings.json` hooks + MCP server registration                                                  | Largest user base; reference implementation.                          |
+| **Codex CLI**   | Tier 1L  | `~/.codex/config.toml` + `~/.codex/hooks.json` (feature flag `codex_hooks`); MCP via `[mcp_servers.aegis]` | Hooks GA in 2026; matcher limited to `Bash` today, MCP fills the gap. |
+| **OpenCode**    | Tier 1   | `~/.config/opencode/plugins/aegis.ts` plugin + `opencode.json` MCP entry                                   | Documented plugin SDK with full event coverage.                       |
+| **AmpCode**     | Tier 3   | `~/.amp/settings.json` `amp.mcpServers.aegis` + project `.amp/AGENTS.md` routing instructions              | MCP-only; honest tier reporting via `capabilities()`.                 |
 
 **Phase 2** picks up Cursor (Tier 2 hooks), Windsurf (Tier 3 → Tier 2 if
 hooks documented by then), Antigravity (Tier 3), Zed (Tier 3), and the

@@ -17,6 +17,5 @@ export const TOOL_NAME = "aegis_execute" as const;
  * from `@aegis/core`'s `LANGUAGES` tuple so the server metadata cannot
  * drift from the engine's actual capabilities.
  */
-export const TOOL_DESCRIPTION =
-	`Execute code in a sandboxed environment. Returns stdout only. ` +
-	`Supports: ${LANGUAGES.join(", ")}.`;
+export const TOOL_DESCRIPTION = `Execute code in a sandboxed environment. Returns stdout only. `
+	+ `Supports: ${LANGUAGES.join(", ")}.`;

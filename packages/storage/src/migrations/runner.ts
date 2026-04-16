@@ -114,7 +114,7 @@ export function currentVersion(db: Database): number {
 
 function currentVersionOf(db: Database): number {
 	const row = db
-		.prepare<{ v: number | null }>("SELECT MAX(version) AS v FROM _aegis_migrations")
+		.prepare<{ v: number | null; }>("SELECT MAX(version) AS v FROM _aegis_migrations")
 		.get();
 	return row?.v ?? 0;
 }

@@ -8,6 +8,5 @@
 
 export const TOOL_NAME = "aegis_doctor" as const;
 
-export const TOOL_DESCRIPTION =
-	"Run diagnostics: check platform detection, available runtimes, " +
-	"storage health, policy validity, and hook registration.";
+export const TOOL_DESCRIPTION = "Run diagnostics: check platform detection, available runtimes, "
+	+ "storage health, policy validity, and hook registration.";

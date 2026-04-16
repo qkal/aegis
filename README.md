@@ -43,17 +43,17 @@ Dependency direction: `core` ← `engine` ← `storage` ← `server` ← `cli`
 
 ## MCP Tools
 
-| Tool | Description |
-|------|-------------|
-| `aegis_execute` | Sandboxed code execution in 11 languages |
-| `aegis_execute_file` | Process a file through sandboxed code |
-| `aegis_batch` | Multiple commands + queries in one call |
-| `aegis_index` | Index markdown/text into the knowledge base |
-| `aegis_search` | BM25-ranked search across indexed content |
-| `aegis_fetch` | Fetch URL, convert to markdown, index with cache |
-| `aegis_stats` | Context savings, call counts, session statistics |
-| `aegis_doctor` | Diagnostics: runtimes, hooks, FTS5, policy |
-| `aegis_audit` | Query recent audit events |
+| Tool                 | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `aegis_execute`      | Sandboxed code execution in 11 languages         |
+| `aegis_execute_file` | Process a file through sandboxed code            |
+| `aegis_batch`        | Multiple commands + queries in one call          |
+| `aegis_index`        | Index markdown/text into the knowledge base      |
+| `aegis_search`       | BM25-ranked search across indexed content        |
+| `aegis_fetch`        | Fetch URL, convert to markdown, index with cache |
+| `aegis_stats`        | Context savings, call counts, session statistics |
+| `aegis_doctor`       | Diagnostics: runtimes, hooks, FTS5, policy       |
+| `aegis_audit`        | Query recent audit events                        |
 
 ## Platform Support
 
@@ -62,12 +62,12 @@ Phase 2 / 3. See [ADR-0007](./docs/adr/0007-platform-adapter-tier-system.md)
 and [ADR-0016](./docs/adr/0016-mvp-adapter-scope.md) for the tier system
 and MVP rationale.
 
-| Tier | Capabilities | MVP platforms | Phase 2 / 3 platforms |
-|------|-------------|---------------|----------------------|
-| **Tier 1** | MCP + full hooks + policy + session continuity | Claude Code, OpenCode | Gemini CLI, VS Code Copilot |
-| **Tier 1L** | Tier 1 wiring; PreToolUse/PostToolUse limited to a subset of tools | Codex CLI (`Bash` only today) | — |
-| **Tier 2** | MCP + partial hooks + policy + partial session | — | Cursor, Kiro, KiloCode |
-| **Tier 3** | MCP tools only, instruction-file routing | AmpCode | Windsurf, Antigravity, Zed, generic fallback |
+| Tier        | Capabilities                                                       | MVP platforms                 | Phase 2 / 3 platforms                        |
+| ----------- | ------------------------------------------------------------------ | ----------------------------- | -------------------------------------------- |
+| **Tier 1**  | MCP + full hooks + policy + session continuity                     | Claude Code, OpenCode         | Gemini CLI, VS Code Copilot                  |
+| **Tier 1L** | Tier 1 wiring; PreToolUse/PostToolUse limited to a subset of tools | Codex CLI (`Bash` only today) | —                                            |
+| **Tier 2**  | MCP + partial hooks + policy + partial session                     | —                             | Cursor, Kiro, KiloCode                       |
+| **Tier 3**  | MCP tools only, instruction-file routing                           | AmpCode                       | Windsurf, Antigravity, Zed, generic fallback |
 
 ## Security Model
 
@@ -99,21 +99,21 @@ aegis purge [--expired]     # Clean up indexed content
 ```jsonc
 // ~/.aegis/config.json
 {
-  "version": 1,
-  "policy": {
-    "tools": {
-      "deny": ["Bash(sudo *)", "Bash(rm -rf /*)"],
-      "allow": ["Bash(git *)", "Bash(npm *)"]
-    },
-    "sandbox": {
-      "env": { "allow": ["PATH", "HOME"], "deny": ["AWS_*", "GH_TOKEN"] },
-      "net": { "deny": ["*"] }
-    }
-  },
-  "execution": {
-    "timeout": 30000,
-    "maxOutput": 5242880
-  }
+	"version": 1,
+	"policy": {
+		"tools": {
+			"deny": ["Bash(sudo *)", "Bash(rm -rf /*)"],
+			"allow": ["Bash(git *)", "Bash(npm *)"],
+		},
+		"sandbox": {
+			"env": { "allow": ["PATH", "HOME"], "deny": ["AWS_*", "GH_TOKEN"] },
+			"net": { "deny": ["*"] },
+		},
+	},
+	"execution": {
+		"timeout": 30000,
+		"maxOutput": 5242880,
+	},
 }
 ```
 
@@ -131,7 +131,14 @@ pnpm build
 # Run tests
 pnpm test
 
-# Lint
+# Run CI test shards individually
+pnpm test:core
+pnpm test:storage
+pnpm test:rest
+
+# Format and lint
+pnpm format
+pnpm format:check
 pnpm lint
 
 # Type check
@@ -142,24 +149,25 @@ pnpm typecheck
 
 All key decisions are recorded as ADRs in [`docs/adr/`](./docs/adr/):
 
-| ADR | Decision |
-|-----|----------|
-| [0001](./docs/adr/0001-monorepo-with-pnpm-workspaces.md) | Monorepo with pnpm workspaces |
-| [0002](./docs/adr/0002-pure-core-package-zero-dependencies.md) | Pure core package, zero dependencies |
-| [0003](./docs/adr/0003-capability-based-policy-engine.md) | Capability-based policy engine |
-| [0004](./docs/adr/0004-discriminated-union-event-model.md) | Discriminated union event model |
-| [0005](./docs/adr/0005-hmac-chained-audit-log.md) | HMAC-chained audit log |
-| [0006](./docs/adr/0006-three-backend-sqlite-strategy.md) | Three-backend SQLite strategy |
-| [0007](./docs/adr/0007-platform-adapter-tier-system.md) | Platform adapter tier system |
-| [0008](./docs/adr/0008-sandbox-isolation-levels.md) | Sandbox isolation levels |
-| [0009](./docs/adr/0009-zero-telemetry-local-first.md) | Zero telemetry, local-first |
-| [0010](./docs/adr/0010-biome-for-linting-and-formatting.md) | Biome for linting and formatting |
-| [0011](./docs/adr/0011-versioned-schema-migrations.md) | Versioned schema migrations |
-| [0012](./docs/adr/0012-dual-fts5-search-with-rrf.md) | Dual FTS5 search with RRF |
-| [0013](./docs/adr/0013-branded-types-for-domain-identifiers.md) | Branded types for domain identifiers |
-| [0014](./docs/adr/0014-explicit-failure-modes-no-silent-degradation.md) | Explicit failure modes |
-| [0015](./docs/adr/0015-no-postinstall-no-preload-no-monkey-patching.md) | No postinstall, no preload, no monkey-patching |
-| [0016](./docs/adr/0016-mvp-adapter-scope.md) | MVP adapter scope: Claude Code, Codex CLI, OpenCode, AmpCode |
+| ADR                                                                     | Decision                                                     |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------ |
+| [0001](./docs/adr/0001-monorepo-with-pnpm-workspaces.md)                | Monorepo with pnpm workspaces                                |
+| [0002](./docs/adr/0002-pure-core-package-zero-dependencies.md)          | Pure core package, zero dependencies                         |
+| [0003](./docs/adr/0003-capability-based-policy-engine.md)               | Capability-based policy engine                               |
+| [0004](./docs/adr/0004-discriminated-union-event-model.md)              | Discriminated union event model                              |
+| [0005](./docs/adr/0005-hmac-chained-audit-log.md)                       | HMAC-chained audit log                                       |
+| [0006](./docs/adr/0006-three-backend-sqlite-strategy.md)                | Three-backend SQLite strategy                                |
+| [0007](./docs/adr/0007-platform-adapter-tier-system.md)                 | Platform adapter tier system                                 |
+| [0008](./docs/adr/0008-sandbox-isolation-levels.md)                     | Sandbox isolation levels                                     |
+| [0009](./docs/adr/0009-zero-telemetry-local-first.md)                   | Zero telemetry, local-first                                  |
+| [0010](./docs/adr/0010-biome-for-linting-and-formatting.md)             | Biome for linting and formatting (superseded)                |
+| [0017](./docs/adr/0017-oxlint-and-dprint-toolchain.md)                  | Oxlint + dprint toolchain and parallel Linux CI              |
+| [0011](./docs/adr/0011-versioned-schema-migrations.md)                  | Versioned schema migrations                                  |
+| [0012](./docs/adr/0012-dual-fts5-search-with-rrf.md)                    | Dual FTS5 search with RRF                                    |
+| [0013](./docs/adr/0013-branded-types-for-domain-identifiers.md)         | Branded types for domain identifiers                         |
+| [0014](./docs/adr/0014-explicit-failure-modes-no-silent-degradation.md) | Explicit failure modes                                       |
+| [0015](./docs/adr/0015-no-postinstall-no-preload-no-monkey-patching.md) | No postinstall, no preload, no monkey-patching               |
+| [0016](./docs/adr/0016-mvp-adapter-scope.md)                            | MVP adapter scope: Claude Code, Codex CLI, OpenCode, AmpCode |
 
 ## Milestones
 

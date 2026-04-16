@@ -9,5 +9,5 @@
 export const TOOL_NAME = "aegis_fetch" as const;
 
 export const TOOL_DESCRIPTION =
-	"Fetch a URL, convert to markdown, and index into the knowledge base. " +
-	"Cached for 24 hours by default. Use force=true to bypass cache.";
+	"Fetch a URL, convert to markdown, and index into the knowledge base. "
+	+ "Cached for 24 hours by default. Use force=true to bypass cache.";

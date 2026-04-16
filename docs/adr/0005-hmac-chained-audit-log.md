@@ -20,17 +20,17 @@ Implement an **append-only, HMAC-chained audit log** stored in a separate SQLite
 
 ```typescript
 interface AuditEntry {
-  id: AuditEntryId;          // UUIDv7 (time-sorted)
-  timestamp: string;          // ISO-8601 UTC
-  sessionId: SessionId;
-  category: AuditCategory;    // "policy_eval" | "sandbox_exec" | "content_index" | ...
-  action: string;             // "deny_command" | "allow_command" | ...
-  subject: string;            // what was evaluated
-  decision: "allow" | "deny" | "ask" | "error";
-  reason: string;             // human-readable explanation
-  context: Record<string, unknown>;
-  prevHmac: string;           // HMAC of previous entry
-  hmac: string;               // HMAC(key, id + timestamp + ... + prevHmac)
+	id: AuditEntryId; // UUIDv7 (time-sorted)
+	timestamp: string; // ISO-8601 UTC
+	sessionId: SessionId;
+	category: AuditCategory; // "policy_eval" | "sandbox_exec" | "content_index" | ...
+	action: string; // "deny_command" | "allow_command" | ...
+	subject: string; // what was evaluated
+	decision: "allow" | "deny" | "ask" | "error";
+	reason: string; // human-readable explanation
+	context: Record<string, unknown>;
+	prevHmac: string; // HMAC of previous entry
+	hmac: string; // HMAC(key, id + timestamp + ... + prevHmac)
 }
 ```
 

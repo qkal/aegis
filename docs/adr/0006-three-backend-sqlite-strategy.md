@@ -24,14 +24,15 @@ Implement a **unified `Database` interface** in `@aegis/storage` that abstracts 
 
 ```typescript
 interface Database {
-  prepare<TRow>(sql: string): PreparedStatement<TRow>;
-  exec(sql: string): void;
-  transaction<T>(fn: () => T): () => T;
-  close(): void;
+	prepare<TRow>(sql: string): PreparedStatement<TRow>;
+	exec(sql: string): void;
+	transaction<T>(fn: () => T): () => T;
+	close(): void;
 }
 ```
 
 Backend selection priority:
+
 1. `node:sqlite` (Node.js 22+) — preferred, no native addon
 2. `bun:sqlite` (Bun runtime) — preferred on Bun
 3. `better-sqlite3` (fallback) — widest compatibility

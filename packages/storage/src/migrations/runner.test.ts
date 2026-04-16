@@ -57,7 +57,7 @@ describe("runMigrations", () => {
 		expect(result.currentVersion).toBe(3);
 
 		const tables = db
-			.prepare<{ name: string }>(
+			.prepare<{ name: string; }>(
 				"SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
 			)
 			.all()
@@ -94,7 +94,7 @@ describe("runMigrations", () => {
 		expect(() => runMigrations(db, [M1, broken])).toThrow("nope");
 		expect(currentVersion(db)).toBe(1);
 		const tables = db
-			.prepare<{ name: string }>(
+			.prepare<{ name: string; }>(
 				"SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
 			)
 			.all()

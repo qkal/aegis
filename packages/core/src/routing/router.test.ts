@@ -8,11 +8,7 @@ describe("routeTool", () => {
 	it("routes execution tools to the sandbox", () => {
 		const execTools: AegisTool[] = ["aegis_execute", "aegis_execute_file", "aegis_batch"];
 		for (const tool of execTools) {
-			const decision = routeTool(tool);
-			expect(decision.route).toBe("sandbox");
-			if (decision.route === "sandbox") {
-				expect(decision.language).toBe("auto");
-			}
+			expect(routeTool(tool)).toEqual({ route: "sandbox", language: "auto" });
 		}
 	});
 

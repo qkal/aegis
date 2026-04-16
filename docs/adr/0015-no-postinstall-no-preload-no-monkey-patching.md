@@ -11,6 +11,7 @@ Accepted
 ## Context
 
 The reference project:
+
 - Uses `esbuild`-minified bundles that are hard to audit
 - Writes preload scripts to tmpdir and injects them via `NODE_OPTIONS`
 - Has a postinstall script that runs on `npm install`

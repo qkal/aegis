@@ -349,4 +349,3 @@ The migration is successful when all of the following are true:
 - CI test execution is sharded by stable package boundaries
 - CI includes a separate hygiene lane for install/build/package integrity
 - `tsc --noEmit` remains intact during the first migration
-

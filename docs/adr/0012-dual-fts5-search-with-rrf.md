@@ -25,6 +25,7 @@ Use **dual FTS5 tables** with **Reciprocal Rank Fusion (RRF)** merge:
 2. **Trigram FTS5 table**: `tokenize='trigram'` for substring and partial matching
 
 Search pipeline:
+
 ```
 Query → [Porter FTS5 MATCH] → ranked list A
       → [Trigram FTS5 MATCH] → ranked list B
@@ -35,6 +36,7 @@ Query → [Porter FTS5 MATCH] → ranked list A
 ```
 
 Improvements over the reference:
+
 - Configurable RRF k-parameter
 - Source-weighted scoring (session events > URL content)
 - Recency bias (newer content scores higher for equal relevance)

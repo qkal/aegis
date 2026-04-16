@@ -48,9 +48,9 @@ export function detectBackend(override?: SqliteBackend): SqliteBackend {
 	if (override) return override;
 	const envOverride = process.env["AEGIS_SQLITE_BACKEND"];
 	if (
-		envOverride === "better-sqlite3" ||
-		envOverride === "node-sqlite" ||
-		envOverride === "bun-sqlite"
+		envOverride === "better-sqlite3"
+		|| envOverride === "node-sqlite"
+		|| envOverride === "bun-sqlite"
 	) {
 		return envOverride;
 	}

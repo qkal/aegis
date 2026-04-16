@@ -1,7 +1,6 @@
-import { existsSync } from "node:fs";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,6 +39,14 @@ describe("root toolchain contract", () => {
 	it("uses the expected root config files", () => {
 		expect(existsSync(resolve(rootDir, ".oxlintrc.json"))).toBe(true);
 		expect(existsSync(resolve(rootDir, "dprint.json"))).toBe(true);
+		expect(existsSync(resolve(rootDir, "scripts/ci/test-shards.mjs"))).toBe(
+			true,
+		);
+		expect(existsSync(resolve(rootDir, "scripts/ci/run-vitest-shard.mjs"))).toBe(
+			true,
+		);
+		expect(existsSync(resolve(rootDir, "scripts/ci/smoke.mjs"))).toBe(true);
+		expect(existsSync(resolve(rootDir, "scripts/ci/hygiene.mjs"))).toBe(true);
 		expect(existsSync(resolve(rootDir, "biome.json"))).toBe(false);
 	});
 });

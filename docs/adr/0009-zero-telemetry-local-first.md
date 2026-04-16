@@ -26,6 +26,7 @@ Aegis intercepts every command an AI agent runs on the user's machine. The trust
 - Users can opt into update notifications via `aegis config set updates.checkOnStart true`
 
 All data stays on the user's machine:
+
 - Session events: `~/.aegis/<platform>/sessions/`
 - Content index: `~/.aegis/<platform>/content/`
 - Audit log: `~/.aegis/audit/`

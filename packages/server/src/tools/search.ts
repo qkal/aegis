@@ -9,6 +9,5 @@
 
 export const TOOL_NAME = "aegis_search" as const;
 
-export const TOOL_DESCRIPTION =
-	"Search indexed content using BM25-ranked full-text search. " +
-	"Supports multiple queries, content-type filtering, and recency bias.";
+export const TOOL_DESCRIPTION = "Search indexed content using BM25-ranked full-text search. "
+	+ "Supports multiple queries, content-type filtering, and recency bias.";

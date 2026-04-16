@@ -34,10 +34,10 @@ Implement a **declarative, multi-dimensional policy engine** with:
 
 ```typescript
 type PolicyDecision =
-  | { verdict: "allow"; matchedRule: string }
-  | { verdict: "deny"; matchedRule: string; reason: string }
-  | { verdict: "ask"; matchedRule: string; prompt: string }
-  | { verdict: "default_deny"; reason: string };
+	| { verdict: "allow"; matchedRule: string; }
+	| { verdict: "deny"; matchedRule: string; reason: string; }
+	| { verdict: "ask"; matchedRule: string; prompt: string; }
+	| { verdict: "default_deny"; reason: string; };
 ```
 
 ## Rationale
