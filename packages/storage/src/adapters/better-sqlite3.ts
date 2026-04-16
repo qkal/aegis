@@ -35,18 +35,18 @@ interface BetterSqliteDatabase {
 	pragma(s: string): unknown;
 }
 
-type BetterSqliteCtor = new (
+type BetterSqliteCtor = new(
 	path: string,
-	options?: { readonly?: boolean; fileMustExist?: boolean },
+	options?: { readonly?: boolean; fileMustExist?: boolean; },
 ) => BetterSqliteDatabase;
 
 /** Thrown when better-sqlite3 is not installed or fails to load. */
 export class BetterSqliteUnavailableError extends Error {
 	constructor(cause: unknown) {
 		super(
-			"better-sqlite3 backend is not available: " +
-				(cause instanceof Error ? cause.message : String(cause)) +
-				". Install it with `pnpm add better-sqlite3` or use the node:sqlite backend on Node 22+.",
+			"better-sqlite3 backend is not available: "
+				+ (cause instanceof Error ? cause.message : String(cause))
+				+ ". Install it with `pnpm add better-sqlite3` or use the node:sqlite backend on Node 22+.",
 		);
 		this.name = "BetterSqliteUnavailableError";
 		this.cause = cause;

@@ -23,19 +23,20 @@ Use **TypeScript discriminated unions** with a `kind` field as the discriminant 
 
 ```typescript
 type SessionEvent =
-  | FileEvent      // kind: "file"
-  | GitEvent       // kind: "git"
-  | TaskEvent      // kind: "task"
-  | ErrorEvent     // kind: "error"
-  | DecisionEvent  // kind: "decision"
-  | RuleEvent      // kind: "rule"
-  | EnvironmentEvent // kind: "environment"
-  | ExecutionEvent // kind: "execution"
-  | SearchEvent    // kind: "search"
-  | PromptEvent    // kind: "prompt"
+	| FileEvent // kind: "file"
+	| GitEvent // kind: "git"
+	| TaskEvent // kind: "task"
+	| ErrorEvent // kind: "error"
+	| DecisionEvent // kind: "decision"
+	| RuleEvent // kind: "rule"
+	| EnvironmentEvent // kind: "environment"
+	| ExecutionEvent // kind: "execution"
+	| SearchEvent // kind: "search"
+	| PromptEvent; // kind: "prompt"
 ```
 
 Each event kind has:
+
 - A fixed `kind` discriminant
 - Kind-specific payload fields (e.g., `FileEvent` has `path`; `GitEvent` has `ref`)
 - A fixed `priority` level (not user-configurable per-event)

@@ -32,31 +32,31 @@ export interface SandboxConfig {
  */
 export type ExecOutcome =
 	| {
-			readonly status: "success";
-			readonly stdout: string;
-			readonly stderr: string;
-			readonly exitCode: 0;
-			readonly durationMs: number;
-	  }
+		readonly status: "success";
+		readonly stdout: string;
+		readonly stderr: string;
+		readonly exitCode: 0;
+		readonly durationMs: number;
+	}
 	| {
-			readonly status: "failure";
-			readonly stdout: string;
-			readonly stderr: string;
-			readonly exitCode: number;
-			readonly durationMs: number;
-	  }
+		readonly status: "failure";
+		readonly stdout: string;
+		readonly stderr: string;
+		readonly exitCode: number;
+		readonly durationMs: number;
+	}
 	| {
-			readonly status: "timeout";
-			readonly stdout: string;
-			readonly stderr: string;
-			readonly durationMs: number;
-	  }
+		readonly status: "timeout";
+		readonly stdout: string;
+		readonly stderr: string;
+		readonly durationMs: number;
+	}
 	| {
-			readonly status: "denied";
-			readonly reason: string;
-			readonly matchedRule: string;
-	  }
+		readonly status: "denied";
+		readonly reason: string;
+		readonly matchedRule: string;
+	}
 	| {
-			readonly status: "error";
-			readonly error: string;
-	  };
+		readonly status: "error";
+		readonly error: string;
+	};

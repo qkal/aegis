@@ -19,6 +19,7 @@ Aegis needs honest, layered isolation that clearly communicates what it does and
 Implement **three isolation levels**, with Level 1 as the default and higher levels as progressive hardening:
 
 ### Level 1: Process Isolation (Default)
+
 - `child_process.spawn` with `detached: true` and new process group
 - Environment explicitly constructed (not inherited): only `PATH`, `HOME`, `LANG`, `TERM`, and user-allowed vars
 - Working directory set to temporary directory (not project root)
@@ -26,12 +27,14 @@ Implement **three isolation levels**, with Level 1 as the default and higher lev
 - Process killed on timeout via `SIGKILL` to entire process group
 
 ### Level 2: Filesystem Scoping (Hardened)
+
 - Restricted `PATH` with only declared runtimes
 - Temporary directories with `0o700` permissions
 - Read-only access to project directory (when needed)
 - No access to `~/.ssh`, `~/.aws`, `~/.config`, `~/.gnupg`
 
 ### Level 3: Namespace Isolation (Future)
+
 - Linux: `unshare` for PID/network namespace isolation
 - macOS: `sandbox-exec` profile
 - Fallback to Level 1 with monitoring

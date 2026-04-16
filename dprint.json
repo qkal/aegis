@@ -1,0 +1,17 @@
+{
+	"$schema": "https://dprint.dev/schemas/v0.json",
+	"lineWidth": 100,
+	"indentWidth": 2,
+	"useTabs": true,
+	"includes": ["**/*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,md}"],
+	"excludes": ["**/dist/**", "**/node_modules/**"],
+	"typescript": {
+		"quoteStyle": "preferDouble",
+		"semiColons": "always"
+	},
+	"plugins": [
+		"./node_modules/@dprint/typescript/plugin.wasm",
+		"./node_modules/@dprint/json/plugin.wasm",
+		"./node_modules/@dprint/markdown/plugin.wasm"
+	]
+}

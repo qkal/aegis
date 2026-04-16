@@ -10,8 +10,8 @@
  */
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import type { AegisPolicy } from "./index.js";
 import {
+	type AegisPolicy,
 	DEFAULT_POLICY,
 	evaluateEnvVar,
 	evaluateFilePath,
@@ -128,26 +128,23 @@ describe("evaluateToolCall", () => {
 	it("allows tool calls matching an allow rule", () => {
 		const result = evaluateToolCall("Bash(git status)", DEFAULT_POLICY);
 		expect(result.verdict).toBe("allow");
-		if (result.verdict === "allow") {
-			expect(result.matchedRule).toBe("Bash(git *)");
-		}
+		if (result.verdict !== "allow") throw new Error("expected allow verdict");
+		expect(result.matchedRule).toBe("Bash(git *)");
 	});
 
 	it("denies tool calls matching a deny rule", () => {
 		const result = evaluateToolCall("Bash(sudo apt install)", DEFAULT_POLICY);
 		expect(result.verdict).toBe("deny");
-		if (result.verdict === "deny") {
-			expect(result.matchedRule).toBe("Bash(sudo *)");
-			expect(result.reason).toContain("deny rule");
-		}
+		if (result.verdict !== "deny") throw new Error("expected deny verdict");
+		expect(result.matchedRule).toBe("Bash(sudo *)");
+		expect(result.reason).toContain("deny rule");
 	});
 
 	it("returns default_deny when no rule matches", () => {
 		const result = evaluateToolCall("Unknown(whatever)", DEFAULT_POLICY);
 		expect(result.verdict).toBe("default_deny");
-		if (result.verdict === "default_deny") {
-			expect(result.reason).toContain("No matching allow rule");
-		}
+		if (result.verdict !== "default_deny") throw new Error("expected default_deny verdict");
+		expect(result.reason).toContain("No matching allow rule");
 	});
 
 	it("prioritizes deny over ask and allow (ordering contract)", () => {
@@ -173,9 +170,8 @@ describe("evaluateToolCall", () => {
 		});
 		const result = evaluateToolCall("Bash(risky op)", p);
 		expect(result.verdict).toBe("ask");
-		if (result.verdict === "ask") {
-			expect(result.prompt).toContain("confirmation");
-		}
+		if (result.verdict !== "ask") throw new Error("expected ask verdict");
+		expect(result.prompt).toContain("confirmation");
 	});
 
 	it("is deterministic across arbitrary inputs (property)", () => {
@@ -228,9 +224,8 @@ describe("evaluateToolCall", () => {
 		it("denies `git status; sudo rm -rf /` despite git prefix", () => {
 			const result = evaluateToolCall("Bash(git status; sudo rm -rf /)", chainPolicy());
 			expect(result.verdict).toBe("deny");
-			if (result.verdict === "deny") {
-				expect(result.matchedRule).toBe("Bash(sudo *)");
-			}
+			if (result.verdict !== "deny") throw new Error("expected deny verdict");
+			expect(result.matchedRule).toBe("Bash(sudo *)");
 		});
 
 		it("denies chains using `&&`", () => {

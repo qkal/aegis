@@ -18,13 +18,14 @@ Implement a **numbered, forward-only migration system**:
 
 ```typescript
 interface Migration {
-  version: number;       // Sequential: 1, 2, 3, ...
-  description: string;   // Human-readable: "Add expires_at to sources"
-  up: (db: Database) => void;  // Forward migration only
+	version: number; // Sequential: 1, 2, 3, ...
+	description: string; // Human-readable: "Add expires_at to sources"
+	up: (db: Database) => void; // Forward migration only
 }
 ```
 
 Migrations are applied at database open time:
+
 1. Create `schema_version` table if not exists
 2. Read current version (`MAX(version)`)
 3. Apply all migrations with version > current, in order, inside transactions

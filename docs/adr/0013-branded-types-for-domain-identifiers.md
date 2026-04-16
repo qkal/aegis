@@ -18,7 +18,7 @@ Use **branded types** (nominal typing via intersection with a unique symbol) for
 
 ```typescript
 declare const __brand: unique symbol;
-type Brand<T, B extends string> = T & { readonly [__brand]: B };
+type Brand<T, B extends string> = T & { readonly [__brand]: B; };
 
 type SessionId = Brand<string, "SessionId">;
 type EventId = Brand<string, "EventId">;
@@ -28,8 +28,11 @@ type ContentSourceId = Brand<number, "ContentSourceId">;
 ```
 
 Constructor functions validate and create branded values:
+
 ```typescript
-function sessionId(raw: string): SessionId { return raw as SessionId; }
+function sessionId(raw: string): SessionId {
+	return raw as SessionId;
+}
 ```
 
 ## Rationale

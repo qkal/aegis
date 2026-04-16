@@ -9,6 +9,5 @@
 
 export const TOOL_NAME = "aegis_index" as const;
 
-export const TOOL_DESCRIPTION =
-	"Index markdown or text content into the local knowledge base. " +
-	"Content is chunked, deduplicated, and searchable via aegis_search.";
+export const TOOL_DESCRIPTION = "Index markdown or text content into the local knowledge base. "
+	+ "Content is chunked, deduplicated, and searchable via aegis_search.";

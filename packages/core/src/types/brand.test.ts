@@ -49,8 +49,7 @@ describe("brand constructors — safe variants", () => {
 	it("reject non-integer or negative content source IDs", () => {
 		expect(() => contentSourceId(-1)).toThrow(InvalidIdError);
 		expect(() => contentSourceId(1.5)).toThrow(InvalidIdError);
-		// biome-ignore lint/suspicious/noExplicitAny: intentional type violation for runtime check
-		expect(() => contentSourceId("1" as any)).toThrow(InvalidIdError);
+		expect(() => contentSourceId("1" as never)).toThrow(InvalidIdError);
 	});
 });
 

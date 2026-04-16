@@ -21,7 +21,7 @@
 declare const __brand: unique symbol;
 
 /** Apply a nominal brand to a base type. */
-export type Brand<T, B extends string> = T & { readonly [__brand]: B };
+export type Brand<T, B extends string> = T & { readonly [__brand]: B; };
 
 /** Unique identifier for a user session. UUIDv7 (time-sorted). */
 export type SessionId = Brand<string, "SessionId">;

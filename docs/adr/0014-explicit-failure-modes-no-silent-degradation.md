@@ -19,17 +19,20 @@ For a security tool, silent failure is worse than loud failure. A user who think
 Adopt two rules from the ground-up rules (R9, R10):
 
 ### R9: Explicit Failure Modes
+
 - Every operation that can fail has a typed error result (discriminated union or Result type).
 - No silent swallowing of exceptions in security-critical paths.
 - Failures are reported to the user AND the agent with actionable context.
 - The system degrades gracefully but never silently drops security guarantees.
 
 ### R10: No Silent Degradation in Safety-Critical Flows
+
 - If the policy engine cannot evaluate a rule → tool call is **DENIED**, not allowed.
 - If the audit logger cannot write → operation is **BLOCKED**, not silently unlogged.
 - If a required component fails → explicit error to user, not silent fallback.
 
 ### Non-safety degradation is allowed:
+
 - FTS5 unavailable → fall back to LIKE queries (slower, but not a security issue).
 - Missing runtime → report error with install instructions (not a security issue).
 - These are logged as warnings via `aegis doctor`.

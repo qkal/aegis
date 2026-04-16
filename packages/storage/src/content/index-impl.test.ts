@@ -73,9 +73,9 @@ function sub(a: number, b: number) { return a - b; }`;
 describe("ContentIndex.search", () => {
 	beforeEach(() => {
 		idx.index(
-			"Authentication is the process of verifying a user's identity. " +
-				"This typically involves checking credentials such as a password " +
-				"or a cryptographic token.",
+			"Authentication is the process of verifying a user's identity. "
+				+ "This typically involves checking credentials such as a password "
+				+ "or a cryptographic token.",
 			{ label: "auth-overview.md", sourceType: "url" },
 		);
 		idx.index(
@@ -86,8 +86,8 @@ describe("ContentIndex.search", () => {
 			{ label: "auth.ts", sourceType: "file" },
 		);
 		idx.index(
-			"This document discusses cooking recipes for chocolate cake. " +
-				"It is unrelated to authentication or any security topic.",
+			"This document discusses cooking recipes for chocolate cake. "
+				+ "It is unrelated to authentication or any security topic.",
 			{ label: "cake.md", sourceType: "manual" },
 		);
 	});
@@ -196,7 +196,9 @@ describe("benchmark: 1k chunks", () => {
 	it("indexes ~1k chunks and serves searches under a generous budget", () => {
 		const chunks = Array.from({ length: 1000 }, (_, i) => {
 			if (i % 5 === 0) {
-				return `### Section ${i}\n\nThis paragraph discusses widget ${i} and its relationship to gadget ${i + 1}.`;
+				return `### Section ${i}\n\nThis paragraph discusses widget ${i} and its relationship to gadget ${
+					i + 1
+				}.`;
 			}
 			return `function widget${i}(x: number) { return x * ${i}; }`;
 		});

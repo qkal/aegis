@@ -27,7 +27,7 @@ interface BunSqliteDatabase {
 	close(): void;
 }
 
-type BunSqliteCtor = new (path: string) => BunSqliteDatabase;
+type BunSqliteCtor = new(path: string) => BunSqliteDatabase;
 
 interface BunSqliteModule {
 	Database: BunSqliteCtor;
@@ -37,8 +37,8 @@ interface BunSqliteModule {
 export class BunSqliteUnavailableError extends Error {
 	constructor(cause: unknown) {
 		super(
-			"bun:sqlite backend is not available (Bun runtime required): " +
-				(cause instanceof Error ? cause.message : String(cause)),
+			"bun:sqlite backend is not available (Bun runtime required): "
+				+ (cause instanceof Error ? cause.message : String(cause)),
 		);
 		this.name = "BunSqliteUnavailableError";
 		this.cause = cause;

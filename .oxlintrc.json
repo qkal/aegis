@@ -1,0 +1,16 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "import", "vitest"],
+	"ignorePatterns": [
+		"**/dist/**",
+		"**/node_modules/**",
+		"coverage/**",
+		"test-report.junit.xml"
+	],
+	"rules": {
+		"typescript/no-explicit-any": "error",
+		"import/first": "error",
+		"import/no-duplicates": ["error", { "preferInline": true }],
+		"vitest/no-focused-tests": "error"
+	}
+}

@@ -44,7 +44,7 @@ describe("better-sqlite3 backend", () => {
 		expect(Number(r2.lastInsertRowid)).toBeGreaterThan(Number(r1.lastInsertRowid));
 
 		const all = db
-			.prepare<{ id: number; name: string; value: number }>(
+			.prepare<{ id: number; name: string; value: number; }>(
 				"SELECT id, name, value FROM t ORDER BY id ASC",
 			)
 			.all();
@@ -53,10 +53,10 @@ describe("better-sqlite3 backend", () => {
 			{ id: Number(r2.lastInsertRowid), name: "beta", value: 2.5 },
 		]);
 
-		const one = db.prepare<{ name: string }>("SELECT name FROM t WHERE name = ?").get("beta");
+		const one = db.prepare<{ name: string; }>("SELECT name FROM t WHERE name = ?").get("beta");
 		expect(one).toEqual({ name: "beta" });
 
-		const missing = db.prepare<{ name: string }>("SELECT name FROM t WHERE name = ?").get("zzz");
+		const missing = db.prepare<{ name: string; }>("SELECT name FROM t WHERE name = ?").get("zzz");
 		expect(missing).toBeUndefined();
 
 		db.close();
@@ -75,7 +75,7 @@ describe("better-sqlite3 backend", () => {
 			insert.run(3);
 		});
 		tx();
-		const count = db.prepare<{ c: number }>("SELECT COUNT(*) AS c FROM t").get();
+		const count = db.prepare<{ c: number; }>("SELECT COUNT(*) AS c FROM t").get();
 		expect(count?.c).toBe(3);
 		db.close();
 	});
@@ -93,7 +93,7 @@ describe("better-sqlite3 backend", () => {
 			throw new Error("boom");
 		});
 		expect(() => tx()).toThrow("boom");
-		const count = db.prepare<{ c: number }>("SELECT COUNT(*) AS c FROM t").get();
+		const count = db.prepare<{ c: number; }>("SELECT COUNT(*) AS c FROM t").get();
 		expect(count?.c).toBe(0);
 		db.close();
 	});
@@ -121,7 +121,7 @@ describe.runIf(nodeSqliteAvailable)("node:sqlite backend", () => {
 		insert.run("alpha");
 		insert.run("beta");
 		const all = db
-			.prepare<{ id: number; name: string }>("SELECT id, name FROM t ORDER BY id ASC")
+			.prepare<{ id: number; name: string; }>("SELECT id, name FROM t ORDER BY id ASC")
 			.all();
 		expect(all.map((r) => r.name)).toEqual(["alpha", "beta"]);
 		db.close();
@@ -140,7 +140,7 @@ describe.runIf(nodeSqliteAvailable)("node:sqlite backend", () => {
 			throw new Error("boom");
 		});
 		expect(() => tx()).toThrow("boom");
-		const count = db.prepare<{ c: number }>("SELECT COUNT(*) AS c FROM t").get();
+		const count = db.prepare<{ c: number; }>("SELECT COUNT(*) AS c FROM t").get();
 		expect(count?.c).toBe(0);
 		db.close();
 	});
@@ -150,6 +150,8 @@ describe("openDatabase fallback", () => {
 	it("falls back to better-sqlite3 when an unknown backend is requested via auto-detect (no override path)", async () => {
 		// Explicit override `bun-sqlite` should fail under Node — confirm it
 		// reports a useful error rather than silently swapping backends.
-		await expect(openDatabase({ path: ":memory:", backend: "bun-sqlite" })).rejects.toThrow();
+		await expect(openDatabase({ path: ":memory:", backend: "bun-sqlite" })).rejects.toThrow(
+			/bun:sqlite backend is not available/i,
+		);
 	});
 });

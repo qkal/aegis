@@ -38,19 +38,23 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
   - Benchmark: <10ms p99 query latency on 10K chunks
 - [x] **M0.5** — CI pipeline green
   - Vitest runs all packages
-  - Biome lint passes
+  - `pnpm format:check` passes
+  - `pnpm lint` passes
   - TypeScript strict mode, zero errors
 
 ### Acceptance Criteria
+
 - `pnpm test` passes with 100% core logic coverage
 - Policy evaluation is deterministic (verified by property test)
 - FTS5 queries return relevant results in <10ms on 10K chunks
 
 ### Risks
+
 - `node:sqlite` API differences may require more bridging than expected
 - FTS5 trigram tokenizer performance on large corpora is unvalidated
 
 ### Out of Scope
+
 - Platform-specific code, MCP protocol, CLI, audit HMAC chain
 
 ---
@@ -141,9 +145,9 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 - Install via `npm install -g aegis` (or local `pnpm build`)
 - `aegis init claude-code` + start Claude Code session → hooks registered
-- `aegis init codex`     + start Codex CLI session    → hooks + MCP registered
-- `aegis init opencode`  + start OpenCode session     → plugin + MCP registered
-- `aegis init amp`       + start Amp session          → MCP registered, AGENTS.md routing in place
+- `aegis init codex` + start Codex CLI session → hooks + MCP registered
+- `aegis init opencode` + start OpenCode session → plugin + MCP registered
+- `aegis init amp` + start Amp session → MCP registered, AGENTS.md routing in place
 - `aegis_execute` runs JavaScript in sandbox, returns only stdout, on all four platforms
 - `aegis_search` returns ranked results from indexed content, on all four platforms
 - Session events persist across compaction → restore cycle (Claude Code, OpenCode)
@@ -208,6 +212,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Corruption detection: `SQLITE_CORRUPT` → rename, recreate, notify
 
 ### Acceptance Criteria
+
 - `aegis audit verify` confirms chain integrity after full session
 - Denied command appears in audit log with reason
 - Three platforms working with appropriate capability tiers
@@ -215,10 +220,12 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 - Schema migration from v1 → v2 succeeds without data loss
 
 ### Risks
+
 - HMAC chain performance on high-frequency audit writes
 - Platform-specific hook quirks (Cursor's rejected sessionStart)
 
 ### Out of Scope
+
 - Plugins, namespace isolation, analytics, export/import
 
 ---
@@ -254,16 +261,19 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Provides actionable fix suggestions for all failure modes
 
 ### Acceptance Criteria
+
 - `aegis init <platform>` works for all supported platforms
 - Plugin loaded, executed in worker thread, constrained to declared API
 - `aegis doctor` validates all platform configurations
 - Tier 3 platforms report honest ~60% routing compliance
 
 ### Risks
+
 - Worker thread structured clone boundary limits plugin API design
 - Platforms with in-process plugin models need different isolation
 
 ### Out of Scope
+
 - Analytics dashboard, Level 3 sandbox, export/import
 
 ---
@@ -302,6 +312,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Benchmark suite in CI with regression detection
 
 ### Acceptance Criteria
+
 - `aegis stats` produces accurate context savings report
 - Export → purge → import → verify round-trip succeeds
 - Corrupted DB detected and recovered without affecting other DBs
@@ -309,10 +320,12 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 - Memory stays under 50MB for typical session
 
 ### Risks
+
 - Analytics computation on large event sets may be slow
 - Export format must be forward-compatible with future schema changes
 
 ### Out of Scope
+
 - GUI, cloud sync, Level 3 sandbox
 
 ---
@@ -345,6 +358,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Warm-start optimization for repeated languages
 
 ### Risks
+
 - Namespace isolation requires elevated privileges on some systems
 - Embedding search adds large dependency (model files)
 - Cross-session knowledge design needs careful privacy review
@@ -356,7 +370,8 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 Every phase must satisfy the applicable gates before release:
 
 ### Security
-- [ ] Zero `any` in `@aegis/core` (enforced by biome `noExplicitAny: "error"`)
+
+- [ ] Zero `any` in `@aegis/core` (enforced by oxlint `typescript/no-explicit-any`)
 - [ ] All external inputs validated by Zod schemas
 - [ ] Policy evaluation has 100% branch coverage
 - [ ] No `eval()`, `Function()`, `vm.runInNewContext()` on untrusted input
@@ -364,6 +379,7 @@ Every phase must satisfy the applicable gates before release:
 - [ ] `npm audit` reports zero high/critical vulnerabilities
 
 ### Correctness
+
 - [ ] Policy evaluation is deterministic (property-based test)
 - [ ] Session restore reproduces same snapshot given same events
 - [ ] Search results are stable (same query + same index → same results)
@@ -371,16 +387,19 @@ Every phase must satisfy the applicable gates before release:
 - [ ] All discriminated union types exhaustively handled in switch statements
 
 ### Compatibility
+
 - [ ] Works on Node.js 22+ (primary) and Bun
 - [ ] Works on macOS (Intel + Apple Silicon), Linux (x64 + arm64)
 - [ ] SQLite works across all supported backends
 
 ### Performance
+
 - [ ] Server startup to first MCP response: <100ms
 - [ ] FTS5 query on 10K chunks: <10ms p99
 - [ ] Policy evaluation: <1ms per command
 
 ### Privacy
+
 - [ ] Zero network calls in default configuration
 - [ ] No filesystem access outside `~/.aegis/`, project dir, and OS temp
 - [ ] No environment variable logging that could contain secrets

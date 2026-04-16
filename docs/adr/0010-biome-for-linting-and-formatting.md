@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by ADR-0017
 
 ## Date
 
@@ -21,6 +21,7 @@ The project needs a linter and formatter. Common options:
 Use **Biome** as the single linting and formatting tool.
 
 Key configuration:
+
 - `noExplicitAny: "error"` — enforces the zero-`any` rule in core packages
 - Tabs for indentation (Biome default, accessible)
 - Double quotes, semicolons

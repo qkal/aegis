@@ -27,7 +27,7 @@ interface NodeSqliteDatabase {
 	close(): void;
 }
 
-type NodeSqliteCtor = new (path: string) => NodeSqliteDatabase;
+type NodeSqliteCtor = new(path: string) => NodeSqliteDatabase;
 
 interface NodeSqliteModule {
 	DatabaseSync: NodeSqliteCtor;
@@ -37,9 +37,9 @@ interface NodeSqliteModule {
 export class NodeSqliteUnavailableError extends Error {
 	constructor(cause: unknown) {
 		super(
-			"node:sqlite backend is not available: " +
-				(cause instanceof Error ? cause.message : String(cause)) +
-				". Use Node 22+ with `--experimental-sqlite` (or Node 24+) or fall back to better-sqlite3.",
+			"node:sqlite backend is not available: "
+				+ (cause instanceof Error ? cause.message : String(cause))
+				+ ". Use Node 22+ with `--experimental-sqlite` (or Node 24+) or fall back to better-sqlite3.",
 		);
 		this.name = "NodeSqliteUnavailableError";
 		this.cause = cause;

@@ -11,15 +11,15 @@
 
 /** Discriminated union for routing decisions. */
 export type RoutingDecision =
-	| { readonly route: "sandbox"; readonly language: string }
-	| { readonly route: "search" }
-	| { readonly route: "index" }
-	| { readonly route: "fetch" }
-	| { readonly route: "stats" }
-	| { readonly route: "doctor" }
-	| { readonly route: "audit" }
-	| { readonly route: "passthrough" }
-	| { readonly route: "deny"; readonly reason: string };
+	| { readonly route: "sandbox"; readonly language: string; }
+	| { readonly route: "search"; }
+	| { readonly route: "index"; }
+	| { readonly route: "fetch"; }
+	| { readonly route: "stats"; }
+	| { readonly route: "doctor"; }
+	| { readonly route: "audit"; }
+	| { readonly route: "passthrough"; }
+	| { readonly route: "deny"; readonly reason: string; };
 
 /** MCP tool names recognized by Aegis. */
 export type AegisTool =

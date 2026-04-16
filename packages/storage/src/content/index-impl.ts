@@ -19,11 +19,10 @@
  * `Database` interface from `@aegis/storage/adapters`.
  */
 
-import { createHash } from "node:crypto";
 import type { ContentSourceId } from "@aegis/core";
+import { createHash } from "node:crypto";
 import type { Database } from "../adapters/types.js";
-import type { ChunkOptions } from "./chunk.js";
-import { chunkContent, DEFAULT_MAX_CHUNK_BYTES } from "./chunk.js";
+import { chunkContent, type ChunkOptions, DEFAULT_MAX_CHUNK_BYTES } from "./chunk.js";
 import type {
 	ContentSource,
 	ContentType,
@@ -286,7 +285,7 @@ export class ContentIndex {
 		const matchExpr = buildMatchExpr(query, tokenizer);
 		try {
 			const rows = this.#db
-				.prepare<{ rowid: number; rank: number }>(
+				.prepare<{ rowid: number; rank: number; }>(
 					`SELECT rowid, rank
 					 FROM ${table}
 					 WHERE ${table} MATCH ?
@@ -349,10 +348,10 @@ export class ContentIndex {
 
 	#sourceMeta(
 		ids: readonly number[],
-	): Map<number, { label: string; source_type: ContentSource["sourceType"]; created_at: string }> {
+	): Map<number, { label: string; source_type: ContentSource["sourceType"]; created_at: string; }> {
 		const out = new Map<
 			number,
-			{ label: string; source_type: ContentSource["sourceType"]; created_at: string }
+			{ label: string; source_type: ContentSource["sourceType"]; created_at: string; }
 		>();
 		if (ids.length === 0) return out;
 		const placeholders = ids.map(() => "?").join(",");
