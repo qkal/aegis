@@ -2,7 +2,7 @@
 
 Security-first, local-first context infrastructure engine for AI coding agents.
 
-Aegis sits between AI coding agents (Claude Code, Cursor, Gemini CLI, etc.) and the operating system, providing:
+Aegis sits between AI coding agents (Claude Code, Codex CLI, OpenCode, AmpCode, and others) and the operating system, providing:
 
 - **Context routing** — intercept tool I/O and route data-heavy operations through sandboxed execution
 - **Session memory** — persist structured session events and rebuild working state across context compactions
@@ -32,7 +32,7 @@ packages/
   core/        Pure logic: policy engine, event model, routing (zero dependencies)
   engine/      Sandbox execution, runtime detection, output processing
   storage/     SQLite persistence: sessions, FTS5 content index, HMAC audit log
-  adapters/    Platform-specific: Claude Code, Cursor, Gemini CLI, VS Code Copilot
+  adapters/    Platform-specific: Claude Code, Codex CLI, OpenCode, AmpCode (MVP); Cursor, Windsurf, Antigravity, Gemini CLI, VS Code Copilot, ... (later phases)
   server/      MCP server: tool registration, transport, hook orchestration
   cli/         CLI: aegis doctor, aegis init, aegis config, aegis audit
 ```
@@ -57,11 +57,17 @@ Dependency direction: `core` ← `engine` ← `storage` ← `server` ← `cli`
 
 ## Platform Support
 
-| Tier | Capabilities | Platforms |
-|------|-------------|-----------|
-| **Tier 1** | MCP + all hooks + policy + session continuity | Claude Code, Gemini CLI, VS Code Copilot |
-| **Tier 2** | MCP + partial hooks + policy + partial session | Cursor, Kiro, OpenCode, KiloCode |
-| **Tier 3** | MCP tools only, instruction-file routing | Codex CLI, Zed, Antigravity |
+The MVP (Phase 1) supports four platforms; the rest are scheduled for
+Phase 2 / 3. See [ADR-0007](./docs/adr/0007-platform-adapter-tier-system.md)
+and [ADR-0016](./docs/adr/0016-mvp-adapter-scope.md) for the tier system
+and MVP rationale.
+
+| Tier | Capabilities | MVP platforms | Phase 2 / 3 platforms |
+|------|-------------|---------------|----------------------|
+| **Tier 1** | MCP + full hooks + policy + session continuity | Claude Code, OpenCode | Gemini CLI, VS Code Copilot |
+| **Tier 1L** | Tier 1 wiring; PreToolUse/PostToolUse limited to a subset of tools | Codex CLI (`Bash` only today) | — |
+| **Tier 2** | MCP + partial hooks + policy + partial session | — | Cursor, Kiro, KiloCode |
+| **Tier 3** | MCP tools only, instruction-file routing | AmpCode | Windsurf, Antigravity, Zed, generic fallback |
 
 ## Security Model
 
@@ -153,6 +159,7 @@ All key decisions are recorded as ADRs in [`docs/adr/`](./docs/adr/):
 | [0013](./docs/adr/0013-branded-types-for-domain-identifiers.md) | Branded types for domain identifiers |
 | [0014](./docs/adr/0014-explicit-failure-modes-no-silent-degradation.md) | Explicit failure modes |
 | [0015](./docs/adr/0015-no-postinstall-no-preload-no-monkey-patching.md) | No postinstall, no preload, no monkey-patching |
+| [0016](./docs/adr/0016-mvp-adapter-scope.md) | MVP adapter scope: Claude Code, Codex CLI, OpenCode, AmpCode |
 
 ## Milestones
 

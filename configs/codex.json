@@ -1,0 +1,82 @@
+{
+	"$schema": "https://aegis.dev/schema/config.json",
+	"version": 1,
+	"platform": "codex",
+	"tools": {
+		"deny": [
+			"Bash(sudo *)",
+			"Bash(rm -rf *)",
+			"Bash(chmod *777*)",
+			"Bash(chmod *-R*)",
+			"Bash(chmod *a+*)",
+			"Bash(chmod *o+w*)",
+			"Bash(chown *)",
+			"Read(.env*)",
+			"Read(~/.ssh/*)",
+			"Read(~/.aws/*)"
+		],
+		"allow": [
+			"Bash(git *)",
+			"Bash(npm *)",
+			"Bash(pnpm *)",
+			"Bash(yarn *)",
+			"Bash(node *)",
+			"Bash(python *)",
+			"Bash(pip *)"
+		],
+		"ask": []
+	},
+	"sandbox": {
+		"env": {
+			"allow": ["PATH", "HOME", "LANG", "TERM"],
+			"deny": [
+				"AWS_*",
+				"GH_TOKEN",
+				"GITHUB_TOKEN",
+				"OPENAI_API_KEY",
+				"ANTHROPIC_API_KEY",
+				"GOOGLE_API_KEY",
+				"SSH_AUTH_SOCK"
+			]
+		},
+		"fs": {
+			"read": [],
+			"write": [],
+			"deny": ["~/.ssh/*", "~/.aws/*", "~/.gnupg/*", "~/.config/*", ".env*"]
+		},
+		"net": {
+			"allow": [],
+			"deny": ["*"]
+		}
+	},
+	"execution": {
+		"maxTimeoutMs": 30000,
+		"maxOutputBytes": 5242880,
+		"allowBackground": false,
+		"allowedRuntimes": [
+			"javascript",
+			"typescript",
+			"python",
+			"shell",
+			"ruby",
+			"go",
+			"rust",
+			"php",
+			"r",
+			"perl",
+			"swift"
+		]
+	},
+	"storage": {
+		"urlTtl": "24h",
+		"staleCleanupDays": 14
+	},
+	"updates": {
+		"checkOnStart": false
+	},
+	"codex": {
+		"_comment": "Codex hooks are GA in 2026 behind [features] codex_hooks = true. The matcher currently only emits PreToolUse/PostToolUse for Bash; this adapter is Tier 1L. Non-Bash tool calls fall back to MCP-only enforcement.",
+		"requireFeatureFlag": true,
+		"interceptedTools": ["Bash"]
+	}
+}

@@ -1,7 +1,7 @@
 {
 	"name": "@aegis/adapters",
 	"version": "0.1.0",
-	"description": "Platform-specific adapters: Claude Code, Cursor, Gemini CLI, VS Code Copilot",
+	"description": "Platform-specific adapters: Claude Code, Codex CLI, OpenCode, AmpCode (MVP); Cursor, Windsurf, Antigravity, Gemini CLI, VS Code Copilot, ... (later phases)",
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",

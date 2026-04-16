@@ -15,10 +15,17 @@
  */
 export const PLATFORM_ENV_SIGNALS = {
 	CLAUDE_PROJECT_DIR: "claude-code",
+	CODEX_HOME: "codex",
+	CODEX_SESSION_ID: "codex",
 	GEMINI_CLI_PROJECT_DIR: "gemini-cli",
 	CURSOR_PROJECT_DIR: "cursor",
 	VSCODE_COPILOT_PROJECT_DIR: "vscode-copilot",
 	OPENCODE_PROJECT_DIR: "opencode",
+	OPENCODE_SESSION_ID: "opencode",
+	AMP_SESSION_ID: "amp",
+	AMP_THREAD_ID: "amp",
+	WINDSURF_PROJECT_DIR: "windsurf",
+	ANTIGRAVITY_PROJECT_DIR: "antigravity",
 	KILO_CODE_PROJECT_DIR: "kilo-code",
 } as const;
 

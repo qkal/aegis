@@ -1,0 +1,91 @@
+{
+	"$schema": "https://aegis.dev/schema/config.json",
+	"version": 1,
+	"platform": "opencode",
+	"tools": {
+		"deny": [
+			"Bash(sudo *)",
+			"Bash(rm -rf *)",
+			"Bash(chmod *777*)",
+			"Bash(chmod *-R*)",
+			"Bash(chmod *a+*)",
+			"Bash(chmod *o+w*)",
+			"Bash(chown *)",
+			"Read(.env*)",
+			"Read(~/.ssh/*)",
+			"Read(~/.aws/*)",
+			"Edit(.env*)",
+			"Edit(~/.ssh/*)"
+		],
+		"allow": [
+			"Bash(git *)",
+			"Bash(npm *)",
+			"Bash(pnpm *)",
+			"Bash(yarn *)",
+			"Bash(bun *)",
+			"Bash(node *)",
+			"Bash(python *)",
+			"Bash(pip *)"
+		],
+		"ask": []
+	},
+	"sandbox": {
+		"env": {
+			"allow": ["PATH", "HOME", "LANG", "TERM"],
+			"deny": [
+				"AWS_*",
+				"GH_TOKEN",
+				"GITHUB_TOKEN",
+				"OPENAI_API_KEY",
+				"ANTHROPIC_API_KEY",
+				"GOOGLE_API_KEY",
+				"SSH_AUTH_SOCK"
+			]
+		},
+		"fs": {
+			"read": [],
+			"write": [],
+			"deny": ["~/.ssh/*", "~/.aws/*", "~/.gnupg/*", "~/.config/*", ".env*"]
+		},
+		"net": {
+			"allow": [],
+			"deny": ["*"]
+		}
+	},
+	"execution": {
+		"maxTimeoutMs": 30000,
+		"maxOutputBytes": 5242880,
+		"allowBackground": false,
+		"allowedRuntimes": [
+			"javascript",
+			"typescript",
+			"python",
+			"shell",
+			"ruby",
+			"go",
+			"rust",
+			"php",
+			"r",
+			"perl",
+			"swift"
+		]
+	},
+	"storage": {
+		"urlTtl": "24h",
+		"staleCleanupDays": 14
+	},
+	"updates": {
+		"checkOnStart": false
+	},
+	"opencode": {
+		"_comment": "OpenCode plugin loaded from ~/.config/opencode/plugins/aegis.ts (global) or .opencode/plugins/aegis.ts (project). Subscribes to tool.execute.before, tool.execute.after, session.compacted, session.idle, permission.asked.",
+		"pluginPath": "~/.config/opencode/plugins/aegis.ts",
+		"hookEvents": [
+			"tool.execute.before",
+			"tool.execute.after",
+			"session.compacted",
+			"session.idle",
+			"permission.asked"
+		]
+	}
+}

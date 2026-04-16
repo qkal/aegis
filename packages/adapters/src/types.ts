@@ -19,8 +19,19 @@ export const HOOK_TYPES = ["PreToolUse", "PostToolUse", "PreCompact", "SessionSt
 /** Hook types supported by Aegis. */
 export type HookType = (typeof HOOK_TYPES)[number];
 
-/** Capability tiers for platform support. */
-export type PlatformTier = 1 | 2 | 3;
+/**
+ * Capability tiers for platform support. See ADR-0007.
+ *
+ *  - `1`  : full hook coverage (PreToolUse, PostToolUse, SessionStart, and
+ *           where supported PreCompact). Examples: Claude Code, OpenCode.
+ *  - `"1L"`: Tier 1 wiring, but the platform's hook runtime only emits
+ *           PreToolUse/PostToolUse for a subset of tools. The adapter must
+ *           also report `interceptedTools` in capabilities. Example: Codex CLI.
+ *  - `2`  : partial hooks (PreToolUse + PostToolUse only). Examples: Cursor.
+ *  - `3`  : MCP-only, no hooks; routing via instruction files. Examples:
+ *           AmpCode, Windsurf, Antigravity, Zed.
+ */
+export type PlatformTier = 1 | "1L" | 2 | 3;
 
 /** Normalized tool call from any platform. */
 export interface NormalizedToolCall {
@@ -45,6 +56,12 @@ export interface PlatformCapabilities {
 	readonly hasPreCompact: boolean;
 	readonly configDir: string;
 	readonly sessionDir: string;
+	/**
+	 * For Tier 1L platforms: the subset of tool names whose calls the platform
+	 * actually fires PreToolUse/PostToolUse for. `undefined` means "all tools"
+	 * (Tier 1) or "no tools" (Tier 3 — hooks not supported at all).
+	 */
+	readonly interceptedTools?: readonly string[];
 }
 
 /**
