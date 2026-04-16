@@ -39,8 +39,7 @@ import type {
  * maps the `import` condition to `./dist/index.js`. The cast is identity at
  * runtime since branded number types carry no shape.
  */
-const contentSourceIdUnsafe = (raw: number): ContentSourceId =>
-	raw as ContentSourceId;
+const contentSourceIdUnsafe = (raw: number): ContentSourceId => raw as ContentSourceId;
 
 /** Result of an `index()` call. */
 export interface IndexedSourceResult {
@@ -272,9 +271,13 @@ export class ContentIndex {
 			}));
 	}
 
-	/** Delete a source and (via FK cascade) all of its chunks. */
+	/** Delete a source and all of its chunks (explicit delete so FTS triggers fire). */
 	deleteSource(id: ContentSourceId): boolean {
-		const r = this.#db.prepare<unknown>("DELETE FROM content_sources WHERE id = ?").run(id);
+		const tx = this.#db.transaction(() => {
+			this.#db.prepare<unknown>("DELETE FROM content_chunks WHERE source_id = ?").run(id);
+			return this.#db.prepare<unknown>("DELETE FROM content_sources WHERE id = ?").run(id);
+		});
+		const r = tx();
 		return r.changes > 0;
 	}
 

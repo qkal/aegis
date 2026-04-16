@@ -41,7 +41,7 @@ export interface ChunkOptions {
 
 /** Split `text` into FTS-ready chunks. */
 export function chunkContent(text: string, opts: ChunkOptions = {}): RawChunk[] {
-	const maxBytes = opts.maxBytes ?? DEFAULT_MAX_CHUNK_BYTES;
+	const maxBytes = Math.max(1, opts.maxBytes ?? DEFAULT_MAX_CHUNK_BYTES);
 	const declared = opts.contentType;
 	if (text.length === 0) return [];
 

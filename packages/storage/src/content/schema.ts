@@ -56,47 +56,54 @@ export const CONTENT_INDEX_MIGRATIONS: readonly Migration[] = [
 			`);
 			// FTS5 virtual tables. We use external-content mode keyed off
 			// content_chunks.id so FTS only stores the inverted index, not
-			// duplicate body text.
-			db.exec(`
-				CREATE VIRTUAL TABLE content_chunks_fts_porter USING fts5(
-					body,
-					content='content_chunks',
-					content_rowid='id',
-					tokenize='porter unicode61'
-				);
+			// duplicate body text. Wrapped in try-catch so that if FTS5 is
+			// unavailable the core tables are still created and search
+			// degrades to LIKE queries (per ADR-0012 / ADR-0014).
+			try {
+				db.exec(`
+					CREATE VIRTUAL TABLE content_chunks_fts_porter USING fts5(
+						body,
+						content='content_chunks',
+						content_rowid='id',
+						tokenize='porter unicode61'
+					);
 
-				CREATE VIRTUAL TABLE content_chunks_fts_trigram USING fts5(
-					body,
-					content='content_chunks',
-					content_rowid='id',
-					tokenize='trigram'
-				);
-			`);
-			// Triggers keep both FTS tables in sync with the canonical chunks
-			// table. Because the FTS tables are external-content, we issue the
-			// special `delete` row to clean them up on UPDATE/DELETE.
-			db.exec(`
-				CREATE TRIGGER content_chunks_ai AFTER INSERT ON content_chunks BEGIN
-					INSERT INTO content_chunks_fts_porter  (rowid, body) VALUES (new.id, new.body);
-					INSERT INTO content_chunks_fts_trigram (rowid, body) VALUES (new.id, new.body);
-				END;
+					CREATE VIRTUAL TABLE content_chunks_fts_trigram USING fts5(
+						body,
+						content='content_chunks',
+						content_rowid='id',
+						tokenize='trigram'
+					);
+				`);
+				// Triggers keep both FTS tables in sync with the canonical chunks
+				// table. Because the FTS tables are external-content, we issue the
+				// special `delete` row to clean them up on UPDATE/DELETE.
+				db.exec(`
+					CREATE TRIGGER content_chunks_ai AFTER INSERT ON content_chunks BEGIN
+						INSERT INTO content_chunks_fts_porter  (rowid, body) VALUES (new.id, new.body);
+						INSERT INTO content_chunks_fts_trigram (rowid, body) VALUES (new.id, new.body);
+					END;
 
-				CREATE TRIGGER content_chunks_ad AFTER DELETE ON content_chunks BEGIN
-					INSERT INTO content_chunks_fts_porter  (content_chunks_fts_porter, rowid, body)
-						VALUES ('delete', old.id, old.body);
-					INSERT INTO content_chunks_fts_trigram (content_chunks_fts_trigram, rowid, body)
-						VALUES ('delete', old.id, old.body);
-				END;
+					CREATE TRIGGER content_chunks_ad AFTER DELETE ON content_chunks BEGIN
+						INSERT INTO content_chunks_fts_porter  (content_chunks_fts_porter, rowid, body)
+							VALUES ('delete', old.id, old.body);
+						INSERT INTO content_chunks_fts_trigram (content_chunks_fts_trigram, rowid, body)
+							VALUES ('delete', old.id, old.body);
+					END;
 
-				CREATE TRIGGER content_chunks_au AFTER UPDATE ON content_chunks BEGIN
-					INSERT INTO content_chunks_fts_porter  (content_chunks_fts_porter, rowid, body)
-						VALUES ('delete', old.id, old.body);
-					INSERT INTO content_chunks_fts_trigram (content_chunks_fts_trigram, rowid, body)
-						VALUES ('delete', old.id, old.body);
-					INSERT INTO content_chunks_fts_porter  (rowid, body) VALUES (new.id, new.body);
-					INSERT INTO content_chunks_fts_trigram (rowid, body) VALUES (new.id, new.body);
-				END;
-			`);
+					CREATE TRIGGER content_chunks_au AFTER UPDATE ON content_chunks BEGIN
+						INSERT INTO content_chunks_fts_porter  (content_chunks_fts_porter, rowid, body)
+							VALUES ('delete', old.id, old.body);
+						INSERT INTO content_chunks_fts_trigram (content_chunks_fts_trigram, rowid, body)
+							VALUES ('delete', old.id, old.body);
+						INSERT INTO content_chunks_fts_porter  (rowid, body) VALUES (new.id, new.body);
+						INSERT INTO content_chunks_fts_trigram (rowid, body) VALUES (new.id, new.body);
+					END;
+				`);
+			} catch {
+				// FTS5 unavailable — ContentIndex.capabilities will detect
+				// this at runtime and fall back to LIKE-based search.
+			}
 		},
 	},
 ];
