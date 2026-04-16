@@ -5,13 +5,7 @@
  * functions. These tests exist to document that contract.
  */
 import { describe, expect, it } from "vitest";
-import {
-	auditEntryId,
-	contentSourceId,
-	eventId,
-	policyId,
-	sessionId,
-} from "./brand.js";
+import { auditEntryId, contentSourceId, eventId, policyId, sessionId } from "./brand.js";
 
 describe("brand constructors", () => {
 	it("return the input unchanged at runtime", () => {

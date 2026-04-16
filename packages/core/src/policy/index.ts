@@ -6,6 +6,7 @@ export {
 	evaluateToolCall,
 	matchGlob,
 	matchToolPattern,
+	normalizePathForPolicy,
 } from "./evaluate.js";
 export type {
 	AegisPolicy,

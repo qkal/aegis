@@ -10,6 +10,7 @@
  */
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
+import type { AegisPolicy } from "./index.js";
 import {
 	DEFAULT_POLICY,
 	evaluateEnvVar,
@@ -18,8 +19,8 @@ import {
 	evaluateToolCall,
 	matchGlob,
 	matchToolPattern,
+	normalizePathForPolicy,
 } from "./index.js";
-import type { AegisPolicy } from "./index.js";
 
 function policy(overrides: Partial<AegisPolicy> = {}): AegisPolicy {
 	return {
@@ -83,7 +84,9 @@ describe("matchGlob", () => {
 	it("is deterministic: identical inputs always produce identical outputs (property)", () => {
 		fc.assert(
 			fc.property(fc.string(), fc.string(), (input, pattern) => {
-				return matchGlob(input, pattern) === matchGlob(input, pattern);
+				const first = matchGlob(input, pattern);
+				const second = matchGlob(input, pattern);
+				return first === second;
 			}),
 			{ numRuns: 1000 },
 		);
@@ -275,6 +278,61 @@ describe("evaluateFilePath", () => {
 		expect(evaluateFilePath("/secret/x", "read", p)).toBe("deny");
 		expect(evaluateFilePath("/secret/x", "write", p)).toBe("deny");
 		expect(evaluateFilePath("/other/x", "read", p)).toBe("allow");
+	});
+
+	it("resolves traversal segments before matching (cannot bypass deny via ..)", () => {
+		const p = withFs({
+			read: ["/workspace/*"],
+			write: [],
+			deny: ["/etc/*"],
+		});
+		// Naive glob matching would see the path as starting with "/workspace/"
+		// and return "allow". Normalization must collapse ".." first.
+		expect(evaluateFilePath("/workspace/../etc/passwd", "read", p)).toBe("deny");
+		// Legitimate traversal inside the allowed subtree still allows.
+		expect(evaluateFilePath("/workspace/a/../b", "read", p)).toBe("allow");
+	});
+
+	it("rejects paths that escape root via ..", () => {
+		const p = withFs({ read: ["*"], write: [], deny: [] });
+		expect(evaluateFilePath("/../etc/passwd", "read", p)).toBe("deny");
+	});
+
+	it("rejects paths containing NUL bytes", () => {
+		const p = withFs({ read: ["*"], write: [], deny: [] });
+		expect(evaluateFilePath("/workspace/file\0.txt", "read", p)).toBe("deny");
+	});
+});
+
+describe("normalizePathForPolicy", () => {
+	it("collapses . and .. segments for relative paths", () => {
+		expect(normalizePathForPolicy("a/./b/../c")).toBe("a/c");
+	});
+
+	it("preserves the absolute anchor and resolves inside it", () => {
+		expect(normalizePathForPolicy("/workspace/src/../lib")).toBe("/workspace/lib");
+	});
+
+	it("refuses to escape above an absolute root", () => {
+		expect(normalizePathForPolicy("/../etc")).toBeNull();
+		expect(normalizePathForPolicy("/a/../../etc")).toBeNull();
+	});
+
+	it("preserves a ~/ anchor for home-relative paths", () => {
+		expect(normalizePathForPolicy("~/.ssh/id_rsa")).toBe("~/.ssh/id_rsa");
+		expect(normalizePathForPolicy("~/a/../b")).toBe("~/b");
+	});
+
+	it("leaves relative .. in a relative path (no anchor to escape)", () => {
+		expect(normalizePathForPolicy("../sibling")).toBe("../sibling");
+	});
+
+	it("returns null for NUL-containing input", () => {
+		expect(normalizePathForPolicy("/a\0b")).toBeNull();
+	});
+
+	it("collapses redundant slashes", () => {
+		expect(normalizePathForPolicy("/a//b///c")).toBe("/a/b/c");
 	});
 });
 
