@@ -60,6 +60,10 @@ export interface PlatformCapabilities {
 	 * For Tier 1L platforms: the subset of tool names whose calls the platform
 	 * actually fires PreToolUse/PostToolUse for. `undefined` means "all tools"
 	 * (Tier 1) or "no tools" (Tier 3 — hooks not supported at all).
+	 *
+	 * For Tier 2 platforms: the subset of tools for which PreToolUse and
+	 * PostToolUse hooks are supported. Tier 2 may include only pre/post hooks
+	 * and not other hook types (SessionStart, PreCompact).
 	 */
 	readonly interceptedTools?: readonly string[];
 }

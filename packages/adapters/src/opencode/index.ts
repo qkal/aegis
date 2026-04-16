@@ -17,7 +17,7 @@
 export const OPENCODE_PLATFORM = "opencode" as const;
 
 /** OpenCode plugin event names Aegis subscribes to. */
-export const OPENCODE_HOOK_EVENTS = [
+export const OPENCODE_PLUGIN_EVENTS = [
 	"tool.execute.before",
 	"tool.execute.after",
 	"session.compacted",

@@ -130,6 +130,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Fixture-based tests against recorded MCP request/response pairs
 
 ### Acceptance Criteria
+
 - Install via `npm install -g aegis` (or local `pnpm build`)
 - `aegis init claude-code` + start Claude Code session → hooks registered
 - `aegis init codex`     + start Codex CLI session    → hooks + MCP registered
@@ -145,6 +146,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 - Codex adapter reports `interceptedTools: ['Bash']` (verified by fixture)
 
 ### Risks
+
 - MCP SDK version compatibility across all four platforms
 - Hook timing — PreToolUse must respond within platform timeout (Claude Code: 60s default; Codex: 600s default; OpenCode: bun async, no hard limit)
 - Codex `codex_hooks` is feature-flagged and may break on Codex version bumps
@@ -152,6 +154,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 - AmpCode has no hook surface — degraded enforcement is unavoidable today
 
 ### Out of Scope
+
 - Audit log (Phase 2)
 - Cursor, Windsurf, Antigravity, Zed, VS Code Copilot, Gemini CLI, Kiro, KiloCode adapters (Phase 2/3)
 - Plugin system, advanced policy features

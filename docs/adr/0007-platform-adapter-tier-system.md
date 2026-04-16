@@ -37,7 +37,7 @@ can offer on that platform.
 
 ## Decision
 
-Adopt a **three-tier system** that honestly communicates each platform's
+Adopt a **four-tier system** that honestly communicates each platform's
 capability level:
 
 | Tier | Capabilities | Platforms |
@@ -46,6 +46,8 @@ capability level:
 | **Tier 1L: Limited tool matchers** | Same wiring as Tier 1, but the platform's hook runtime only fires PreToolUse/PostToolUse for a subset of tools (e.g. Codex currently only emits `Bash`). Non-matched tools fall back to MCP-only enforcement. | Codex CLI |
 | **Tier 2: Hooks** | MCP + partial hooks + policy enforcement + partial session capture (no PreCompact equivalent) | Cursor, Kiro, KiloCode |
 | **Tier 3: MCP-only** | MCP tools only, no hooks, instruction-file routing (AGENTS.md / GEMINI.md / .amp/AGENTS.md). Policy enforced inside the MCP server, not at the agent's tool-call boundary. | AmpCode, Codex CLI (when `codex_hooks` disabled), Zed, Antigravity, Windsurf |
+
+*Note: Tier placement indicates platform capability/support, not shipping phase (see ADR-0016 / README for MVP/Phase scheduling).*
 
 Each adapter implements the `HookAdapter` interface and reports its
 capabilities via `capabilities()`. The server reports the capability tier to

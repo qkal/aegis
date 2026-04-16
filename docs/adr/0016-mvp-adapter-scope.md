@@ -15,7 +15,7 @@ The original [PLAN.md §10.1](../../PLAN.md) and
 Code as the only Phase 1 platform, with all other adapters deferred to Phase 2
 or Phase 3.
 
-That plan predates two material changes in the 2026 ecosystem:
+That plan predates three material changes in the 2026 ecosystem:
 
 1. **Codex CLI shipped lifecycle hooks** (early 2026), promoting it from
    "MCP-only Tier 3" to "Tier 1L" (full hook wiring; tool-name matcher

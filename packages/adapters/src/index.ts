@@ -19,7 +19,7 @@ export { PLATFORM_ENV_SIGNALS } from "./detect.js";
 export { GEMINI_CLI_PLATFORM } from "./gemini-cli/index.js";
 export { GENERIC_PLATFORM } from "./generic/index.js";
 export {
-	OPENCODE_HOOK_EVENTS,
+	OPENCODE_PLUGIN_EVENTS,
 	OPENCODE_PLATFORM,
 } from "./opencode/index.js";
 export type {
