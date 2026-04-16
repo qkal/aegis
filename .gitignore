@@ -3,6 +3,7 @@ dist/
 *.tsbuildinfo
 .turbo/
 coverage/
+test-report.junit.xml
 *.corrupt.*.db
 *.db
 *.db-wal

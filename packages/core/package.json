@@ -19,5 +19,8 @@
 		"typecheck": "tsc --noEmit",
 		"clean": "rm -rf dist"
 	},
+	"devDependencies": {
+		"fast-check": "^3.23.2"
+	},
 	"license": "Apache-2.0"
 }
