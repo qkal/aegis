@@ -19,8 +19,23 @@ export const HOOK_TYPES = ["PreToolUse", "PostToolUse", "PreCompact", "SessionSt
 /** Hook types supported by Aegis. */
 export type HookType = (typeof HOOK_TYPES)[number];
 
-/** Capability tiers for platform support. */
-export type PlatformTier = 1 | 2 | 3;
+/**
+ * Capability tiers for platform support. See ADR-0007.
+ *
+ * All values are numeric so that ordinal comparisons (`tier <= 2`) work
+ * correctly without special-casing.
+ *
+ *  - `1`   : full hook coverage (PreToolUse, PostToolUse, SessionStart, and
+ *            where supported PreCompact). Examples: Claude Code, OpenCode.
+ *  - `1.5` : Tier 1 wiring ("Tier 1L"), but the platform's hook runtime only
+ *            emits PreToolUse/PostToolUse for a subset of tools. The adapter
+ *            must also report `interceptedTools` in capabilities. Example:
+ *            Codex CLI.
+ *  - `2`   : partial hooks (PreToolUse + PostToolUse only). Examples: Cursor.
+ *  - `3`   : MCP-only, no hooks; routing via instruction files. Examples:
+ *            AmpCode, Windsurf, Antigravity, Zed.
+ */
+export type PlatformTier = 1 | 1.5 | 2 | 3;
 
 /** Normalized tool call from any platform. */
 export interface NormalizedToolCall {
@@ -40,11 +55,32 @@ export interface NormalizedToolResult {
 export interface PlatformCapabilities {
 	readonly platform: string;
 	readonly tier: PlatformTier;
+	/**
+	 * Human-readable tier label for serialization (session-start messages,
+	 * `aegis doctor` output, JSON payloads). Maps `1` → `"1"`, `1.5` → `"1L"`,
+	 * `2` → `"2"`, `3` → `"3"`. Use `tier` for ordinal comparisons; use
+	 * `tierLabel` when the value is shown to agents or users.
+	 */
+	readonly tierLabel: "1" | "1L" | "2" | "3";
 	readonly supportedHooks: readonly HookType[];
 	readonly hasSessionStart: boolean;
 	readonly hasPreCompact: boolean;
 	readonly configDir: string;
 	readonly sessionDir: string;
+	/**
+	 * The subset of tool names whose calls the platform actually fires
+	 * PreToolUse/PostToolUse for. Semantics vary by tier (see ADR-0007):
+	 *
+	 *  - **Tier 1**: `undefined` — all tools are intercepted.
+	 *  - **Tier 1L** (`1.5`): **MUST** be a non-empty array listing the
+	 *    tools the platform's hook runtime matches (e.g. `['Bash']` for
+	 *    Codex today). The MCP server uses this to fall back to MCP-only
+	 *    enforcement for unmatched tools.
+	 *  - **Tier 2**: optional array of tools with PreToolUse/PostToolUse
+	 *    support. `undefined` means all tools that have hooks.
+	 *  - **Tier 3**: `undefined` — hooks not supported at all.
+	 */
+	readonly interceptedTools?: readonly string[];
 }
 
 /**

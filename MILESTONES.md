@@ -55,10 +55,20 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
 
 ---
 
-## Phase 1: MVP Core — Working MCP Server
+## Phase 1: MVP Core — Multi-Platform MCP Server
 
-**Duration**: 2 weeks
-**Theme**: Installable, usable tool with Claude Code.
+**Duration**: 3 weeks (Phase 1a: M1.1–M1.6, ~2 weeks; Phase 1b: M1.7–M1.9, ~1 week)
+**Theme**: Installable, usable tool with Claude Code, Codex CLI, OpenCode, and AmpCode.
+
+Phase 1a delivers the core server, Claude Code adapter, session capture, policy
+enforcement, and CLI. Phase 1b adds the three additional platform adapters.
+Phase 1b may slip to week 4 if Phase 1a cross-cutting work (tier-aware
+capability advertisement, MCP-wrapper enforcement, idle-window snapshots) takes
+longer than estimated.
+
+See [ADR-0016](./docs/adr/0016-mvp-adapter-scope.md) for the rationale
+behind the four-platform MVP scope. Cursor, Windsurf, Antigravity, Zed,
+VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Deliverables
 
@@ -77,6 +87,7 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
   - `aegis_stats` — session statistics
   - `aegis_doctor` — diagnostics
   - MCP stdio transport, graceful shutdown
+  - Tier-aware capability advertisement to the agent at session start
   - Server.ts stays under 200 lines
 - [ ] **M1.3** — Claude Code adapter (Tier 1)
   - Full hook support: PreToolUse, PostToolUse, PreCompact, SessionStart
@@ -89,39 +100,79 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
   - PreCompact generates priority-tiered snapshot (2KB budget)
   - SessionStart restores snapshot into agent context
   - Events persist in SQLite across compaction/resume cycles
+  - OpenCode supports both `session.compacted` and `session.idle`; Phase 1
+    uses compaction snapshots (like Claude Code) with idle-window as fallback
+  - Compaction-less platforms (Codex, AmpCode) use idle-window snapshots only
 - [ ] **M1.5** — Policy enforcement integration
-  - PreToolUse hook evaluates tool calls against policy
+  - PreToolUse hook evaluates tool calls against policy (where supported)
+  - MCP tool wrapper enforces policy when hooks are unavailable / unmatched
   - Denied commands return structured error to agent
-  - Default policy blocks `sudo`, `rm -rf`, `.env` reads, etc.
+  - Default policy blocks `sudo`, `rm -rf`, `.env` reads, credential env vars
   - Policy loaded from `~/.aegis/config.json` and project `.aegis/config.json`
-- [ ] **M1.6** — CLI: `aegis doctor` + `aegis init claude-code`
+- [ ] **M1.6** — CLI: `aegis doctor` + `aegis init <platform>`
   - `aegis doctor` validates platform, runtimes, storage, policy, hooks
   - `aegis init` creates `~/.aegis/config.json` with secure defaults
-  - `aegis init claude-code` configures Claude Code hooks
+  - `aegis init claude-code|codex|opencode|amp` configures the platform
+  - Each `init` prints the diff before applying and supports `--dry-run`
   - Clear, colored terminal output
+- [ ] **M1.7** — Codex CLI adapter (Tier 1L)
+  - Hook support behind `[features] codex_hooks = true` flag check
+  - Reads `~/.codex/hooks.json` and project `.codex/hooks.json`
+  - Installs `aegis hook codex pre-tool-use` etc. as command hooks
+  - Reports `interceptedTools: ['Bash']` in capabilities (per current Codex matcher)
+  - MCP registration in `~/.codex/config.toml` `[mcp_servers.aegis]`
+  - Platform detection via `CODEX_HOME` / `CODEX_SESSION_ID`
+  - Fixture-based tests against recorded Codex hook payloads
+- [ ] **M1.8** — OpenCode adapter (Tier 1)
+  - Plugin shipped as `@aegis/opencode-plugin` (separate npm package OR loaded from `~/.config/opencode/plugins/aegis.ts`)
+  - Hooks: `tool.execute.before`, `tool.execute.after`, `session.compacted`, `session.idle`, `permission.asked`
+  - MCP registration in `opencode.json` (or `~/.config/opencode/opencode.json`)
+  - Platform detection via `OPENCODE_*` env vars + `.opencode/` directory presence
+  - Fixture-based tests against recorded OpenCode plugin events
+- [ ] **M1.9** — AmpCode adapter (Tier 3)
+  - MCP registration via `amp mcp add aegis -- aegis serve` (or `.amp/settings.json` write)
+  - Routing instruction file `.amp/AGENTS.md` template installed by `aegis init amp`
+  - Capabilities honestly report `tier: 3, supportedHooks: []`
+  - Policy enforced inside the MCP tool wrapper (no PreToolUse available)
+  - Platform detection via `AMP_*` env vars + `~/.amp/` presence
+  - Fixture-based tests against recorded MCP request/response pairs
 
 ### Acceptance Criteria
+
 - Install via `npm install -g aegis` (or local `pnpm build`)
-- `aegis init` + start Claude Code session → hooks registered
-- `aegis_execute` runs JavaScript in sandbox, returns only stdout
-- `aegis_search` returns ranked results from indexed content
-- Session events persist across compaction → restore cycle
-- `aegis doctor` reports all checks passing
-- Context savings measurable: 56KB Playwright snapshot → <500B
+- `aegis init claude-code` + start Claude Code session → hooks registered
+- `aegis init codex`     + start Codex CLI session    → hooks + MCP registered
+- `aegis init opencode`  + start OpenCode session     → plugin + MCP registered
+- `aegis init amp`       + start Amp session          → MCP registered, AGENTS.md routing in place
+- `aegis_execute` runs JavaScript in sandbox, returns only stdout, on all four platforms
+- `aegis_search` returns ranked results from indexed content, on all four platforms
+- Session events persist across compaction → restore cycle (Claude Code, OpenCode)
+- Session events persist across idle → restore cycle (Codex, AmpCode)
+- `aegis doctor` reports all checks passing on each detected platform
+- Context savings measurable: 56KB Playwright snapshot → <500B (Claude Code, OpenCode)
+- AmpCode adapter reports `Tier 3` to the agent at session start (verified by fixture)
+- Codex adapter reports `interceptedTools: ['Bash']` (verified by fixture)
 
 ### Risks
-- MCP SDK version compatibility across Claude Code versions
-- Hook timing — PreToolUse must respond within platform timeout
+
+- MCP SDK version compatibility across all four platforms
+- Hook timing — PreToolUse must respond within platform timeout (Claude Code: 60s default; Codex: 600s default; OpenCode: bun async, no hard limit)
+- Codex `codex_hooks` is feature-flagged and may break on Codex version bumps
+- OpenCode plugin SDK is < 1.0; event names may rename
+- AmpCode has no hook surface — degraded enforcement is unavoidable today
 
 ### Out of Scope
-- Audit log, non-Claude platforms, plugins, advanced policy features
+
+- Audit log (Phase 2)
+- Cursor, Windsurf, Antigravity, Zed, VS Code Copilot, Gemini CLI, Kiro, KiloCode adapters (Phase 2/3)
+- Plugin system, advanced policy features
 
 ---
 
-## Phase 2: Hardened Architecture — Security & Multi-Platform
+## Phase 2: Hardened Architecture — Security & Wave-2 Platforms
 
 **Duration**: 2 weeks
-**Theme**: Audit trail, enhanced isolation, broader platform support.
+**Theme**: Audit trail, enhanced isolation, second wave of adapters.
 
 ### Deliverables
 
@@ -138,10 +189,11 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
   - Filesystem scoping: no access to `~/.ssh`, `~/.aws`, `~/.config`, `~/.gnupg`
   - Restricted `PATH` with only declared runtimes
   - Temporary directories with `0o700` permissions
-- [ ] **M2.3** — Multi-platform adapters
-  - Gemini CLI adapter (Tier 1)
-  - Cursor adapter (Tier 2)
-  - VS Code Copilot adapter (Tier 1)
+- [ ] **M2.3** — Wave-2 platform adapters
+  - Cursor adapter (Tier 2 — `PreToolUse`/`PostToolUse` only)
+  - Windsurf adapter (Tier 3 by default; promote to Tier 2 if hooks documented)
+  - Antigravity adapter (Tier 3, MCP-only)
+  - Generic MCP-only fallback adapter for unknown platforms (Tier 3)
   - Platform auto-detection via environment variables
   - Each adapter has fixture-based tests
 - [ ] **M2.4** — Advanced policy features
@@ -179,12 +231,11 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
 ### Deliverables
 
 - [ ] **M3.1** — Remaining platform adapters
-  - OpenCode adapter (Tier 2)
+  - Gemini CLI adapter (Tier 1)
+  - VS Code Copilot adapter (Tier 1)
   - KiloCode adapter (Tier 2)
-  - Codex CLI adapter (Tier 3)
   - Kiro adapter (Tier 2)
   - Zed adapter (Tier 3)
-  - Generic MCP-only fallback adapter (Tier 3)
 - [ ] **M3.2** — Plugin system with worker-thread isolation
   - `AegisPlugin` interface: `onToolCall`, `onToolResult`, `onSessionStart`, `onSessionCompact`
   - `PluginContext` with constrained API (read sessions, search, index — no policy/audit access)
