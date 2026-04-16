@@ -214,6 +214,107 @@ describe("evaluateToolCall", () => {
 			{ numRuns: 500 },
 		);
 	});
+
+	describe("shell command chain bypass (regression)", () => {
+		const chainPolicy = (): AegisPolicy =>
+			policy({
+				tools: {
+					deny: ["Bash(sudo *)", "Bash(rm -rf *)"],
+					ask: [],
+					allow: ["Bash(git *)", "Bash(ls)", "Bash(echo *)"],
+				},
+			});
+
+		it("denies `git status; sudo rm -rf /` despite git prefix", () => {
+			const result = evaluateToolCall("Bash(git status; sudo rm -rf /)", chainPolicy());
+			expect(result.verdict).toBe("deny");
+			if (result.verdict === "deny") {
+				expect(result.matchedRule).toBe("Bash(sudo *)");
+			}
+		});
+
+		it("denies chains using `&&`", () => {
+			const result = evaluateToolCall("Bash(git status && sudo apt install foo)", chainPolicy());
+			expect(result.verdict).toBe("deny");
+		});
+
+		it("denies chains using `||`", () => {
+			const result = evaluateToolCall("Bash(git status || sudo rm -rf .)", chainPolicy());
+			expect(result.verdict).toBe("deny");
+		});
+
+		it("denies pipelines using `|`", () => {
+			const result = evaluateToolCall("Bash(git log | sudo tee /root/evil)", chainPolicy());
+			expect(result.verdict).toBe("deny");
+		});
+
+		it("denies command substitution `$(...)`", () => {
+			const result = evaluateToolCall("Bash(git commit -m $(sudo whoami))", chainPolicy());
+			expect(result.verdict).toBe("deny");
+		});
+
+		it("denies backtick command substitution", () => {
+			const result = evaluateToolCall("Bash(echo `sudo rm -rf /`)", chainPolicy());
+			expect(result.verdict).toBe("deny");
+		});
+
+		it("denies newline-separated chains", () => {
+			const result = evaluateToolCall("Bash(git status\nsudo rm -rf /)", chainPolicy());
+			expect(result.verdict).toBe("deny");
+		});
+
+		it("treats leading env-var assignments as part of the command", () => {
+			// `FOO=bar sudo ls` is still `sudo ls` once env prefixes are stripped.
+			const result = evaluateToolCall("Bash(FOO=bar sudo ls)", chainPolicy());
+			expect(result.verdict).toBe("deny");
+		});
+
+		it("requires every sub-command to be allowed for overall allow", () => {
+			const result = evaluateToolCall("Bash(git status; ls)", chainPolicy());
+			expect(result.verdict).toBe("allow");
+		});
+
+		it("falls through to default_deny when one sub-command is unknown", () => {
+			const result = evaluateToolCall("Bash(git status; rustc -V)", chainPolicy());
+			expect(result.verdict).toBe("default_deny");
+		});
+
+		it("does not split inside single quotes", () => {
+			// The `;` lives inside a quoted string and must not trigger a split,
+			// so the whole argument should be matched as `echo ...`.
+			const result = evaluateToolCall("Bash(echo 'hi; sudo ls')", chainPolicy());
+			expect(result.verdict).toBe("allow");
+		});
+	});
+});
+
+describe("matchGlob — ReDoS resistance", () => {
+	it("completes pathological `*a*a*...` patterns in under 50ms", () => {
+		// The previous regex-based implementation used catastrophic
+		// backtracking and took >5s on a 25-star pattern against a
+		// non-matching 74-char input. The linear two-pointer matcher
+		// must complete well under 50ms even for much larger inputs.
+		const pattern = "*a".repeat(25) + "*";
+		const input = "b".repeat(200);
+
+		// Use Date.now() rather than performance.now() so the test file
+		// stays dependency-free (no @types/node in @aegis/core).
+		const start = Date.now();
+		const result = matchGlob(input, pattern);
+		const elapsed = Date.now() - start;
+
+		expect(result).toBe(false);
+		expect(elapsed).toBeLessThan(50);
+	});
+
+	it("stays within budget for 100-star patterns (property-style)", () => {
+		const pattern = "*a".repeat(100) + "*";
+		const input = "ba".repeat(50) + "c".repeat(100);
+		const start = Date.now();
+		matchGlob(input, pattern);
+		const elapsed = Date.now() - start;
+		expect(elapsed).toBeLessThan(50);
+	});
 });
 
 describe("evaluateEnvVar", () => {
