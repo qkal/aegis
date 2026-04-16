@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.turbo/
+coverage/
+test-report.junit.xml
+*.corrupt.*.db
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+.DS_Store
