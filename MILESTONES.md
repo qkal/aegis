@@ -223,12 +223,11 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 ### Deliverables
 
 - [ ] **M3.1** — Remaining platform adapters
-  - OpenCode adapter (Tier 2)
+  - Gemini CLI adapter (Tier 1)
+  - VS Code Copilot adapter (Tier 1)
   - KiloCode adapter (Tier 2)
-  - Codex CLI adapter (Tier 3)
   - Kiro adapter (Tier 2)
   - Zed adapter (Tier 3)
-  - Generic MCP-only fallback adapter (Tier 3)
 - [ ] **M3.2** — Plugin system with worker-thread isolation
   - `AegisPlugin` interface: `onToolCall`, `onToolResult`, `onSessionStart`, `onSessionCompact`
   - `PluginContext` with constrained API (read sessions, search, index — no policy/audit access)
