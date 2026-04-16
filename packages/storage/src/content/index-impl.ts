@@ -21,7 +21,6 @@
 
 import { createHash } from "node:crypto";
 import type { ContentSourceId } from "@aegis/core";
-import { contentSourceIdUnsafe } from "@aegis/core";
 import type { Database } from "../adapters/types.js";
 import type { ChunkOptions } from "./chunk.js";
 import { chunkContent, DEFAULT_MAX_CHUNK_BYTES } from "./chunk.js";
@@ -32,6 +31,16 @@ import type {
 	SearchOptions,
 	SearchResult,
 } from "./types.js";
+
+/**
+ * Local copy of `contentSourceIdUnsafe` from `@aegis/core`. Inlined so the
+ * storage test suite does not need a runtime `@aegis/core` build — CI runs
+ * `pnpm test:coverage` before `pnpm build`, and `@aegis/core`'s package.json
+ * maps the `import` condition to `./dist/index.js`. The cast is identity at
+ * runtime since branded number types carry no shape.
+ */
+const contentSourceIdUnsafe = (raw: number): ContentSourceId =>
+	raw as ContentSourceId;
 
 /** Result of an `index()` call. */
 export interface IndexedSourceResult {
