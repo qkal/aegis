@@ -19,8 +19,8 @@ export { PLATFORM_ENV_SIGNALS } from "./detect.js";
 export { GEMINI_CLI_PLATFORM } from "./gemini-cli/index.js";
 export { GENERIC_PLATFORM } from "./generic/index.js";
 export {
-	OPENCODE_PLUGIN_EVENTS,
 	OPENCODE_PLATFORM,
+	OPENCODE_PLUGIN_EVENTS,
 } from "./opencode/index.js";
 export type {
 	HookAdapter,
