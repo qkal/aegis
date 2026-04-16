@@ -8,8 +8,16 @@
 
 import type { SessionEvent } from "@aegis/core";
 
+/**
+ * Canonical list of Aegis hook kinds. Exported as a readonly tuple so the
+ * type `HookType` is derived from a single source of truth and downstream
+ * code (e.g. `@aegis/server`'s orchestrator) can re-use the same constant
+ * instead of redeclaring the list.
+ */
+export const HOOK_TYPES = ["PreToolUse", "PostToolUse", "PreCompact", "SessionStart"] as const;
+
 /** Hook types supported by Aegis. */
-export type HookType = "PreToolUse" | "PostToolUse" | "PreCompact" | "SessionStart";
+export type HookType = (typeof HOOK_TYPES)[number];
 
 /** Capability tiers for platform support. */
 export type PlatformTier = 1 | 2 | 3;

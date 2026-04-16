@@ -22,7 +22,7 @@ Options considered:
 
 Use a **pnpm workspace monorepo** with six packages:
 
-```
+```text
 packages/core       — Pure logic, zero dependencies
 packages/engine     — Sandbox execution, runtime detection
 packages/storage    — SQLite persistence, FTS5 indexing, audit log
@@ -33,7 +33,7 @@ packages/cli        — CLI entry point, user-facing commands
 
 Dependency direction is strict and enforced by package boundaries:
 
-```
+```text
 core → (nothing)
 engine → core
 storage → core

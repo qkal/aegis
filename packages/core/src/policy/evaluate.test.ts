@@ -380,7 +380,9 @@ describe("DEFAULT_POLICY", () => {
 
 	it("denies sudo and recursive deletes by default", () => {
 		expect(DEFAULT_POLICY.tools.deny).toContain("Bash(sudo *)");
-		expect(DEFAULT_POLICY.tools.deny).toContain("Bash(rm -rf /*)");
+		// Patterns were broadened so variants like "rm -rf ." / "rm -rf foo"
+		// also match; the check targets the generalised glob directly.
+		expect(DEFAULT_POLICY.tools.deny).toContain("Bash(rm -rf *)");
 	});
 
 	it("has a reasonable execution budget", () => {

@@ -16,4 +16,4 @@ export type {
 	ToolPattern,
 	ToolPolicy,
 } from "./schema.js";
-export { DEFAULT_POLICY } from "./schema.js";
+export { DEFAULT_POLICY, LANGUAGES } from "./schema.js";

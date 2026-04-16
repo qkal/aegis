@@ -7,13 +7,25 @@
 
 import type { Language } from "@aegis/core";
 
-/** Detected runtime with version and path. */
-export interface DetectedRuntime {
+/**
+ * Runtime that was located on the host. Narrowing on `available: true`
+ * surfaces the version and path; the unavailable variant carries only the
+ * requested language so callers cannot accidentally read placeholder
+ * version strings.
+ */
+export interface AvailableRuntime {
 	readonly language: Language;
+	readonly available: true;
 	readonly version: string;
 	readonly path: string;
-	readonly available: boolean;
 }
+
+export interface UnavailableRuntime {
+	readonly language: Language;
+	readonly available: false;
+}
+
+export type DetectedRuntime = AvailableRuntime | UnavailableRuntime;
 
 /** Map of language to the binary name used for detection. */
 export const RUNTIME_BINARIES: Record<Language, readonly string[]> = {

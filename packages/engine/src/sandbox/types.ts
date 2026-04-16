@@ -49,7 +49,7 @@ export type ExecOutcome =
 			readonly status: "timeout";
 			readonly stdout: string;
 			readonly stderr: string;
-			readonly elapsedMs: number;
+			readonly durationMs: number;
 	  }
 	| {
 			readonly status: "denied";

@@ -9,19 +9,29 @@
 /** Pattern for matching tool invocations (e.g., "Bash(sudo *)", "Read(.env*)"). */
 export type ToolPattern = string;
 
-/** Supported sandbox execution languages. */
-export type Language =
-	| "javascript"
-	| "typescript"
-	| "python"
-	| "shell"
-	| "ruby"
-	| "go"
-	| "rust"
-	| "php"
-	| "r"
-	| "perl"
-	| "swift";
+/**
+ * Supported sandbox execution languages.
+ *
+ * Declared as a `readonly` tuple so consumers (e.g. the MCP server's
+ * tool-description generator) can iterate the list without redeclaring
+ * it. `Language` is derived from the tuple so adding a language is a
+ * single-line change.
+ */
+export const LANGUAGES = [
+	"javascript",
+	"typescript",
+	"python",
+	"shell",
+	"ruby",
+	"go",
+	"rust",
+	"php",
+	"r",
+	"perl",
+	"swift",
+] as const;
+
+export type Language = (typeof LANGUAGES)[number];
 
 /** Top-level policy document shape. */
 export interface AegisPolicy {
@@ -90,10 +100,16 @@ export const DEFAULT_POLICY: AegisPolicy = {
 		},
 	},
 	tools: {
+		// Broad-by-default deny patterns. The custom glob matcher supports only
+		// `*` and `?` (no character classes), so variants like `-R`, `777`,
+		// `a+rwx`, and `o+w` are each covered explicitly.
 		deny: [
 			"Bash(sudo *)",
-			"Bash(rm -rf /*)",
-			"Bash(chmod 777 *)",
+			"Bash(rm -rf *)",
+			"Bash(chmod *777*)",
+			"Bash(chmod *-R*)",
+			"Bash(chmod *a+*)",
+			"Bash(chmod *o+w*)",
 			"Bash(chown *)",
 			"Read(.env*)",
 			"Read(~/.ssh/*)",

@@ -4,7 +4,7 @@
 	"description": "MCP server: tool registration, transport, hook orchestration, lifecycle management",
 	"type": "module",
 	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
+	"types": "./src/index.ts",
 	"exports": {
 		".": {
 			"types": "./src/index.ts",
@@ -12,8 +12,18 @@
 		}
 	},
 	"files": [
-		"dist"
+		"dist",
+		"src"
 	],
+	"publishConfig": {
+		"types": "./dist/index.d.ts",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"import": "./dist/index.js"
+			}
+		}
+	},
 	"scripts": {
 		"build": "tsup src/index.ts --format esm --dts --clean",
 		"typecheck": "tsc --noEmit",
@@ -24,6 +34,9 @@
 		"@aegis/engine": "workspace:*",
 		"@aegis/storage": "workspace:*",
 		"@aegis/adapters": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.5"
 	},
 	"license": "Apache-2.0"
 }

@@ -1,5 +1,6 @@
 export type {
 	ContentSource,
+	ContentType,
 	IndexOptions,
 	SearchOptions,
 	SearchResult,

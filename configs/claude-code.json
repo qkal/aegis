@@ -2,55 +2,56 @@
 	"$schema": "https://aegis.dev/schema/config.json",
 	"version": 1,
 	"platform": "claude-code",
-	"policy": {
-		"tools": {
+	"tools": {
+		"deny": [
+			"Bash(sudo *)",
+			"Bash(rm -rf *)",
+			"Bash(chmod *777*)",
+			"Bash(chmod *-R*)",
+			"Bash(chmod *a+*)",
+			"Bash(chmod *o+w*)",
+			"Bash(chown *)",
+			"Read(.env*)",
+			"Read(~/.ssh/*)",
+			"Read(~/.aws/*)"
+		],
+		"allow": [
+			"Bash(git *)",
+			"Bash(npm *)",
+			"Bash(pnpm *)",
+			"Bash(yarn *)",
+			"Bash(node *)",
+			"Bash(python *)",
+			"Bash(pip *)"
+		],
+		"ask": []
+	},
+	"sandbox": {
+		"env": {
+			"allow": ["PATH", "HOME", "LANG", "TERM"],
 			"deny": [
-				"Bash(sudo *)",
-				"Bash(rm -rf /*)",
-				"Bash(chmod 777 *)",
-				"Bash(chown *)",
-				"Read(.env*)",
-				"Read(~/.ssh/*)",
-				"Read(~/.aws/*)"
-			],
-			"allow": [
-				"Bash(git *)",
-				"Bash(npm *)",
-				"Bash(pnpm *)",
-				"Bash(yarn *)",
-				"Bash(node *)",
-				"Bash(python *)",
-				"Bash(pip *)"
-			],
-			"ask": []
+				"AWS_*",
+				"GH_TOKEN",
+				"GITHUB_TOKEN",
+				"OPENAI_API_KEY",
+				"ANTHROPIC_API_KEY",
+				"GOOGLE_API_KEY",
+				"SSH_AUTH_SOCK"
+			]
 		},
-		"sandbox": {
-			"env": {
-				"allow": ["PATH", "HOME", "LANG", "TERM"],
-				"deny": [
-					"AWS_*",
-					"GH_TOKEN",
-					"GITHUB_TOKEN",
-					"OPENAI_API_KEY",
-					"ANTHROPIC_API_KEY",
-					"GOOGLE_API_KEY",
-					"SSH_AUTH_SOCK"
-				]
-			},
-			"fs": {
-				"read": [],
-				"write": [],
-				"deny": ["~/.ssh/*", "~/.aws/*", "~/.gnupg/*", "~/.config/*", ".env*"]
-			},
-			"net": {
-				"allow": [],
-				"deny": ["*"]
-			}
+		"fs": {
+			"read": [],
+			"write": [],
+			"deny": ["~/.ssh/*", "~/.aws/*", "~/.gnupg/*", "~/.config/*", ".env*"]
+		},
+		"net": {
+			"allow": [],
+			"deny": ["*"]
 		}
 	},
 	"execution": {
-		"timeout": 30000,
-		"maxOutput": 5242880,
+		"maxTimeoutMs": 30000,
+		"maxOutputBytes": 5242880,
 		"allowBackground": false,
 		"allowedRuntimes": [
 			"javascript",

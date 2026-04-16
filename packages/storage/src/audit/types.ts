@@ -6,7 +6,7 @@
  * Stored in a separate SQLite database per project.
  */
 
-import type { AuditEntryId, SessionId } from "@aegis/core";
+import type { AuditEntryId, PolicyDecision, SessionId } from "@aegis/core";
 
 /** Categories of auditable actions. */
 export type AuditCategory =
@@ -16,6 +16,17 @@ export type AuditCategory =
 	| "session_lifecycle"
 	| "config_change";
 
+/**
+ * Outcome recorded for an audit entry.
+ *
+ * Derived from the canonical policy verdict union in `@aegis/core` plus an
+ * "error" sentinel for failures that never reached a verdict (e.g. the
+ * evaluator threw or a precondition was not met). Deriving from the core
+ * type means the storage layer cannot drift from the policy engine's
+ * decision vocabulary.
+ */
+export type AuditDecision = PolicyDecision["verdict"] | "error";
+
 /** A single audit log entry. */
 export interface AuditEntry {
 	readonly id: AuditEntryId;
@@ -24,7 +35,7 @@ export interface AuditEntry {
 	readonly category: AuditCategory;
 	readonly action: string;
 	readonly subject: string;
-	readonly decision: "allow" | "deny" | "ask" | "error";
+	readonly decision: AuditDecision;
 	readonly reason: string;
 	readonly context: Readonly<Record<string, unknown>>;
 	readonly prevHmac: string;
@@ -36,7 +47,7 @@ export interface AuditFilter {
 	readonly sessionId?: SessionId;
 	readonly category?: AuditCategory;
 	readonly action?: string;
-	readonly decision?: AuditEntry["decision"];
+	readonly decision?: AuditDecision;
 	readonly since?: string;
 	readonly limit?: number;
 }

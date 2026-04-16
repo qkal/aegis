@@ -72,12 +72,25 @@ export interface RuleEvent {
 	readonly priority: typeof EventPriority.CRITICAL;
 }
 
-/** An environment variable change. */
+/**
+ * An environment variable change.
+ *
+ * Note: environment values may contain credentials, tokens, or other
+ * sensitive data, so we deliberately do NOT store the raw value on the
+ * event. Only presence, length, and the variable name survive. Callers
+ * that need the actual value must retrieve it out-of-band and never
+ * persist it to the session log.
+ */
 export interface EnvironmentEvent {
 	readonly kind: "environment";
 	readonly variable: string;
-	readonly value: string;
 	readonly action: "set" | "unset";
+	/** Whether the variable was present after the action (i.e. "set" with a defined value). */
+	readonly present: boolean;
+	/** Length of the redacted value, when known. Useful for diffs without leaking content. */
+	readonly length?: number;
+	/** Always `true` — documents that no plaintext value is stored. */
+	readonly redacted: true;
 	readonly timestamp: string;
 	readonly priority: typeof EventPriority.HIGH;
 }

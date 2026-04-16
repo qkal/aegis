@@ -27,7 +27,7 @@ aegis doctor
 
 Aegis is structured as a pnpm monorepo with strict dependency direction:
 
-```
+```text
 packages/
   core/        Pure logic: policy engine, event model, routing (zero dependencies)
   engine/      Sandbox execution, runtime detection, output processing

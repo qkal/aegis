@@ -7,4 +7,7 @@
  * Implementation deferred to Phase 1.
  */
 
-export const HOOK_TYPES = ["PreToolUse", "PostToolUse", "PreCompact", "SessionStart"] as const;
+// The canonical hook-kind list lives in `@aegis/adapters` (the untrusted
+// input boundary). Re-export it here so server-side consumers can import
+// from `@aegis/server` without pulling every adapter in directly.
+export { HOOK_TYPES, type HookType } from "@aegis/adapters";

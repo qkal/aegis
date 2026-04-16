@@ -7,6 +7,15 @@
 
 import type { ContentSourceId } from "@aegis/core";
 
+/**
+ * Canonical content-type classification for indexed chunks.
+ *
+ * Defined as a single union so `SearchResult.contentType` and
+ * `SearchOptions.contentTypeFilter` stay in lock-step; adding a new
+ * category is a one-line change that the compiler then propagates.
+ */
+export type ContentType = "code" | "prose";
+
 /** A content source registered in the index. */
 export interface ContentSource {
 	readonly id: ContentSourceId;
@@ -26,7 +35,7 @@ export interface SearchResult {
 	readonly snippet: string;
 	readonly score: number;
 	readonly sourceLabel: string;
-	readonly contentType: string;
+	readonly contentType: ContentType;
 }
 
 /** Options for content indexing. */
@@ -40,7 +49,7 @@ export interface IndexOptions {
 /** Options for content search. */
 export interface SearchOptions {
 	readonly maxResults?: number;
-	readonly contentTypeFilter?: "code" | "prose";
+	readonly contentTypeFilter?: ContentType;
 	readonly recencyBias?: boolean;
 	readonly sourceWeighted?: boolean;
 }

@@ -16,7 +16,9 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
   - pnpm workspaces resolve all `workspace:*` dependencies
   - `pnpm build` succeeds across all packages
   - `pnpm typecheck` reports zero errors
-  - tsconfig project references enforce dependency direction
+  - Dependency direction (`core ← engine ← storage ← server ← cli`) is
+    enforced through pnpm workspace linking; TypeScript project
+    references are out of scope for Phase 0.
 - [x] **M0.2** — Policy evaluation engine with property-based tests
   - `evaluateToolCall()` handles deny → ask → allow → default-deny
   - `evaluateEnvVar()`, `evaluateFilePath()`, `evaluateNetAccess()` all implemented

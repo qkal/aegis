@@ -9,8 +9,14 @@ export type {
 
 export {
 	auditEntryId,
+	auditEntryIdUnsafe,
 	contentSourceId,
+	contentSourceIdUnsafe,
 	eventId,
+	eventIdUnsafe,
+	InvalidIdError,
 	policyId,
+	policyIdUnsafe,
 	sessionId,
+	sessionIdUnsafe,
 } from "./brand.js";
