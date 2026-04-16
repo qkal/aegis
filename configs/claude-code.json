@@ -1,0 +1,76 @@
+{
+	"$schema": "https://aegis.dev/schema/config.json",
+	"version": 1,
+	"platform": "claude-code",
+	"policy": {
+		"tools": {
+			"deny": [
+				"Bash(sudo *)",
+				"Bash(rm -rf /*)",
+				"Bash(chmod 777 *)",
+				"Bash(chown *)",
+				"Read(.env*)",
+				"Read(~/.ssh/*)",
+				"Read(~/.aws/*)"
+			],
+			"allow": [
+				"Bash(git *)",
+				"Bash(npm *)",
+				"Bash(pnpm *)",
+				"Bash(yarn *)",
+				"Bash(node *)",
+				"Bash(python *)",
+				"Bash(pip *)"
+			],
+			"ask": []
+		},
+		"sandbox": {
+			"env": {
+				"allow": ["PATH", "HOME", "LANG", "TERM"],
+				"deny": [
+					"AWS_*",
+					"GH_TOKEN",
+					"GITHUB_TOKEN",
+					"OPENAI_API_KEY",
+					"ANTHROPIC_API_KEY",
+					"GOOGLE_API_KEY",
+					"SSH_AUTH_SOCK"
+				]
+			},
+			"fs": {
+				"read": [],
+				"write": [],
+				"deny": ["~/.ssh/*", "~/.aws/*", "~/.gnupg/*", "~/.config/*", ".env*"]
+			},
+			"net": {
+				"allow": [],
+				"deny": ["*"]
+			}
+		}
+	},
+	"execution": {
+		"timeout": 30000,
+		"maxOutput": 5242880,
+		"allowBackground": false,
+		"allowedRuntimes": [
+			"javascript",
+			"typescript",
+			"python",
+			"shell",
+			"ruby",
+			"go",
+			"rust",
+			"php",
+			"r",
+			"perl",
+			"swift"
+		]
+	},
+	"storage": {
+		"urlTtl": "24h",
+		"staleCleanupDays": 14
+	},
+	"updates": {
+		"checkOnStart": false
+	}
+}

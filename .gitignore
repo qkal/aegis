@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.turbo/
+coverage/
+*.corrupt.*.db
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+.DS_Store
