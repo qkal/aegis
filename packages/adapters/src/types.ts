@@ -55,19 +55,30 @@ export interface NormalizedToolResult {
 export interface PlatformCapabilities {
 	readonly platform: string;
 	readonly tier: PlatformTier;
+	/**
+	 * Human-readable tier label for serialization (session-start messages,
+	 * `aegis doctor` output, JSON payloads). Maps `1` → `"1"`, `1.5` → `"1L"`,
+	 * `2` → `"2"`, `3` → `"3"`. Use `tier` for ordinal comparisons; use
+	 * `tierLabel` when the value is shown to agents or users.
+	 */
+	readonly tierLabel: "1" | "1L" | "2" | "3";
 	readonly supportedHooks: readonly HookType[];
 	readonly hasSessionStart: boolean;
 	readonly hasPreCompact: boolean;
 	readonly configDir: string;
 	readonly sessionDir: string;
 	/**
-	 * For Tier 1L (`1.5`) platforms: the subset of tool names whose calls the
-	 * platform actually fires PreToolUse/PostToolUse for. `undefined` means
-	 * "all tools" (Tier 1) or "no tools" (Tier 3 — hooks not supported at all).
+	 * The subset of tool names whose calls the platform actually fires
+	 * PreToolUse/PostToolUse for. Semantics vary by tier (see ADR-0007):
 	 *
-	 * For Tier 2 platforms: the subset of tools for which PreToolUse and
-	 * PostToolUse hooks are supported. Tier 2 may include only pre/post hooks
-	 * and not other hook types (SessionStart, PreCompact).
+	 *  - **Tier 1**: `undefined` — all tools are intercepted.
+	 *  - **Tier 1L** (`1.5`): **MUST** be a non-empty array listing the
+	 *    tools the platform's hook runtime matches (e.g. `['Bash']` for
+	 *    Codex today). The MCP server uses this to fall back to MCP-only
+	 *    enforcement for unmatched tools.
+	 *  - **Tier 2**: optional array of tools with PreToolUse/PostToolUse
+	 *    support. `undefined` means all tools that have hooks.
+	 *  - **Tier 3**: `undefined` — hooks not supported at all.
 	 */
 	readonly interceptedTools?: readonly string[];
 }

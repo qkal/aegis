@@ -43,7 +43,14 @@
 		"fs": {
 			"read": [],
 			"write": [],
-			"deny": ["~/.ssh/*", "~/.aws/*", "~/.gnupg/*", "~/.config/gcloud/*", "~/.config/credentials/*", ".env*"]
+			"deny": [
+				"~/.ssh/*",
+				"~/.aws/*",
+				"~/.gnupg/*",
+				"~/.config/gcloud/*",
+				"~/.config/credentials/*",
+				".env*"
+			]
 		},
 		"net": {
 			"allow": [],

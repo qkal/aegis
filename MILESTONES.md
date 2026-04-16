@@ -57,8 +57,14 @@ Each milestone builds on the previous one. Quality gates must pass before advanc
 
 ## Phase 1: MVP Core — Multi-Platform MCP Server
 
-**Duration**: 3 weeks
+**Duration**: 3 weeks (Phase 1a: M1.1–M1.6, ~2 weeks; Phase 1b: M1.7–M1.9, ~1 week)
 **Theme**: Installable, usable tool with Claude Code, Codex CLI, OpenCode, and AmpCode.
+
+Phase 1a delivers the core server, Claude Code adapter, session capture, policy
+enforcement, and CLI. Phase 1b adds the three additional platform adapters.
+Phase 1b may slip to week 4 if Phase 1a cross-cutting work (tier-aware
+capability advertisement, MCP-wrapper enforcement, idle-window snapshots) takes
+longer than estimated.
 
 See [ADR-0016](./docs/adr/0016-mvp-adapter-scope.md) for the rationale
 behind the four-platform MVP scope. Cursor, Windsurf, Antigravity, Zed,
@@ -94,7 +100,9 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - PreCompact generates priority-tiered snapshot (2KB budget)
   - SessionStart restores snapshot into agent context
   - Events persist in SQLite across compaction/resume cycles
-  - Compaction-less platforms (Codex, AmpCode) use idle-window snapshots
+  - OpenCode supports both `session.compacted` and `session.idle`; Phase 1
+    uses compaction snapshots (like Claude Code) with idle-window as fallback
+  - Compaction-less platforms (Codex, AmpCode) use idle-window snapshots only
 - [ ] **M1.5** — Policy enforcement integration
   - PreToolUse hook evaluates tool calls against policy (where supported)
   - MCP tool wrapper enforces policy when hooks are unavailable / unmatched
