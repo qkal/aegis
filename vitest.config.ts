@@ -7,7 +7,11 @@ const fromRoot = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 // so that vitest does not require a prior `pnpm build` to populate `dist/`.
 // Production consumers continue to use the built `dist/` entrypoints via the
 // `exports` field in each package's `package.json`.
+// Order matters: longer / more-specific aliases must come before the
+// base package alias, otherwise a plain `@aegis/adapters` match would
+// swallow `@aegis/adapters/testing`.
 const workspaceAliases = {
+	"@aegis/adapters/testing": fromRoot("./packages/adapters/src/testing.ts"),
 	"@aegis/core": fromRoot("./packages/core/src/index.ts"),
 	"@aegis/storage": fromRoot("./packages/storage/src/index.ts"),
 	"@aegis/engine": fromRoot("./packages/engine/src/index.ts"),
