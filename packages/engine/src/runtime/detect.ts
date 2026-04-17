@@ -13,8 +13,11 @@
  *   else about the host is recorded
  */
 
-import type { Language } from "@aegis/core";
 import { spawnSync } from "node:child_process";
+import { existsSync, statSync } from "node:fs";
+import { delimiter, isAbsolute, join } from "node:path";
+
+import type { Language } from "@aegis/core";
 
 /**
  * Runtime that was located on the host. Narrowing on `available: true`
@@ -58,10 +61,20 @@ export const RUNTIME_BINARIES: Record<Language, readonly string[]> = {
 
 /**
  * Argument vector used to probe each known binary for its version. Most
- * runtimes accept `--version`; the Go toolchain notably does not.
+ * runtimes accept `--version`; a few do not:
+ *
+ * - Go's toolchain uses `go version`.
+ * - POSIX `sh` and `dash`/`ash` do not implement `--version` at all and
+ *   exit non-zero on it, which would otherwise cause detection to mark
+ *   them unavailable on minimal images. Probe them with a no-op script
+ *   that echoes the interpreter name so detection returns a stable
+ *   version string derived from the binary itself.
  */
 const VERSION_ARGS: Record<string, readonly string[]> = {
 	go: ["version"],
+	sh: ["-c", "echo sh"],
+	dash: ["-c", "echo dash"],
+	ash: ["-c", "echo ash"],
 };
 
 const DEFAULT_VERSION_ARGS: readonly string[] = ["--version"];
@@ -92,21 +105,64 @@ export interface DetectOptions {
 const DEFAULT_PROBE_TIMEOUT_MS = 2_000;
 
 /**
- * Resolve `name` against the real host `PATH` using `command -v` via
- * `/bin/sh`. Returns the absolute path of the first match or `undefined`
- * if the binary cannot be located. Uses a sanitized environment.
+ * Resolve `name` against the host `PATH` without invoking a shell.
+ * Returns the absolute path of the first match or `undefined` if the
+ * binary cannot be located.
+ *
+ * Doing the PATH scan ourselves avoids two hazards of the naive
+ * `/bin/sh -c "command -v <name>"` approach:
+ *
+ * 1. Shell interpolation — the caller-controlled `name` never reaches
+ *    a shell, so a hostile override like `$(rm -rf ~)` is inert.
+ * 2. Platform portability — `/bin/sh` does not exist on Windows;
+ *    `PATHEXT` is consulted on `win32` so `.exe` / `.cmd` binaries are
+ *    found with their stems.
  */
 export function defaultResolveBinary(name: string): string | undefined {
-	const result = spawnSync("/bin/sh", ["-c", `command -v "${name}"`], {
-		env: { PATH: process.env["PATH"] ?? "" },
-		encoding: "utf8",
-		timeout: DEFAULT_PROBE_TIMEOUT_MS,
-	});
-	if (result.status !== 0) {
+	if (isAbsolute(name)) {
+		return isExecutableFile(name) ? name : undefined;
+	}
+	if (name.includes("/") || name.includes("\\")) {
+		// A relative path with separators is ambiguous on a PATH scan;
+		// refuse rather than guess.
 		return undefined;
 	}
-	const path = result.stdout.trim();
-	return path.length > 0 ? path : undefined;
+	const pathEnv = process.env["PATH"] ?? "";
+	if (pathEnv.length === 0) {
+		return undefined;
+	}
+	const dirs = pathEnv.split(delimiter).filter((d) => d.length > 0);
+	const suffixes = process.platform === "win32"
+		? ["", ...(process.env["PATHEXT"] ?? ".EXE;.CMD;.BAT;.COM").split(";")]
+		: [""];
+	for (const dir of dirs) {
+		for (const suffix of suffixes) {
+			const candidate = join(dir, name + suffix);
+			if (isExecutableFile(candidate)) {
+				return candidate;
+			}
+		}
+	}
+	return undefined;
+}
+
+function isExecutableFile(path: string): boolean {
+	try {
+		if (!existsSync(path)) {
+			return false;
+		}
+		const st = statSync(path);
+		if (!st.isFile()) {
+			return false;
+		}
+		if (process.platform === "win32") {
+			return true;
+		}
+		// 0o111 = any execute bit set.
+		return (st.mode & 0o111) !== 0;
+	} catch {
+		return false;
+	}
 }
 
 function defaultProbeVersion(path: string, args: readonly string[]): {
@@ -174,8 +230,12 @@ export function detectAllRuntimes(
 }
 
 /**
- * Process-lifetime cache of detection results. Keyed by language.
- * Intentionally module-scoped; call {@link clearRuntimeCache} in tests.
+ * Process-lifetime cache of detection results. Keyed solely by
+ * {@link Language}; `options` is honoured only on the cold-miss path.
+ * Callers that need to re-detect after a `PATH` change or that want to
+ * exercise alternative resolvers/probes should either clear the cache
+ * first with {@link clearRuntimeCache} or call {@link detectRuntime}
+ * directly. Intentionally module-scoped.
  */
 const cache = new Map<Language, DetectedRuntime>();
 

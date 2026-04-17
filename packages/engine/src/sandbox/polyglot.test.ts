@@ -13,8 +13,40 @@ import { describe, expect, it } from "vitest";
 import type { Language } from "@aegis/core";
 
 import { type DetectedRuntime, detectRuntime } from "../runtime/detect.js";
-import { PolyglotExecutor } from "./polyglot.js";
+import { __testing_walkBackToUtf8Boundary, PolyglotExecutor } from "./polyglot.js";
 import type { SandboxConfig } from "./types.js";
+
+describe("walkBackToUtf8Boundary", () => {
+	it("returns the index unchanged when it already lies on a boundary", () => {
+		// "hello" is pure ASCII; every index is a boundary.
+		const buf = Buffer.from("hello", "utf8");
+		expect(__testing_walkBackToUtf8Boundary(buf, 3)).toBe(3);
+	});
+
+	it("walks back off a continuation byte in the middle of a multibyte sequence", () => {
+		// "é" is 0xC3 0xA9 (2 bytes). Asking for end=1 lands on the
+		// continuation byte 0xA9; the helper must return 0 so the slice
+		// stops cleanly before "é".
+		const buf = Buffer.from("é", "utf8");
+		expect(__testing_walkBackToUtf8Boundary(buf, 1)).toBe(0);
+	});
+
+	it("handles a 4-byte code point at the tail", () => {
+		// "😀" is 4 bytes: 0xF0 0x9F 0x98 0x80. Cutting inside the
+		// sequence (end=2 or 3) must walk back to 0.
+		const buf = Buffer.from("😀", "utf8");
+		expect(__testing_walkBackToUtf8Boundary(buf, 3)).toBe(0);
+		expect(__testing_walkBackToUtf8Boundary(buf, 2)).toBe(0);
+		expect(__testing_walkBackToUtf8Boundary(buf, 1)).toBe(0);
+	});
+
+	it("keeps preceding complete characters when the last one is split", () => {
+		// "aé" → 0x61 0xC3 0xA9. Cutting at end=2 (the 0xA9
+		// continuation byte) must walk back to 1, preserving "a".
+		const buf = Buffer.from("aé", "utf8");
+		expect(__testing_walkBackToUtf8Boundary(buf, 2)).toBe(1);
+	});
+});
 
 function baseConfig(overrides: Partial<SandboxConfig> = {}): SandboxConfig {
 	return {
@@ -40,7 +72,14 @@ function makeResolver(
 	};
 }
 
-describe("PolyglotExecutor.execute", () => {
+// Most of the suite relies on `/bin/sh`, `sleep`, `yes`, `head`, or
+// `printf`'s `\033` interpretation. Skip on Windows rather than
+// surface failures that have nothing to do with the code under test;
+// Windows support is tracked in the cross-platform kill path
+// (`killProcessGroup`) and will get its own suite when it lands.
+const describeOnPosix = process.platform === "win32" ? describe.skip : describe;
+
+describeOnPosix("PolyglotExecutor.execute", () => {
 	const exec = new PolyglotExecutor({ resolveRuntime: makeResolver() });
 
 	it("rejects non-positive timeouts", async () => {
@@ -136,24 +175,66 @@ describe("PolyglotExecutor.execute", () => {
 		}
 	});
 
-	it("does not inherit parent environment variables", async () => {
-		const marker = `AEGIS_TEST_${Math.random().toString(36).slice(2)}`;
-		process.env["AEGIS_TEST_LEAK"] = marker;
-		try {
-			const out = await exec.execute(
-				baseConfig({
-					code: 'echo "${AEGIS_TEST_LEAK:-missing}"',
-					language: "shell",
-				}),
-			);
-			expect(out.status).toBe("success");
-			if (out.status === "success") {
-				expect(out.stdout).toBe("missing");
-				expect(out.stdout).not.toContain(marker);
-			}
-		} finally {
-			delete process.env["AEGIS_TEST_LEAK"];
+	it("never emits U+FFFD when truncation lands inside a multibyte sequence", async () => {
+		// Each "é" is 2 UTF-8 bytes. With maxOutputBytes=3, a naive byte
+		// cut would land in the middle of the second "é" and the raw
+		// conversion to utf8 would emit U+FFFD. BoundedSink must walk
+		// back to the previous code-point boundary.
+		const out = await exec.execute(
+			baseConfig({
+				code: "printf 'éééééééééé'",
+				language: "shell",
+				maxOutputBytes: 3,
+			}),
+		);
+		expect(out.status).toBe("success");
+		if (out.status === "success") {
+			expect(out.stdout).not.toContain("\uFFFD");
+			// Only complete "é" characters should survive.
+			expect(/^é*$/.test(out.stdout)).toBe(true);
 		}
+	});
+
+	it("does not inherit parent environment variables", async () => {
+		// Assert positively: the child's env came exclusively from
+		// `config.env` (which does not define AEGIS_TEST_LEAK), so the
+		// fallback branch of `${...:-missing}` must fire. This avoids
+		// mutating `process.env`, which would be fragile under
+		// `describe.concurrent` or other tests reading the same variable.
+		const out = await exec.execute(
+			baseConfig({
+				code: 'echo "${AEGIS_TEST_LEAK:-missing}"',
+				language: "shell",
+			}),
+		);
+		expect(out.status).toBe("success");
+		if (out.status === "success") {
+			expect(out.stdout).toBe("missing");
+		}
+	});
+
+	it("returns error for rust until compile-then-run lands", async () => {
+		const forced = new PolyglotExecutor({
+			resolveRuntime: makeResolver({
+				rust: {
+					language: "rust",
+					available: true,
+					version: "fake",
+					path: "/usr/bin/fake-rustc",
+					binary: "rustc",
+				},
+			}),
+		});
+		const out = await forced.execute(
+			baseConfig({
+				code: 'fn main() { println!("hi"); }',
+				language: "rust",
+			}),
+		);
+		expect(out).toEqual({
+			status: "error",
+			error: expect.stringContaining("rust execution is not yet supported"),
+		});
 	});
 
 	it("runs javascript via node when detected", async () => {

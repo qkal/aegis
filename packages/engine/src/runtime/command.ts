@@ -88,10 +88,12 @@ export function planExecution(runtime: AvailableRuntime): CommandPlan {
 			// `go run <file>` compiles-and-runs a single file in one step.
 			return plan(runtime.path, ["run", SOURCE_PLACEHOLDER], ext);
 		case "rust":
-			// `rustc --edition=2021 <file> -o <file>.out && <file>.out` is
-			// two stages and out-of-scope for Phase 1. The plan describes
-			// the compile step only; the executor handles compile→run.
-			return plan(runtime.path, ["--edition=2021", SOURCE_PLACEHOLDER], ext);
+			// `rustc` only compiles. A correct plan would need a second
+			// spawn to execute the produced binary (compile-then-run),
+			// which is deferred to Phase 2. Fail fast so callers do not
+			// mistake a successful `rustc` invocation for a successful
+			// program run.
+			throw new Error("rust execution is not yet supported");
 		case "swift":
 			// Swift's default binary accepts a file and runs it directly.
 			return plan(runtime.path, [SOURCE_PLACEHOLDER], ext);

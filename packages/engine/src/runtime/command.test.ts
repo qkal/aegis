@@ -15,7 +15,17 @@ function rt(language: Language, path = "/usr/bin/fake"): AvailableRuntime {
 
 describe("planExecution", () => {
 	it("uses `{{SOURCE}}` as the sole argument for script languages", () => {
-		for (const lang of ["javascript", "python", "shell", "ruby", "php", "perl", "swift"] as const) {
+		const scripts = [
+			"javascript",
+			"typescript",
+			"python",
+			"shell",
+			"ruby",
+			"php",
+			"perl",
+			"swift",
+		] as const;
+		for (const lang of scripts) {
 			const plan = planExecution(rt(lang));
 			expect(plan.args).toEqual([SOURCE_PLACEHOLDER]);
 			expect(plan.sourceExtension).toBe(FILE_EXTENSION[lang]);
@@ -28,10 +38,12 @@ describe("planExecution", () => {
 		expect(plan.sourceExtension).toBe(".go");
 	});
 
-	it("invokes `rustc --edition=2021 <file>` for rust", () => {
-		const plan = planExecution(rt("rust"));
-		expect(plan.args).toEqual(["--edition=2021", SOURCE_PLACEHOLDER]);
-		expect(plan.sourceExtension).toBe(".rs");
+	it("throws for rust because compile-then-run is not yet implemented", () => {
+		// Returning a compile-only plan would let the executor report
+		// `status: "success"` for a Rust snippet that never ran. Fail
+		// fast instead, and surface the error through PolyglotExecutor's
+		// normal error path. Revisit when Phase 2 wires compile-then-run.
+		expect(() => planExecution(rt("rust"))).toThrow(/rust execution is not yet supported/);
 	});
 
 	it("uses `Rscript <file>` for r", () => {

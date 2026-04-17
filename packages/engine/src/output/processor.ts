@@ -30,7 +30,8 @@ export const DEFAULT_OUTPUT_OPTIONS: OutputProcessorOptions = {
  *
  * - `text`: the processed output
  * - `truncated`: whether bytes were dropped to honour `maxBytes`
- * - `originalByteLength`: the UTF-8 byte length of the raw input
+ * - `originalByteLength`: UTF-8 byte length of the raw `input` passed
+ *   to `processOutput`, prior to stripping, trimming, or truncation
  */
 export interface ProcessedOutput {
 	readonly text: string;
@@ -116,12 +117,15 @@ export function truncateToByteLength(input: string, maxBytes: number): {
  *
  * The pipeline is ordered so that stripping happens before truncation:
  * truncating first would let ANSI sequences pad the byte budget with
- * invisible data.
+ * invisible data. `originalByteLength` always reflects the UTF-8 byte
+ * length of the raw `input` (before stripping or trimming), so callers
+ * can reason about how much data was dropped overall.
  */
 export function processOutput(
 	input: string,
 	options: OutputProcessorOptions = DEFAULT_OUTPUT_OPTIONS,
 ): ProcessedOutput {
+	const originalByteLength = Buffer.byteLength(input, "utf8");
 	let text = input;
 	if (options.stripAnsi) {
 		text = stripAnsi(text);
@@ -134,6 +138,6 @@ export function processOutput(
 	return {
 		text: truncation.text,
 		truncated: truncation.truncated,
-		originalByteLength: truncation.originalByteLength,
+		originalByteLength,
 	};
 }
