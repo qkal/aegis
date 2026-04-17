@@ -291,6 +291,7 @@ describe("evaluateToolCall", () => {
 			const p = policy({
 				tools: {
 					deny: ["run_command(sudo *)"],
+					ask: [],
 					allow: ["run_command(echo *)", "run_command(git *)"],
 				},
 			});
