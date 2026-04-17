@@ -56,10 +56,11 @@ const URL_TOOLS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Build the policy-matcher string for a normalized tool call.
+ * Render a conservative policy-matcher string representing the given normalized tool call.
  *
- * Exported for unit tests and cross-package reuse; the return value
- * is what {@link evaluateToolCall} receives.
+ * Extracts the first applicable string argument for known tool categories (shell command, file path, search pattern, or URL) and formats the result as `ToolName(argument)`. If no applicable argument is present, returns `ToolName()`.
+ *
+ * @returns The matcher string (e.g., `Read(/path/to/file)` or `Glob(pattern)`), or `ToolName()` when no argument is available.
  */
 export function renderPolicyToolCall(call: NormalizedToolCall): string {
 	const name = call.toolName;
@@ -84,8 +85,11 @@ export function renderPolicyToolCall(call: NormalizedToolCall): string {
 }
 
 /**
- * Evaluate a PreToolUse call against the policy and return a
- * platform-agnostic response the adapter can serialize.
+ * Enforces the policy for a pre-tool-use event by evaluating the rendered tool call and producing a normalized hook response.
+ *
+ * @param call - The normalized tool invocation to evaluate
+ * @param policy - The Aegis policy used to evaluate the tool call
+ * @returns A `NormalizedHookResponse` representing the permission decision derived from the policy — e.g., allow (`{ kind: "permission", decision: "allow" }`), deny with a `reason`, or ask with a `prompt`
  */
 export function evaluatePreToolUse(
 	call: NormalizedToolCall,
@@ -96,7 +100,15 @@ export function evaluatePreToolUse(
 	return toHookResponse(decision);
 }
 
-/** Map a {@link PolicyDecision} onto a {@link NormalizedHookResponse}. */
+/**
+ * Convert a policy decision into a normalized hook permission response.
+ *
+ * @param decision - The policy evaluation result whose `verdict` determines the response; may include `reason` or `prompt` for denial or interactive decisions.
+ * @returns A `NormalizedHookResponse` of kind `"permission"`:
+ * - `"allow"` when `decision.verdict` is `"allow"`.
+ * - `"deny"` when `decision.verdict` is `"deny"` or `"default_deny"`, including `reason` when provided.
+ * - `"ask"` when `decision.verdict` is `"ask"`, including the `prompt` as `reason`.
+ */
 export function toHookResponse(decision: PolicyDecision): NormalizedHookResponse {
 	switch (decision.verdict) {
 		case "allow":
@@ -122,6 +134,13 @@ export function toHookResponse(decision: PolicyDecision): NormalizedHookResponse
 	}
 }
 
+/**
+ * Selects the first non-empty string value from `args` using `keys` in order.
+ *
+ * @param args - Mapping of argument names to values to inspect
+ * @param keys - Ordered list of keys to check on `args`
+ * @returns The first string with length > 0 found at any provided key, or `undefined` if none exist
+ */
 function firstString(
 	args: Readonly<Record<string, unknown>>,
 	keys: readonly string[],

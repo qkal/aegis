@@ -66,13 +66,12 @@ export interface LoadPolicyOptions {
 }
 
 /**
- * Load and normalize the effective policy for the current session.
+ * Compute the effective Aegis policy by layering defaults with optional user and project config files.
  *
- * Missing config files are **not** an error — the caller always gets
- * at least {@link DEFAULT_POLICY}. Malformed JSON or structural
- * validation failures throw {@link PolicyConfigError} so the caller
- * can surface a precise message instead of silently falling back to
- * weaker defaults.
+ * Missing config files are ignored (they are not treated as errors); the result always includes at least the default policy. Malformed JSON or structural validation failures throw {@link PolicyConfigError} with the relevant file path and cause.
+ *
+ * @param options - Optional overrides for resolution and IO (e.g., `userConfigPath`, `projectConfigPath`, `cwd`, `home`, `readFile`). Set `userConfigPath` or `projectConfigPath` to `null` to disable that layer.
+ * @returns The loaded policy and an ordered list of sources that contributed to it
  */
 export function loadPolicy(options: LoadPolicyOptions = {}): LoadedPolicy {
 	const readFile = options.readFile ?? defaultReadFile;
@@ -120,9 +119,11 @@ export interface PolicySource {
 }
 
 /**
- * Merge a parsed config layer onto a base policy, wrapping any
- * {@link InvalidPolicyError} into a {@link PolicyConfigError} that
- * carries the file path for a clear error message.
+ * Merge a parsed policy layer into a base policy and return the resulting policy.
+ *
+ * @param path - Absolute file path associated with the parsed layer; used as the `path` on any thrown `PolicyConfigError`
+ * @returns The merged `AegisPolicy` formed by applying `parsed` on top of `base`
+ * @throws {PolicyConfigError} When `parsed` is structurally invalid for a policy; the thrown error's `path` will be `path` and its `cause` will be the original validation error
  */
 function mergeWithPath(base: AegisPolicy, parsed: unknown, path: string): AegisPolicy {
 	try {
@@ -135,6 +136,14 @@ function mergeWithPath(base: AegisPolicy, parsed: unknown, path: string): AegisP
 	}
 }
 
+/**
+ * Reads the file at `path` and parses its contents as JSON, returning the parsed value or `undefined` when the file is missing.
+ *
+ * @param path - Absolute path to the policy config file being read
+ * @param readFile - Function used to read the file contents; should return the file text or `undefined` when the file does not exist
+ * @returns The parsed JSON value, or `undefined` if the reader indicates the file is missing
+ * @throws PolicyConfigError - If reading fails for reasons other than "file not found", or if the file contains invalid JSON; the error includes the `path` and original `cause`
+ */
 function readAndParse(
 	path: string,
 	readFile: PolicyFileReader,
@@ -154,6 +163,13 @@ function readAndParse(
 	}
 }
 
+/**
+ * Read a UTF-8 file and return its contents, or return `undefined` when the file does not exist.
+ *
+ * @param absolutePath - Absolute path to the file to read
+ * @returns The file contents decoded as UTF-8, or `undefined` if the file was not found
+ * @throws Any filesystem error other than "file not found" is propagated
+ */
 function defaultReadFile(absolutePath: string): string | undefined {
 	try {
 		return readFileSync(absolutePath, "utf8");
@@ -163,6 +179,12 @@ function defaultReadFile(absolutePath: string): string | undefined {
 	}
 }
 
+/**
+ * Determines whether an unknown value represents a filesystem "file not found" error (`ENOENT`).
+ *
+ * @param err - The value to inspect for an `ENOENT` error code
+ * @returns `true` if `err` is a non-null object whose `code` property equals `"ENOENT"`, `false` otherwise.
+ */
 function isEnoent(err: unknown): boolean {
 	return typeof err === "object"
 		&& err !== null
