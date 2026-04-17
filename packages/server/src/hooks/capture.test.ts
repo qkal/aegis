@@ -5,11 +5,11 @@
  * SessionEventStore so the full "PostToolUse → append → PreCompact →
  * saveSnapshot → SessionStart → restore" loop is exercised end-to-end.
  */
+import { claudeCodeAdapter } from "@aegis/adapters";
 import {
-	claudeCodeAdapter,
 	postToolUseBashFailureFixture,
 	postToolUseWriteFixture,
-} from "@aegis/adapters";
+} from "@aegis/adapters/testing";
 import { type SessionId } from "@aegis/core";
 import {
 	openDatabase,

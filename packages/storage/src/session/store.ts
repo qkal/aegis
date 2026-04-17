@@ -14,8 +14,10 @@
  *
  * Event IDs are provided by the caller so the orchestrator can correlate
  * a newly appended event with the persisted record without a round trip.
- * The store enforces `EventId`'s invariants (non-empty, no whitespace /
- * NUL, ≤128 chars) via `@aegis/core`'s branded constructor before insert.
+ * The store trusts that callers supply valid branded `EventId` / `SessionId`
+ * values — no runtime validation is performed on insert. Use the safe
+ * constructors from `@aegis/core` (`eventId()`, `sessionId()`) at untrusted
+ * boundaries before passing IDs into the store.
  */
 
 import type {
@@ -27,7 +29,15 @@ import type {
 } from "@aegis/core";
 
 import type { Database } from "../adapters/types.js";
-import type { EventFilter, SessionEventRecord, SessionSnapshot } from "./types.js";
+import type { EventFilter, SessionEventRecord } from "./types.js";
+
+/** Metadata returned by `saveSnapshot` — does not carry event records. */
+export interface PersistedSnapshotMetadata {
+	readonly sessionId: SessionId;
+	readonly budgetBytes: number;
+	readonly includedEventCount: number;
+	readonly createdAt: string;
+}
 
 /**
  * Lightweight identity-casts re-declared locally so this file does not
@@ -61,11 +71,9 @@ interface SnapshotRow {
  * through JSON (e.g. contains a BigInt, a circular reference, or a symbol).
  */
 export class NonSerializableEventError extends Error {
-	readonly cause: unknown;
 	constructor(detail: string, cause: unknown) {
-		super(`session event is not JSON-serializable: ${detail}`);
+		super(`session event is not JSON-serializable: ${detail}`, { cause });
 		this.name = "NonSerializableEventError";
-		this.cause = cause;
 	}
 }
 
@@ -130,7 +138,37 @@ export class SessionEventStore {
 		readonly sessionId: SessionId;
 		readonly event: SessionEvent;
 	}): SessionEventRecord {
+		return this.#appendWithTimestamp(input, new Date().toISOString());
+	}
+
+	/** Append many events inside a single transaction. Returns the persisted records. */
+	appendAll(
+		items: readonly {
+			readonly id: EventId;
+			readonly sessionId: SessionId;
+			readonly event: SessionEvent;
+		}[],
+	): readonly SessionEventRecord[] {
+		if (items.length === 0) return [];
 		const createdAt = new Date().toISOString();
+		const results: SessionEventRecord[] = [];
+		const tx = this.#db.transaction(() => {
+			for (const item of items) {
+				results.push(this.#appendWithTimestamp(item, createdAt));
+			}
+		});
+		tx();
+		return results;
+	}
+
+	#appendWithTimestamp(
+		input: {
+			readonly id: EventId;
+			readonly sessionId: SessionId;
+			readonly event: SessionEvent;
+		},
+		createdAt: string,
+	): SessionEventRecord {
 		let eventJson: string;
 		try {
 			eventJson = JSON.stringify(input.event);
@@ -154,25 +192,6 @@ export class SessionEventStore {
 			event: input.event,
 			createdAt,
 		};
-	}
-
-	/** Append many events inside a single transaction. Returns the persisted records. */
-	appendAll(
-		items: readonly {
-			readonly id: EventId;
-			readonly sessionId: SessionId;
-			readonly event: SessionEvent;
-		}[],
-	): readonly SessionEventRecord[] {
-		if (items.length === 0) return [];
-		const results: SessionEventRecord[] = [];
-		const tx = this.#db.transaction(() => {
-			for (const item of items) {
-				results.push(this.append(item));
-			}
-		});
-		tx();
-		return results;
 	}
 
 	/**
@@ -227,7 +246,7 @@ export class SessionEventStore {
 		readonly includedEventCount: number;
 		readonly snapshotText: string;
 		readonly createdAt?: string;
-	}): SessionSnapshot {
+	}): PersistedSnapshotMetadata {
 		const createdAt = input.createdAt ?? new Date().toISOString();
 		this.#insertSnapshot.run(
 			input.sessionId,
@@ -239,8 +258,8 @@ export class SessionEventStore {
 		return {
 			sessionId: input.sessionId,
 			budgetBytes: input.budgetBytes,
+			includedEventCount: input.includedEventCount,
 			createdAt,
-			events: [], // events are not re-fetched here; rebuild from list() if needed
 		};
 	}
 
@@ -266,6 +285,19 @@ export class SessionEventStore {
 	}
 }
 
+/**
+ * Thrown when a persisted event row cannot be deserialized. This indicates
+ * data corruption in the `session_events` table (e.g. truncated JSON).
+ */
+export class CorruptEventRowError extends Error {
+	readonly rowId: string;
+	constructor(rowId: string, cause: unknown) {
+		super(`corrupt session_events row id=${rowId}: ${(cause as Error).message}`, { cause });
+		this.name = "CorruptEventRowError";
+		this.rowId = rowId;
+	}
+}
+
 function rowToRecord(row: EventRow): SessionEventRecord {
 	// `event_json` is written by us via JSON.stringify on a validated
 	// SessionEvent, so parsing back is always safe. We still guard against
@@ -275,9 +307,7 @@ function rowToRecord(row: EventRow): SessionEventRecord {
 	try {
 		event = JSON.parse(row.event_json) as SessionEvent;
 	} catch (err) {
-		throw new Error(
-			`corrupt session_events row id=${row.id}: ${(err as Error).message}`,
-		);
+		throw new CorruptEventRowError(row.id, err);
 	}
 	return {
 		id: eventIdUnsafe(row.id),

@@ -33,6 +33,7 @@ import type { HookAdapter, HookType, NormalizedHookResponse } from "@aegis/adapt
 import {
 	buildSnapshot,
 	DEFAULT_SNAPSHOT_BUDGET_BYTES,
+	type EventId,
 	type SessionEvent,
 	type SessionId,
 } from "@aegis/core";
@@ -81,7 +82,7 @@ export function captureToolResult(
 	if (events.length === 0) return [];
 
 	const items = events.map((event) => ({
-		id: ctx.newEventId() as unknown as SessionEventRecord["id"],
+		id: ctx.newEventId() as EventId,
 		sessionId,
 		event,
 	}));
