@@ -212,7 +212,10 @@ describe("run (init)", () => {
 		expect(code).toBe(0);
 		// File preserved untouched.
 		expect(fs.files.get("/home/tester/.aegis/config.json")).toBe("{}\n");
-		expect(out.join("\n")).toContain("one or more files would be overwritten");
+		const joined = out.join("\n");
+		expect(joined).toContain("one or more files would be overwritten");
+		expect(joined).toContain("Blocked");
+		expect(joined).not.toContain("Applied.");
 	});
 
 	it("overwrites when --force is passed", () => {
@@ -257,5 +260,21 @@ describe("renderSummary", () => {
 			TERM,
 		);
 		expect(summary).toContain("dry run");
+	});
+
+	it("reports blocked when overwrite is blocked", () => {
+		const summary = renderSummary(
+			[
+				{
+					plan: { path: "/p", description: "d", contents: "new" },
+					action: "update",
+					before: "old",
+				},
+			],
+			{ platform: "generic", dryRun: false, force: false, blocked: true },
+			TERM,
+		);
+		expect(summary).toContain("Blocked");
+		expect(summary).not.toContain("Applied.");
 	});
 });

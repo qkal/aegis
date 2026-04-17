@@ -191,7 +191,7 @@ export function renderPreview(
 /** Summary line printed after the preview. */
 export function renderSummary(
 	resolved: readonly ResolvedFile[],
-	opts: InitOptions,
+	opts: InitOptions & { readonly blocked?: boolean; },
 	term: TermStyle,
 ): string {
 	const creates = resolved.filter((r) => r.action === "create").length;
@@ -200,6 +200,9 @@ export function renderSummary(
 	const head = `${creates} to create, ${updates} to update, ${unchanged} unchanged.`;
 	if (opts.dryRun) {
 		return bold(`${head} (dry run — no files written)`, term);
+	}
+	if (opts.blocked) {
+		return bold(`${head} Blocked — re-run with --force to apply.`, term);
 	}
 	if (creates + updates === 0) {
 		return bold(`${head} Nothing to do.`, term);
@@ -227,7 +230,7 @@ export function run(
 	write("");
 	const wouldOverwrite = resolved.some((r) => r.action === "update");
 	if (wouldOverwrite && !parsed.force && !parsed.dryRun) {
-		write(renderSummary(resolved, parsed, term));
+		write(renderSummary(resolved, { ...parsed, blocked: true }, term));
 		write("");
 		write(
 			`${
