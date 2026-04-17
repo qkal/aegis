@@ -115,13 +115,20 @@ export function renderLine(event: SessionEvent): string {
 		case "file":
 			return `file/${event.action} ${event.path}`;
 		case "git":
+			// `event.message` is the raw git commit message, which conventionally
+			// spans `subject\n\nbody\n\n<trailers>`. Collapsing whitespace keeps
+			// one event on one line so downstream parsers can rely on the
+			// one-event-per-line invariant documented at the top of the file.
 			return event.message !== undefined
-				? `git/${event.action} ${event.message}`
+				? `git/${event.action} ${singleLine(event.message, 200)}`
 				: event.ref !== undefined
 				? `git/${event.action} ${event.ref}`
 				: `git/${event.action}`;
 		case "task":
-			return `task/${event.action} ${event.description}`;
+			// `event.description` comes straight from adapter-level `TodoWrite`
+			// payloads (e.g. Claude Code), which are free-form user strings and
+			// may contain embedded newlines.
+			return `task/${event.action} ${singleLine(event.description, 200)}`;
 		case "error":
 			return event.exitCode !== undefined
 				? `error ${event.tool} (exit=${event.exitCode}): ${singleLine(event.message, 200)}`
