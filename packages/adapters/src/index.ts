@@ -8,17 +8,24 @@
 
 export { AMP_PLATFORM } from "./amp/index.js";
 export { ANTIGRAVITY_PLATFORM } from "./antigravity/index.js";
-export { CLAUDE_CODE_PLATFORM } from "./claude-code/index.js";
+export { CLAUDE_CODE_PLATFORM, claudeCodeAdapter } from "./claude-code/index.js";
+export type {
+	PostToolUsePayload as ClaudeCodePostToolUsePayload,
+	PreCompactPayload as ClaudeCodePreCompactPayload,
+	PreToolUsePayload as ClaudeCodePreToolUsePayload,
+	SessionStartPayload as ClaudeCodeSessionStartPayload,
+} from "./claude-code/index.js";
 export { CODEX_INTERCEPTED_TOOLS, CODEX_PLATFORM } from "./codex/index.js";
 export { CURSOR_PLATFORM } from "./cursor/index.js";
 export type { DetectedPlatform, PlatformId } from "./detect.js";
-export { PLATFORM_ENV_SIGNALS } from "./detect.js";
+export { detectPlatform, PLATFORM_ENV_SIGNALS } from "./detect.js";
 export { GEMINI_CLI_PLATFORM } from "./gemini-cli/index.js";
 export { GENERIC_PLATFORM } from "./generic/index.js";
 export { OPENCODE_PLATFORM, OPENCODE_PLUGIN_EVENTS } from "./opencode/index.js";
 export type {
 	HookAdapter,
 	HookType,
+	NormalizedHookResponse,
 	NormalizedToolCall,
 	NormalizedToolResult,
 	PlatformCapabilities,
