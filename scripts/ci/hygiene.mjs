@@ -15,7 +15,7 @@ export const PACK_TARGETS = Object.freeze([
 export function requiredDistFiles(packageDir) {
 	switch (packageDir) {
 		case "packages/cli":
-			return ["dist/index.js", "dist/cli.js"];
+			return ["dist/index.js", "dist/bin.js"];
 		case "packages/server":
 			return ["dist/index.js"];
 		default:
