@@ -15,6 +15,7 @@
  * pre-converted markdown to `aegis_index` directly.
  */
 
+import { evaluateNetAccess } from "@aegis/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import type { ServerContext } from "../runtime/context.js";
@@ -29,6 +30,7 @@ export const TOOL_DESCRIPTION =
 const DEFAULT_TTL_SECONDS = 24 * 60 * 60;
 const MAX_TTL_SECONDS = 30 * 24 * 60 * 60;
 const MAX_RESPONSE_BYTES = 4 * 1024 * 1024;
+const MAX_REDIRECTS = 10;
 
 export const inputSchema = {
 	url: z.string().url(),
@@ -63,6 +65,22 @@ export async function handler(
 		});
 	}
 
+	// Policy enforcement at the MCP boundary. `evaluateNetAccess`
+	// walks the sandbox.net deny/allow lists against `host:port`; the
+	// default policy denies all network access, so `aegis_fetch` is a
+	// no-op until the user opts in via their config.
+	const hostPort = netHostPort(parsed);
+	if (!evaluateNetAccess(hostPort, ctx.policy)) {
+		return errorResult(
+			`fetch denied by policy: ${hostPort} is not permitted by policy.sandbox.net`,
+			{
+				code: "denied",
+				reason: `network access to ${hostPort} denied`,
+				matchedRule: "policy.sandbox.net",
+			},
+		);
+	}
+
 	if (!args.force) {
 		const cached = findFreshUrlSource(ctx, args.url);
 		if (cached !== undefined) {
@@ -78,16 +96,67 @@ export async function handler(
 		}
 	}
 
+	// Manual redirect handling: each hop is validated against the
+	// network policy so an allowlisted origin cannot 30x to a denied
+	// host. The loop caps at MAX_REDIRECTS to avoid infinite chains.
+	let currentUrl = args.url;
 	let response;
-	try {
-		response = await ctx.fetch(args.url, {
-			headers: {
-				"user-agent": "aegis-mcp-server",
-				accept: "text/html, text/markdown, text/plain;q=0.9, */*;q=0.5",
-			},
-		});
-	} catch (err) {
-		return errorResult(`fetch failed: ${(err as Error).message}`, { code: "network_error" });
+	for (let hops = 0;; hops++) {
+		try {
+			response = await ctx.fetch(currentUrl, {
+				headers: {
+					"user-agent": "aegis-mcp-server",
+					accept: "text/html, text/markdown, text/plain;q=0.9, */*;q=0.5",
+				},
+				redirect: "manual",
+			});
+		} catch (err) {
+			return errorResult(`fetch failed: ${(err as Error).message}`, { code: "network_error" });
+		}
+
+		const isRedirect = response.status >= 300 && response.status < 400;
+		if (!isRedirect) break;
+
+		if (hops >= MAX_REDIRECTS) {
+			return errorResult(`too many redirects (max ${MAX_REDIRECTS})`, {
+				code: "too_many_redirects",
+			});
+		}
+
+		const location = response.headers.get("location");
+		if (location === null || location === "") {
+			return errorResult(
+				`redirect ${response.status} with no Location header`,
+				{ code: "http_error", status: response.status },
+			);
+		}
+
+		let nextUrl: URL;
+		try {
+			nextUrl = new URL(location, currentUrl);
+		} catch {
+			return errorResult(`redirect to invalid URL: ${location}`, { code: "invalid_url" });
+		}
+
+		if (nextUrl.protocol !== "http:" && nextUrl.protocol !== "https:") {
+			return errorResult(`redirect to unsupported scheme: ${nextUrl.protocol}`, {
+				code: "unsupported_scheme",
+			});
+		}
+
+		const nextHostPort = netHostPort(nextUrl);
+		if (!evaluateNetAccess(nextHostPort, ctx.policy)) {
+			return errorResult(
+				`redirect to ${nextHostPort} denied by policy`,
+				{
+					code: "denied",
+					reason: `network access to ${nextHostPort} denied (via redirect)`,
+					matchedRule: "policy.sandbox.net",
+				},
+			);
+		}
+
+		currentUrl = nextUrl.href;
 	}
 
 	if (!response.ok) {
@@ -253,4 +322,18 @@ function decodeEntities(input: string): string {
 		.replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n)))
 		.replace(/&#x([0-9a-f]+);/gi, (_, n: string) => String.fromCodePoint(parseInt(n, 16)))
 		.replace(/&([a-z]+);/gi, (full, name: string) => ENTITY_MAP[name.toLowerCase()] ?? full);
+}
+
+/**
+ * Render a URL as `host:port` for {@link evaluateNetAccess}. Falls
+ * back to the protocol's default port so policy globs like `*:443`
+ * work whether or not the URL carried an explicit port.
+ */
+function netHostPort(url: URL): string {
+	const port = url.port !== ""
+		? url.port
+		: url.protocol === "https:"
+		? "443"
+		: "80";
+	return `${url.hostname}:${port}`;
 }

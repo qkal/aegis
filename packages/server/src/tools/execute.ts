@@ -51,11 +51,34 @@ export async function handler(
 	const args = argsSchema.parse(rawArgs);
 	ctx.counters.executeCalls += 1;
 
+	// Policy enforcement at the MCP boundary: platforms with no
+	// PreToolUse hook (Tier 3) still route through this handler, so
+	// the language allow-list and execution caps are enforced here
+	// regardless of hook coverage.
+	if (!ctx.policy.execution.allowedRuntimes.includes(args.language)) {
+		ctx.counters.executeErrors += 1;
+		return errorResult(
+			`execution denied: language "${args.language}" is not in policy.execution.allowedRuntimes`,
+			{
+				code: "denied",
+				reason: `language ${args.language} not permitted`,
+				matchedRule: "policy.execution.allowedRuntimes",
+			},
+		);
+	}
+
+	// Clamp caller-supplied limits to the policy ceiling. The effective
+	// timeout is min(caller default, policy max); same for output bytes.
+	const requestedTimeout = args.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+	const effectiveTimeout = Math.min(requestedTimeout, ctx.policy.execution.maxTimeoutMs);
+	const requestedMaxBytes = args.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES;
+	const effectiveMaxBytes = Math.min(requestedMaxBytes, ctx.policy.execution.maxOutputBytes);
+
 	const outcome = await ctx.executor.execute({
 		code: args.code,
 		language: args.language,
-		timeoutMs: args.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-		maxOutputBytes: args.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES,
+		timeoutMs: effectiveTimeout,
+		maxOutputBytes: effectiveMaxBytes,
 		// Phase 1 ships with env isolation only — no inherited secrets,
 		// no parent PATH; the sandbox policy work in M1.5 refines this.
 		env: { PATH: process.env["PATH"] ?? "" },

@@ -11,12 +11,13 @@
  *  1. Glob matching is implemented with a linear two-pointer algorithm
  *     (not a regex engine) so a malicious policy author cannot craft a
  *     pattern that triggers catastrophic regex backtracking (ReDoS).
- *  2. Tool calls for shell-like tools (`Bash`, `Shell`, `Exec`) are
- *     decomposed into their constituent commands before matching.
- *     Chain operators (`;`, `&&`, `||`, `|`, `&`, newline) and command
- *     substitutions (`$(...)`, backticks) are recursively extracted so
- *     that a call like `Bash(git status; sudo rm -rf /)` cannot bypass
- *     a deny rule for `Bash(sudo *)` by riding on an allowed prefix.
+ *  2. Tool calls for shell-like tools (`Bash`, `Shell`, `Exec`, `Sh`,
+ *     `run_command`) are decomposed into their constituent commands
+ *     before matching. Chain operators (`;`, `&&`, `||`, `|`, `&`,
+ *     newline) and command substitutions (`$(...)`, backticks) are
+ *     recursively extracted so that a call like
+ *     `Bash(git status; sudo rm -rf /)` cannot bypass a deny rule for
+ *     `Bash(sudo *)` by riding on an allowed prefix.
  */
 import type { AegisPolicy, ToolPattern } from "./schema.js";
 
@@ -43,8 +44,21 @@ export type PolicyDecision =
  * argument is decomposed on chain operators and command substitutions
  * before matching against policy rules; every sub-command must satisfy
  * the policy independently.
+ *
+ * Exported so the server hook layer can reuse the same set instead of
+ * maintaining a duplicate that could drift. Any tool the hook maps
+ * onto a shell-command-line argument must appear here, otherwise a
+ * chained command like `run_command(echo ok; sudo rm -rf /)` would be
+ * matched as a single opaque argument and bypass a
+ * `run_command(sudo *)` deny rule.
  */
-const SHELL_TOOLS: ReadonlySet<string> = new Set(["Bash", "Shell", "Exec", "Sh"]);
+export const SHELL_TOOL_NAMES: ReadonlySet<string> = new Set([
+	"Bash",
+	"Shell",
+	"Exec",
+	"Sh",
+	"run_command",
+]);
 
 /**
  * Evaluate a tool call string against the policy's tool rules.
@@ -143,11 +157,12 @@ function extractToolName(toolCall: string): string {
  *
  * For non-shell tools this is simply `[toolCall]`.
  *
- * For shell tools (`Bash`, `Shell`, `Exec`, `Sh`) the argument is split
- * on unquoted chain operators (`;`, `&&`, `||`, `|`, `&`, newline) and
- * any command substitutions (`$(...)` and backticks) are recursively
- * extracted so their contents are also evaluated. Each resulting segment
- * is wrapped back into the same tool name so matching works uniformly.
+ * For shell tools (those in {@link SHELL_TOOL_NAMES}: `Bash`, `Shell`,
+ * `Exec`, `Sh`, `run_command`) the argument is split on unquoted chain
+ * operators (`;`, `&&`, `||`, `|`, `&`, newline) and any command
+ * substitutions (`$(...)` and backticks) are recursively extracted so
+ * their contents are also evaluated. Each resulting segment is wrapped
+ * back into the same tool name so matching works uniformly.
  *
  * Exported for testing only.
  */
@@ -157,7 +172,7 @@ export function expandToolCall(toolCall: string): readonly string[] {
 		return [toolCall];
 	}
 	const { name, arg } = parsed;
-	if (!SHELL_TOOLS.has(name)) {
+	if (!SHELL_TOOL_NAMES.has(name)) {
 		return [toolCall];
 	}
 	const segments = splitShellCommand(arg);

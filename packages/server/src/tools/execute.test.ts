@@ -1,3 +1,4 @@
+import { normalizePolicy } from "@aegis/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ServerContext } from "../runtime/context.js";
@@ -145,5 +146,65 @@ describe("aegis_execute handler", () => {
 		await expect(
 			handler({ code: "", language: "javascript" }, ctx),
 		).rejects.toThrow(/code must not be empty/);
+	});
+
+	it("denies execution when the language is not in policy.execution.allowedRuntimes", async () => {
+		const restricted = normalizePolicy({
+			execution: { allowedRuntimes: ["python"] },
+		});
+		const stub = new StubExecutor([{
+			status: "success",
+			stdout: "",
+			stderr: "",
+			exitCode: 0,
+			durationMs: 1,
+		}]);
+		const built = await buildTestContext({
+			executor: stub.asPolyglot(),
+			policy: restricted,
+		});
+		close();
+		ctx = built.ctx;
+		close = built.close;
+
+		const result = await handler(
+			{ code: "console.log('hi')", language: "javascript" },
+			ctx,
+		);
+
+		expect(result.isError).toBe(true);
+		const body = parseBody(result);
+		expect(body["code"]).toBe("denied");
+		expect(body["matchedRule"]).toBe("policy.execution.allowedRuntimes");
+		expect(stub.calls).toHaveLength(0);
+		expect(ctx.counters.executeErrors).toBe(1);
+	});
+
+	it("clamps caller-supplied timeoutMs to policy.execution.maxTimeoutMs", async () => {
+		const policy = normalizePolicy({
+			execution: { maxTimeoutMs: 5_000 },
+		});
+		const stub = new StubExecutor([{
+			status: "success",
+			stdout: "",
+			stderr: "",
+			exitCode: 0,
+			durationMs: 1,
+		}]);
+		const built = await buildTestContext({
+			executor: stub.asPolyglot(),
+			policy,
+		});
+		close();
+		ctx = built.ctx;
+		close = built.close;
+
+		await handler(
+			{ code: "echo hi", language: "shell", timeoutMs: 30_000 },
+			ctx,
+		);
+
+		expect(stub.calls).toHaveLength(1);
+		expect(stub.calls[0]!.timeoutMs).toBe(5_000);
 	});
 });

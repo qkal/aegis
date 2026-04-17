@@ -30,6 +30,19 @@ export type {
 	TimerHandle,
 	TimerLike,
 } from "./hooks/orchestrator.js";
+export { evaluatePreToolUse, renderPolicyToolCall, toHookResponse } from "./hooks/policy.js";
+export type {
+	LoadedPolicy,
+	LoadPolicyOptions,
+	PolicyFileReader,
+	PolicySource,
+} from "./policy/load.js";
+export {
+	loadPolicy,
+	PolicyConfigError,
+	PROJECT_CONFIG_RELATIVE,
+	USER_CONFIG_RELATIVE,
+} from "./policy/load.js";
 export {
 	createServerCounters,
 	type FetchLike,

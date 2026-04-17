@@ -1,8 +1,16 @@
+import { normalizePolicy } from "@aegis/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ServerContext } from "../runtime/context.js";
 import { buildTestContext, fetchResponse, stubFetch } from "../runtime/test-utils.js";
 import { handler, htmlToMarkdown, TOOL_NAME } from "./fetch.js";
+
+// Existing fetch tests predate M1.5 and assume unrestricted network
+// access. The default policy denies all net, so the existing tests
+// now rely on this opt-in policy that permits any host on :80/:443.
+const fetchTestPolicy = normalizePolicy({
+	sandbox: { net: { allow: ["*:443", "*:80"], deny: [] } },
+});
 
 function parseBody(result: CallToolResult): Record<string, unknown> {
 	const block = result.content[0];
@@ -50,6 +58,7 @@ describe("htmlToMarkdown", () => {
 describe("aegis_fetch handler", () => {
 	beforeEach(async () => {
 		const built = await buildTestContext({
+			policy: fetchTestPolicy,
 			fetch: stubFetch(() =>
 				fetchResponse({
 					ok: true,
@@ -105,6 +114,7 @@ describe("aegis_fetch handler", () => {
 
 	it("returns an isError result when the response is not OK", async () => {
 		const built = await buildTestContext({
+			policy: fetchTestPolicy,
 			fetch: stubFetch(() =>
 				fetchResponse({ ok: false, status: 404, statusText: "Not Found", body: "" })
 			),
@@ -119,5 +129,126 @@ describe("aegis_fetch handler", () => {
 		);
 		expect(result.isError).toBe(true);
 		expect(parseBody(result)["code"]).toBe("http_error");
+	});
+
+	it("follows redirects and validates each hop against the policy", async () => {
+		const requestedUrls: string[] = [];
+		const built = await buildTestContext({
+			policy: fetchTestPolicy,
+			fetch: stubFetch((url) => {
+				requestedUrls.push(url);
+				if (url === "https://example.com/start") {
+					return fetchResponse({
+						ok: false,
+						status: 302,
+						statusText: "Found",
+						body: "",
+						headers: { location: "https://example.com/final" },
+					});
+				}
+				return fetchResponse({
+					ok: true,
+					status: 200,
+					body: "<h1>Final</h1>",
+					headers: { "content-type": "text/html" },
+				});
+			}),
+		});
+		close();
+		ctx = built.ctx;
+		close = built.close;
+
+		const result = await handler(
+			{ url: "https://example.com/start" },
+			ctx,
+		);
+		expect(result.isError).toBeFalsy();
+		expect(requestedUrls).toEqual([
+			"https://example.com/start",
+			"https://example.com/final",
+		]);
+	});
+
+	it("denies redirects to hosts not permitted by policy", async () => {
+		// Policy only allows *:443 and *:80 — but let's use a more
+		// restrictive policy that only allows example.com.
+		const restrictive = normalizePolicy({
+			sandbox: { net: { allow: ["example.com:443"], deny: [] } },
+		});
+		const built = await buildTestContext({
+			policy: restrictive,
+			fetch: stubFetch((url) => {
+				if (url === "https://example.com/start") {
+					return fetchResponse({
+						ok: false,
+						status: 302,
+						statusText: "Found",
+						body: "",
+						headers: { location: "https://evil.internal/steal" },
+					});
+				}
+				throw new Error("fetch must not follow redirect to denied host");
+			}),
+		});
+		close();
+		ctx = built.ctx;
+		close = built.close;
+
+		const result = await handler(
+			{ url: "https://example.com/start" },
+			ctx,
+		);
+		expect(result.isError).toBe(true);
+		const body = parseBody(result);
+		expect(body["code"]).toBe("denied");
+		expect(body["matchedRule"]).toBe("policy.sandbox.net");
+	});
+
+	it("caps redirect chains at the maximum hop count", async () => {
+		const built = await buildTestContext({
+			policy: fetchTestPolicy,
+			fetch: stubFetch((url) => {
+				// Always redirect — infinite loop.
+				return fetchResponse({
+					ok: false,
+					status: 302,
+					statusText: "Found",
+					body: "",
+					headers: { location: `${url}?hop` },
+				});
+			}),
+		});
+		close();
+		ctx = built.ctx;
+		close = built.close;
+
+		const result = await handler(
+			{ url: "https://example.com/loop" },
+			ctx,
+		);
+		expect(result.isError).toBe(true);
+		const body = parseBody(result);
+		expect(body["code"]).toBe("too_many_redirects");
+	});
+
+	it("denies fetches whose host is not permitted by policy", async () => {
+		const built = await buildTestContext({
+			// The default policy denies all network access.
+			fetch: stubFetch(() => {
+				throw new Error("fetch must not be invoked when denied");
+			}),
+		});
+		close();
+		ctx = built.ctx;
+		close = built.close;
+
+		const result = await handler(
+			{ url: "https://example.com/docs" },
+			ctx,
+		);
+		expect(result.isError).toBe(true);
+		const body = parseBody(result);
+		expect(body["code"]).toBe("denied");
+		expect(body["matchedRule"]).toBe("policy.sandbox.net");
 	});
 });
