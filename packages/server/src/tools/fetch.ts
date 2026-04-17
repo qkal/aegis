@@ -101,7 +101,7 @@ export async function handler(
 	// host. The loop caps at MAX_REDIRECTS to avoid infinite chains.
 	let currentUrl = args.url;
 	let response;
-	for (let hops = 0; ; hops++) {
+	for (let hops = 0;; hops++) {
 		try {
 			response = await ctx.fetch(currentUrl, {
 				headers: {
