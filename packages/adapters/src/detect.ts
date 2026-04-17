@@ -38,3 +38,30 @@ export interface DetectedPlatform {
 	readonly confidence: "high" | "medium" | "low";
 	readonly reason: string;
 }
+
+/**
+ * Detect the host agent platform from an environment map (defaults to
+ * `process.env`). Returns `undefined` if no known signal matches — the
+ * caller is expected to fall back to `generic` in that case.
+ *
+ * Resolution order is the insertion order of {@link PLATFORM_ENV_SIGNALS}:
+ * Claude Code wins over Codex if, somehow, both sets of env vars are
+ * present simultaneously. In practice a host shell never sets more than
+ * one platform's signals at once, but deterministic ordering keeps the
+ * fallback predictable for tests and `aegis doctor`.
+ */
+export function detectPlatform(
+	env: Readonly<Record<string, string | undefined>>,
+): DetectedPlatform | undefined {
+	for (const [signal, platform] of Object.entries(PLATFORM_ENV_SIGNALS)) {
+		const value = env[signal];
+		if (value !== undefined && value !== "") {
+			return {
+				platform,
+				confidence: "high",
+				reason: `env var ${signal} is set`,
+			};
+		}
+	}
+	return undefined;
+}

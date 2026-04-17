@@ -42,6 +42,10 @@ export interface NormalizedToolCall {
 	readonly toolName: string;
 	readonly arguments: Readonly<Record<string, unknown>>;
 	readonly rawInput: unknown;
+	/** Current working directory reported by the platform, when available. */
+	readonly cwd?: string;
+	/** Platform-assigned session identifier, when available. */
+	readonly sessionId?: string;
 }
 
 /** Normalized tool result from any platform. */
@@ -49,7 +53,41 @@ export interface NormalizedToolResult {
 	readonly toolName: string;
 	readonly result: unknown;
 	readonly rawOutput: unknown;
+	/** The tool input that produced this result, when available. */
+	readonly toolInput?: Readonly<Record<string, unknown>>;
+	/** Current working directory reported by the platform, when available. */
+	readonly cwd?: string;
+	/** Platform-assigned session identifier, when available. */
+	readonly sessionId?: string;
 }
+
+/**
+ * Platform-agnostic hook response.
+ *
+ * Orchestrators build one of these and pass it to {@link HookAdapter.formatResponse},
+ * which translates the shape into whatever wire format the platform expects.
+ * Each variant is valid for only a specific subset of hook types — see the
+ * per-adapter `formatResponse` implementation for the exact mapping.
+ */
+export type NormalizedHookResponse =
+	/** Pre-tool-use permission decision (allow/deny/ask). */
+	| {
+		readonly kind: "permission";
+		readonly decision: "allow" | "deny" | "ask";
+		readonly reason?: string;
+	}
+	/** Extra context to prepend at session start or after compaction. */
+	| {
+		readonly kind: "context";
+		readonly additionalContext: string;
+	}
+	/** Block a post-tool-use or pre-compact event with a human-readable reason. */
+	| {
+		readonly kind: "block";
+		readonly reason: string;
+	}
+	/** No-op response: the hook completes cleanly without steering the agent. */
+	| { readonly kind: "noop"; };
 
 /** Platform capabilities report. */
 export interface PlatformCapabilities {
@@ -106,7 +144,7 @@ export interface HookAdapter {
 	parseToolResult(hookType: HookType, rawOutput: unknown): NormalizedToolResult;
 
 	/** Format an Aegis response for the platform's expected output. */
-	formatResponse(hookType: HookType, response: unknown): unknown;
+	formatResponse(hookType: HookType, response: NormalizedHookResponse): unknown;
 
 	/** Extract session events from a tool result (PostToolUse). */
 	extractEvents(result: NormalizedToolResult): readonly SessionEvent[];
