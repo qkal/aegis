@@ -7,7 +7,7 @@ import { assertSmokeFiles, REQUIRED_SMOKE_FILES } from "../../scripts/ci/smoke.m
 describe("smoke artifact manifest", () => {
 	it("covers the built CLI and server entrypoints", () => {
 		expect(REQUIRED_SMOKE_FILES).toEqual([
-			"packages/cli/dist/cli.js",
+			"packages/cli/dist/bin.js",
 			"packages/cli/dist/index.js",
 			"packages/server/dist/index.js",
 			"packages/server/package.json",
@@ -18,7 +18,7 @@ describe("smoke artifact manifest", () => {
 		const root = mkdtempSync(join(tmpdir(), "aegis-smoke-"));
 		mkdirSync(join(root, "packages", "cli", "dist"), { recursive: true });
 		writeFileSync(
-			join(root, "packages", "cli", "dist", "cli.js"),
+			join(root, "packages", "cli", "dist", "bin.js"),
 			"export const CLI_DESCRIPTION = 'ok';\n",
 		);
 

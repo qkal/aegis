@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 export const REQUIRED_SMOKE_FILES = Object.freeze([
-	"packages/cli/dist/cli.js",
+	"packages/cli/dist/bin.js",
 	"packages/cli/dist/index.js",
 	"packages/server/dist/index.js",
 	"packages/server/package.json",
@@ -28,7 +28,6 @@ export async function importBuiltModule(root, relativePath) {
 export async function runSmoke(root = process.cwd()) {
 	assertSmokeFiles(root);
 
-	const cliBin = await importBuiltModule(root, "packages/cli/dist/cli.js");
 	const cliModule = await importBuiltModule(root, "packages/cli/dist/index.js");
 	const serverModule = await importBuiltModule(root, "packages/server/dist/index.js");
 
@@ -36,12 +35,12 @@ export async function runSmoke(root = process.cwd()) {
 		throw new Error("CLI dist exports are missing expected identifiers.");
 	}
 
-	if (serverModule.SERVER_NAME !== "aegis" || typeof serverModule.SERVER_VERSION !== "string") {
-		throw new Error("Server dist exports are missing expected identifiers.");
+	if (typeof cliModule.CLI_DESCRIPTION !== "string") {
+		throw new Error("CLI entrypoint failed to load.");
 	}
 
-	if (typeof cliBin.CLI_DESCRIPTION !== "string") {
-		throw new Error("CLI entrypoint failed to load.");
+	if (serverModule.SERVER_NAME !== "aegis" || typeof serverModule.SERVER_VERSION !== "string") {
+		throw new Error("Server dist exports are missing expected identifiers.");
 	}
 }
 

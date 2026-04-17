@@ -16,7 +16,7 @@ describe("hygiene package manifest", () => {
 	it("requires extra entrypoints for cli and server", () => {
 		expect(requiredDistFiles("packages/cli")).toEqual([
 			"dist/index.js",
-			"dist/cli.js",
+			"dist/bin.js",
 		]);
 		expect(requiredDistFiles("packages/server")).toEqual([
 			"dist/index.js",

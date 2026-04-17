@@ -62,6 +62,10 @@ importers:
       '@aegis/storage':
         specifier: workspace:*
         version: link:../storage
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.19.17
 
   packages/core:
     devDependencies:

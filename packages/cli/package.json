@@ -4,7 +4,7 @@
 	"description": "CLI for Aegis — context infrastructure engine for AI coding agents",
 	"type": "module",
 	"bin": {
-		"aegis": "./dist/cli.js"
+		"aegis": "./dist/bin.js"
 	},
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
@@ -28,7 +28,7 @@
 		}
 	},
 	"scripts": {
-		"build": "tsup src/cli.ts src/index.ts --format esm --dts --clean",
+		"build": "tsup src/bin.ts src/index.ts --format esm --dts --clean",
 		"typecheck": "tsc --noEmit",
 		"clean": "rm -rf dist"
 	},
@@ -38,6 +38,9 @@
 		"@aegis/storage": "workspace:*",
 		"@aegis/adapters": "workspace:*",
 		"@aegis/server": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.5"
 	},
 	"license": "Apache-2.0"
 }
