@@ -76,7 +76,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Deliverables
 
-- [ ] **M1.1** — Sandbox execution engine (`@aegis/engine`)
+- [x] **M1.1** — Sandbox execution engine (`@aegis/engine`)
   - `PolyglotExecutor` spawns isolated processes per language
   - Runtime detection for all 11 supported languages
   - Environment explicitly constructed (not inherited)
