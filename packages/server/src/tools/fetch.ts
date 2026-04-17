@@ -30,6 +30,7 @@ export const TOOL_DESCRIPTION =
 const DEFAULT_TTL_SECONDS = 24 * 60 * 60;
 const MAX_TTL_SECONDS = 30 * 24 * 60 * 60;
 const MAX_RESPONSE_BYTES = 4 * 1024 * 1024;
+const MAX_REDIRECTS = 10;
 
 export const inputSchema = {
 	url: z.string().url(),
@@ -95,16 +96,67 @@ export async function handler(
 		}
 	}
 
+	// Manual redirect handling: each hop is validated against the
+	// network policy so an allowlisted origin cannot 30x to a denied
+	// host. The loop caps at MAX_REDIRECTS to avoid infinite chains.
+	let currentUrl = args.url;
 	let response;
-	try {
-		response = await ctx.fetch(args.url, {
-			headers: {
-				"user-agent": "aegis-mcp-server",
-				accept: "text/html, text/markdown, text/plain;q=0.9, */*;q=0.5",
-			},
-		});
-	} catch (err) {
-		return errorResult(`fetch failed: ${(err as Error).message}`, { code: "network_error" });
+	for (let hops = 0; ; hops++) {
+		try {
+			response = await ctx.fetch(currentUrl, {
+				headers: {
+					"user-agent": "aegis-mcp-server",
+					accept: "text/html, text/markdown, text/plain;q=0.9, */*;q=0.5",
+				},
+				redirect: "manual",
+			});
+		} catch (err) {
+			return errorResult(`fetch failed: ${(err as Error).message}`, { code: "network_error" });
+		}
+
+		const isRedirect = response.status >= 300 && response.status < 400;
+		if (!isRedirect) break;
+
+		if (hops >= MAX_REDIRECTS) {
+			return errorResult(`too many redirects (max ${MAX_REDIRECTS})`, {
+				code: "too_many_redirects",
+			});
+		}
+
+		const location = response.headers.get("location");
+		if (location === null || location === "") {
+			return errorResult(
+				`redirect ${response.status} with no Location header`,
+				{ code: "http_error", status: response.status },
+			);
+		}
+
+		let nextUrl: URL;
+		try {
+			nextUrl = new URL(location, currentUrl);
+		} catch {
+			return errorResult(`redirect to invalid URL: ${location}`, { code: "invalid_url" });
+		}
+
+		if (nextUrl.protocol !== "http:" && nextUrl.protocol !== "https:") {
+			return errorResult(`redirect to unsupported scheme: ${nextUrl.protocol}`, {
+				code: "unsupported_scheme",
+			});
+		}
+
+		const nextHostPort = netHostPort(nextUrl);
+		if (!evaluateNetAccess(nextHostPort, ctx.policy)) {
+			return errorResult(
+				`redirect to ${nextHostPort} denied by policy`,
+				{
+					code: "denied",
+					reason: `network access to ${nextHostPort} denied (via redirect)`,
+					matchedRule: "policy.sandbox.net",
+				},
+			);
+		}
+
+		currentUrl = nextUrl.href;
 	}
 
 	if (!response.ok) {

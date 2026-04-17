@@ -21,7 +21,10 @@ import type { ContentIndex, Database } from "@aegis/storage";
  */
 export type FetchLike = (
 	url: string,
-	init?: { readonly headers?: Record<string, string>; },
+	init?: {
+		readonly headers?: Record<string, string>;
+		readonly redirect?: "follow" | "manual" | "error";
+	},
 ) => Promise<FetchResponse>;
 
 /** Minimum surface needed from a fetch response. */
@@ -29,6 +32,7 @@ export interface FetchResponse {
 	readonly ok: boolean;
 	readonly status: number;
 	readonly statusText: string;
+	readonly url?: string;
 	readonly headers: {
 		get(name: string): string | null;
 	};
