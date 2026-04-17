@@ -1,2 +1,8 @@
-export type { OutputProcessorOptions } from "./processor.js";
-export { DEFAULT_OUTPUT_OPTIONS } from "./processor.js";
+export type { OutputProcessorOptions, ProcessedOutput } from "./processor.js";
+export {
+	DEFAULT_OUTPUT_OPTIONS,
+	processOutput,
+	stripAnsi,
+	stripControlCharacters,
+	truncateToByteLength,
+} from "./processor.js";
