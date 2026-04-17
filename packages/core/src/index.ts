@@ -12,5 +12,7 @@ export * from "./events/index.js";
 export * from "./policy/index.js";
 // Routing
 export * from "./routing/index.js";
+// Snapshot builder (priority-tiered context restoration)
+export * from "./snapshot/index.js";
 // Branded types
 export * from "./types/index.js";

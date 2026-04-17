@@ -8,7 +8,18 @@
 
 export { AMP_PLATFORM } from "./amp/index.js";
 export { ANTIGRAVITY_PLATFORM } from "./antigravity/index.js";
-export { CLAUDE_CODE_PLATFORM, claudeCodeAdapter } from "./claude-code/index.js";
+export {
+	CLAUDE_CODE_PLATFORM,
+	claudeCodeAdapter,
+	postToolUseBashFailureFixture,
+	postToolUseGitCommitFixture,
+	postToolUseTodoWriteFixture,
+	postToolUseWriteFixture,
+	preCompactFixture,
+	preToolUseBashFixture,
+	preToolUseDotenvFixture,
+	sessionStartFixture,
+} from "./claude-code/index.js";
 export type {
 	PostToolUsePayload as ClaudeCodePostToolUsePayload,
 	PreCompactPayload as ClaudeCodePreCompactPayload,
