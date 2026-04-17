@@ -15,6 +15,7 @@
  * pre-converted markdown to `aegis_index` directly.
  */
 
+import { evaluateNetAccess } from "@aegis/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import type { ServerContext } from "../runtime/context.js";
@@ -61,6 +62,22 @@ export async function handler(
 		return errorResult(`unsupported URL scheme: ${parsed.protocol}`, {
 			code: "unsupported_scheme",
 		});
+	}
+
+	// Policy enforcement at the MCP boundary. `evaluateNetAccess`
+	// walks the sandbox.net deny/allow lists against `host:port`; the
+	// default policy denies all network access, so `aegis_fetch` is a
+	// no-op until the user opts in via their config.
+	const hostPort = netHostPort(parsed);
+	if (!evaluateNetAccess(hostPort, ctx.policy)) {
+		return errorResult(
+			`fetch denied by policy: ${hostPort} is not permitted by policy.sandbox.net`,
+			{
+				code: "denied",
+				reason: `network access to ${hostPort} denied`,
+				matchedRule: "policy.sandbox.net",
+			},
+		);
 	}
 
 	if (!args.force) {
@@ -253,4 +270,18 @@ function decodeEntities(input: string): string {
 		.replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n)))
 		.replace(/&#x([0-9a-f]+);/gi, (_, n: string) => String.fromCodePoint(parseInt(n, 16)))
 		.replace(/&([a-z]+);/gi, (full, name: string) => ENTITY_MAP[name.toLowerCase()] ?? full);
+}
+
+/**
+ * Render a URL as `host:port` for {@link evaluateNetAccess}. Falls
+ * back to the protocol's default port so policy globs like `*:443`
+ * work whether or not the URL carried an explicit port.
+ */
+function netHostPort(url: URL): string {
+	const port = url.port !== ""
+		? url.port
+		: url.protocol === "https:"
+		? "443"
+		: "80";
+	return `${url.hostname}:${port}`;
 }

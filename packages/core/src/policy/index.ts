@@ -9,6 +9,13 @@ export {
 	normalizePathForPolicy,
 } from "./evaluate.js";
 export type {
+	PartialAegisPolicy,
+	PartialExecutionPolicy,
+	PartialSandboxPolicy,
+	PartialToolPolicy,
+} from "./load.js";
+export { InvalidPolicyError, mergePolicy, normalizePolicy } from "./load.js";
+export type {
 	AegisPolicy,
 	ExecutionPolicy,
 	Language,

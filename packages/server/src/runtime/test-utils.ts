@@ -9,6 +9,7 @@
  * separator is enforced by convention rather than by tooling.
  */
 
+import { type AegisPolicy, DEFAULT_POLICY } from "@aegis/core";
 import type { ExecOutcome, PolyglotExecutor, SandboxConfig } from "@aegis/engine";
 import {
 	CONTENT_INDEX_MIGRATIONS,
@@ -103,6 +104,7 @@ export interface BuildTestContextOptions {
 	readonly fetch?: FetchLike;
 	readonly now?: () => Date;
 	readonly startedAt?: number;
+	readonly policy?: AegisPolicy;
 }
 
 /** Wire up a full `ServerContext` backed by in-memory storage. */
@@ -120,6 +122,7 @@ export async function buildTestContext(
 		contentIndex,
 		db,
 		platform: undefined,
+		policy: opts.policy ?? DEFAULT_POLICY,
 		startedAt: opts.startedAt ?? now().getTime(),
 		counters: createServerCounters(),
 		now,

@@ -9,6 +9,7 @@
  */
 
 import type { PlatformCapabilities } from "@aegis/adapters";
+import type { AegisPolicy } from "@aegis/core";
 import type { PolyglotExecutor } from "@aegis/engine";
 import type { ContentIndex, Database } from "@aegis/storage";
 
@@ -89,6 +90,13 @@ export interface ServerContext {
 	readonly db: Database;
 	/** Platform capabilities reported by the detected adapter; undefined in tests or when no platform is detected. */
 	readonly platform: PlatformCapabilities | undefined;
+	/**
+	 * Effective policy for the session. The server loads this once at
+	 * startup (see `@aegis/server/policy/load`) and stashes it here so
+	 * every tool handler enforces the same rules. Tests default to
+	 * `DEFAULT_POLICY` via `buildTestContext`.
+	 */
+	readonly policy: AegisPolicy;
 	/** Process start time in ms since the epoch — used by `aegis_stats`. */
 	readonly startedAt: number;
 	readonly counters: ServerCounters;
