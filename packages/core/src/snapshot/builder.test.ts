@@ -179,6 +179,35 @@ describe("renderLine", () => {
 		expect(line.endsWith("…")).toBe(true);
 		expect(line.length).toBeLessThan(big.length);
 	});
+
+	it("collapses newlines in multi-line git commit messages to a single line", () => {
+		// Real git commit messages are `subject\n\nbody\n\ntrailer`-shaped;
+		// leaking a newline into the rendered snapshot would split one event
+		// across multiple lines and break downstream parsers that rely on
+		// the one-event-per-line contract.
+		const line = renderLine(
+			highGit(
+				"t",
+				"commit",
+				"feat: subject line\n\nbody paragraph 1\n\nbody paragraph 2\n\nSigned-off-by: me",
+			),
+		);
+		expect(line).not.toContain("\n");
+		expect(line).toBe(
+			"git/commit feat: subject line body paragraph 1 body paragraph 2 Signed-off-by: me",
+		);
+	});
+
+	it("collapses newlines in task descriptions from TodoWrite payloads", () => {
+		// Adapter-level TodoWrite hands us the user's raw description verbatim
+		// (see packages/adapters/src/claude-code/events.ts), which may contain
+		// explicit newlines when the user pastes a multi-line checklist.
+		const line = renderLine(
+			criticalTask("t", "step one\nstep two\nstep three"),
+		);
+		expect(line).not.toContain("\n");
+		expect(line).toBe("task/create step one step two step three");
+	});
 });
 
 describe("groupByPriority", () => {
