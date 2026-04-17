@@ -44,6 +44,15 @@ export const inputSchema = {
 const argsSchema = z.object(inputSchema);
 export type ExecuteArgs = z.infer<typeof argsSchema>;
 
+/**
+ * Validate and authorize execution arguments, run the code in the sandboxed executor, and produce a structured tool result.
+ *
+ * Enforces the runtime allow-list and clamps caller-supplied time and output limits to policy maxima, updates execution counters, and converts the executor's outcome into either a JSON success/failure/timeout payload or an error result.
+ *
+ * @param rawArgs - Execution arguments (includes `code`, `language`, optional `timeoutMs`, `maxOutputBytes`, and `workingDir`)
+ * @param ctx - Server context providing policy, counters, and the sandbox `executor`
+ * @returns A CallToolResult describing the execution outcome: a JSON result containing `status`, `stdout`, `stderr`, `exitCode` (when present), and `durationMs` for normal outcomes, or an error result with a `code` and diagnostic details for denied, error, or internal outcomes
+ */
 export async function handler(
 	rawArgs: ExecuteArgs,
 	ctx: ServerContext,

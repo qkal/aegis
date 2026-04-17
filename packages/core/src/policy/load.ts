@@ -92,26 +92,26 @@ export class InvalidPolicyError extends Error {
 }
 
 /**
- * Validate and normalize an externally-supplied policy document.
+ * Normalize an external policy document into a complete AegisPolicy.
  *
- * Returns a fully-populated {@link AegisPolicy}; any field absent from
- * `raw` is filled from {@link DEFAULT_POLICY}. Throws
- * {@link InvalidPolicyError} on any structural problem.
+ * @returns A fully populated {@link AegisPolicy} with any missing fields taken from {@link DEFAULT_POLICY}
+ * @throws {@link InvalidPolicyError} if the supplied policy has structural validation errors
  */
 export function normalizePolicy(raw: unknown): AegisPolicy {
 	return mergePolicy(DEFAULT_POLICY, raw);
 }
 
 /**
- * Layer a partial policy onto a base policy. The base is treated as
- * fully-populated (any {@link AegisPolicy} satisfies that contract);
- * the partial is validated field-by-field and, where present,
- * replaces the base's value by the rules described at the top of
- * this file.
+ * Merge a partial policy document onto a fully populated AegisPolicy.
  *
- * Call {@link normalizePolicy} to merge onto {@link DEFAULT_POLICY},
- * or call {@link mergePolicy} directly to stack layers
- * (`mergePolicy(defaults, user, project)` via repeated calls).
+ * The function validates the provided partial policy and returns a new
+ * policy where any fields present in `raw` replace the corresponding
+ * fields from `base`; absent fields are retained from `base`.
+ *
+ * @param base - A fully populated `AegisPolicy` to serve as the merge base
+ * @param raw - A partial policy (or `undefined`/`null` to indicate no changes)
+ * @returns A new `AegisPolicy` with `raw` applied on top of `base`
+ * @throws InvalidPolicyError if `raw` is structurally invalid (wrong types, unknown keys, or unsupported version)
  */
 export function mergePolicy(base: AegisPolicy, raw: unknown): AegisPolicy {
 	if (raw === undefined || raw === null) return base;
@@ -140,6 +140,13 @@ export function mergePolicy(base: AegisPolicy, raw: unknown): AegisPolicy {
 	};
 }
 
+/**
+ * Merge a partial sandbox policy into a complete SandboxPolicy, replacing only the fields provided in the partial and preserving others.
+ *
+ * @param base - The base SandboxPolicy to merge into
+ * @param raw - A partial sandbox policy object (or `undefined`); when `undefined` the `base` is returned unchanged
+ * @returns The resulting fully populated SandboxPolicy after merging `raw` into `base`
+ */
 function mergeSandbox(base: SandboxPolicy, raw: unknown): SandboxPolicy {
 	if (raw === undefined) return base;
 	const partial = requireObject(raw, "sandbox");
@@ -156,6 +163,14 @@ function mergeSandbox(base: SandboxPolicy, raw: unknown): SandboxPolicy {
 	};
 }
 
+/**
+ * Merge a base `{ allow, deny }` pair with a partial update while validating any provided arrays.
+ *
+ * @param path - JSON path prefix used for error messages when validation fails
+ * @param base - The base object supplying fallback `allow` and `deny` arrays
+ * @param raw - A partial object that may contain `allow` and/or `deny` arrays to replace the base values
+ * @returns A new object of the same shape as `base` where `allow` and `deny` are replaced by validated arrays from `raw` when present, otherwise retained from `base`
+ */
 function mergeAllowDeny<
 	T extends { readonly allow: readonly string[]; readonly deny: readonly string[]; },
 >(
@@ -176,6 +191,18 @@ function mergeAllowDeny<
 	};
 }
 
+/**
+ * Merge a partial filesystem policy into a complete `SandboxPolicy["fs"]`.
+ *
+ * Validates `raw` as an object containing only the keys `read`, `write`, and `deny`,
+ * and replaces each array field from `base` only when the corresponding field is provided.
+ *
+ * @param path - JSON path used to prefix validation error locations (e.g., `"sandbox.fs"`).
+ * @param base - The existing `fs` policy to use as defaults for missing fields.
+ * @param raw - A partial `fs` policy to merge; each present field must be an array of strings.
+ * @returns The resulting `SandboxPolicy["fs"]` with validated and frozen arrays where provided.
+ * @throws InvalidPolicyError - if `raw` is not an object, contains unknown keys, or any array/element fails validation.
+ */
 function mergeFs(path: string, base: SandboxPolicy["fs"], raw: unknown): SandboxPolicy["fs"] {
 	const partial = requireObject(raw, path);
 	assertNoUnknownKeys(path, partial, ["read", "write", "deny"]);
@@ -192,6 +219,13 @@ function mergeFs(path: string, base: SandboxPolicy["fs"], raw: unknown): Sandbox
 	};
 }
 
+/**
+ * Merge a partial tools policy into a complete `ToolPolicy`, replacing any array fields that are provided.
+ *
+ * @param base - The existing `ToolPolicy` to use as defaults for missing fields.
+ * @param raw - A partial tools policy object (allowed fields: `deny`, `allow`, `ask`). If a field is present it must be an array of strings; if `raw` is `undefined` the `base` is returned unchanged.
+ * @returns A `ToolPolicy` where each of `deny`, `allow`, and `ask` is the validated array from `raw` when provided, or the corresponding value from `base` otherwise.
+ */
 function mergeTools(base: ToolPolicy, raw: unknown): ToolPolicy {
 	if (raw === undefined) return base;
 	const partial = requireObject(raw, "tools");
@@ -209,6 +243,14 @@ function mergeTools(base: ToolPolicy, raw: unknown): ToolPolicy {
 	};
 }
 
+/**
+ * Merge a partial execution policy into a complete `ExecutionPolicy`, validating provided fields.
+ *
+ * @param base - The existing `ExecutionPolicy` to use as defaults for missing fields
+ * @param raw - A partial execution policy (may be `undefined`), expected to be an object with any of `maxTimeoutMs`, `maxOutputBytes`, `allowBackground`, or `allowedRuntimes`
+ * @returns A fully populated `ExecutionPolicy` composed of `base` values overridden by validated fields from `raw`
+ * @throws {InvalidPolicyError} When `raw` is not an object, contains unknown keys, or any provided field fails validation (includes path information)
+ */
 function mergeExecution(base: ExecutionPolicy, raw: unknown): ExecutionPolicy {
 	if (raw === undefined) return base;
 	const partial = requireObject(raw, "execution");
@@ -247,7 +289,14 @@ function mergeExecution(base: ExecutionPolicy, raw: unknown): ExecutionPolicy {
 
 // ---------------------------------------------------------------------------
 // Structural guards
-// ---------------------------------------------------------------------------
+/**
+ * Validates that `raw` is a non-null, non-array object and returns it.
+ *
+ * @param raw - The value to validate as an object
+ * @param path - The policy path used to report validation errors
+ * @returns The validated value typed as `Record<string, unknown>`
+ * @throws InvalidPolicyError if `raw` is `null`, not an object, or is an array
+ */
 
 function requireObject(raw: unknown, path: string): Record<string, unknown> {
 	if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
@@ -256,6 +305,14 @@ function requireObject(raw: unknown, path: string): Record<string, unknown> {
 	return raw as Record<string, unknown>;
 }
 
+/**
+ * Ensures `obj` contains only the specified keys.
+ *
+ * @param path - Base JSON path used when reporting unknown keys; use an empty string for top-level fields.
+ * @param obj - Object whose keys are validated against `allowed`.
+ * @param allowed - Array of permitted key names.
+ * @throws InvalidPolicyError when a key in `obj` is not listed in `allowed`. The error's `path` is formatted as `"<key>"` if `path` is empty, otherwise as `"<path>.<key>"`.
+ */
 function assertNoUnknownKeys(
 	path: string,
 	obj: Record<string, unknown>,
@@ -269,6 +326,14 @@ function assertNoUnknownKeys(
 	}
 }
 
+/**
+ * Validate that `raw` is an array of strings and return a frozen copy.
+ *
+ * @param path - JSON-style path used in error messages when validation fails
+ * @param raw - Value to validate as an array of strings
+ * @returns A frozen array containing the validated strings
+ * @throws InvalidPolicyError if `raw` is not an array or any element is not a string
+ */
 function requireStringArray(path: string, raw: unknown): readonly string[] {
 	if (!Array.isArray(raw)) {
 		throw new InvalidPolicyError(path, "expected an array of strings");
@@ -281,6 +346,14 @@ function requireStringArray(path: string, raw: unknown): readonly string[] {
 	return Object.freeze([...raw as string[]]);
 }
 
+/**
+ * Validate that `raw` is a positive integer.
+ *
+ * @param path - JSON path used in any validation error message
+ * @param raw - The value to validate
+ * @returns The validated positive integer
+ * @throws InvalidPolicyError if `raw` is not an integer greater than 0
+ */
 function requirePositiveInt(path: string, raw: unknown): number {
 	if (typeof raw !== "number" || !Number.isInteger(raw) || raw <= 0) {
 		throw new InvalidPolicyError(path, "expected a positive integer");
@@ -288,6 +361,14 @@ function requirePositiveInt(path: string, raw: unknown): number {
 	return raw;
 }
 
+/**
+ * Validate `raw` as an array of known language identifiers and return it as a frozen `Language[]`.
+ *
+ * @param path - JSON path used in error messages to locate the validated value
+ * @param raw - Candidate value expected to be an array of language identifier strings
+ * @returns A frozen array of validated `Language` identifiers
+ * @throws {InvalidPolicyError} If `raw` is not an array, or if any element is not a string or is not one of the allowed languages (error path will point to the offending index)
+ */
 function requireLanguageArray(path: string, raw: unknown): readonly Language[] {
 	if (!Array.isArray(raw)) {
 		throw new InvalidPolicyError(path, "expected an array of language identifiers");

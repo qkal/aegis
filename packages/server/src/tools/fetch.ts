@@ -42,6 +42,15 @@ export const inputSchema = {
 const argsSchema = z.object(inputSchema);
 export type FetchArgs = z.infer<typeof argsSchema>;
 
+/**
+ * Fetches the given URL (with manual redirect handling), enforces HTTP(S) and sandbox network policy, applies response-size limits, converts HTML responses to a lightweight markdown-ish text, indexes the resulting content, and returns metadata about the indexed or cached source.
+ *
+ * @param rawArgs - Input arguments: `url` (required), optional `label`, optional `ttlSeconds` (time-to-live in seconds), and optional `force` to bypass cache.
+ * @param ctx - Server context providing fetch capability, policy evaluation, content indexing, counters, and current time.
+ * @returns A CallToolResult containing:
+ * - `url`, `label` — the requested URL and the label used for this call;
+ * - `cached` — `true` when a fresh cached source was returned (together with `sourceId`, `chunkCount`, `expiresAt`), or `false` when the content was fetched and indexed (together with `sourceId`, `chunkCount`, `codeChunkCount`, `contentHash`, `reused`, `expiresAt`, `contentType`, and `bytes`).
+ */
 export async function handler(
 	rawArgs: FetchArgs,
 	ctx: ServerContext,
@@ -317,6 +326,14 @@ const ENTITY_MAP: Record<string, string> = {
 	nbsp: " ",
 };
 
+/**
+ * Decode HTML/XML character and named entities in a string.
+ *
+ * Decodes decimal numeric entities (`&#123;`), hexadecimal numeric entities (`&#x1a;`), and a small set of named entities (e.g., `&amp;`, `&lt;`). Unknown named entities are left unchanged.
+ *
+ * @param input - The string that may contain HTML or XML entities
+ * @returns The input string with recognized entities replaced by their decoded characters
+ */
 function decodeEntities(input: string): string {
 	return input
 		.replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n)))
@@ -325,9 +342,9 @@ function decodeEntities(input: string): string {
 }
 
 /**
- * Render a URL as `host:port` for {@link evaluateNetAccess}. Falls
- * back to the protocol's default port so policy globs like `*:443`
- * work whether or not the URL carried an explicit port.
+ * Produce a `host:port` string for a URL, using the URL's explicit port or the protocol default when absent.
+ *
+ * @returns The `host:port` pair where the port is `url.port` if present, otherwise `443` for `https:` and `80` for `http:`.
  */
 function netHostPort(url: URL): string {
 	const port = url.port !== ""

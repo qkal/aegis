@@ -107,7 +107,20 @@ export interface BuildTestContextOptions {
 	readonly policy?: AegisPolicy;
 }
 
-/** Wire up a full `ServerContext` backed by in-memory storage. */
+/**
+ * Create a complete ServerContext backed by an in-memory content index and return a cleanup handle.
+ *
+ * The returned context is initialized with migrations applied and sensible defaults for executor,
+ * fetch, time, policy, and counters when those options are not provided.
+ *
+ * @param opts - Optional overrides for parts of the test context:
+ *   - `executor`: custom PolyglotExecutor to use instead of the default stub executor.
+ *   - `fetch`: custom FetchLike implementation to use instead of the default stub that throws.
+ *   - `now`: function returning the current Date; used to derive `startedAt` if not provided.
+ *   - `startedAt`: numeric timestamp to use as the server start time.
+ *   - `policy`: AegisPolicy to apply to the context; defaults to `DEFAULT_POLICY`.
+ * @returns An object with `ctx`, the created ServerContext, and `close()`, a function that closes the underlying in-memory database.
+ */
 export async function buildTestContext(
 	opts: BuildTestContextOptions = {},
 ): Promise<{ readonly ctx: ServerContext; readonly close: () => void; }> {
