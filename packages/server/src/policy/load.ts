@@ -14,12 +14,7 @@
  * The filesystem shim is injectable so the tests don't touch disk.
  */
 
-import {
-	type AegisPolicy,
-	DEFAULT_POLICY,
-	InvalidPolicyError,
-	mergePolicy,
-} from "@aegis/core";
+import { type AegisPolicy, DEFAULT_POLICY, InvalidPolicyError, mergePolicy } from "@aegis/core";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
