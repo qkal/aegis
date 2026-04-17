@@ -280,6 +280,28 @@ describe("evaluateToolCall", () => {
 			const result = evaluateToolCall("Bash(echo 'hi; sudo ls')", chainPolicy());
 			expect(result.verdict).toBe("allow");
 		});
+
+		it("expands chained commands inside `run_command(...)` too", () => {
+			// Regression for https://github.com/qkal/aegis/pull/10 — OpenCode's
+			// shell tool is named `run_command`, not `Bash`. The hook layer's
+			// SHELL_TOOL_NAMES routes it through shell argument extraction,
+			// so core's SHELL_TOOLS must also expand it; otherwise an agent
+			// could prefix a denied command with an allowed one
+			// (`run_command(echo ok; sudo rm -rf /)`) and escape detection.
+			const p = policy({
+				tools: {
+					deny: ["run_command(sudo *)"],
+					allow: ["run_command(echo *)", "run_command(git *)"],
+				},
+			});
+			const result = evaluateToolCall(
+				"run_command(echo ok; sudo rm -rf /)",
+				p,
+			);
+			expect(result.verdict).toBe("deny");
+			if (result.verdict !== "deny") throw new Error("expected deny");
+			expect(result.matchedRule).toBe("run_command(sudo *)");
+		});
 	});
 });
 

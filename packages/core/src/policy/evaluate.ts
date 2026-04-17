@@ -43,8 +43,21 @@ export type PolicyDecision =
  * argument is decomposed on chain operators and command substitutions
  * before matching against policy rules; every sub-command must satisfy
  * the policy independently.
+ *
+ * Must stay in sync with the hook layer's `SHELL_TOOL_NAMES`
+ * (packages/server/src/hooks/policy.ts) — any tool the hook maps onto
+ * a shell-command-line argument must also be expanded here, otherwise
+ * a chained command like `run_command(echo ok; sudo rm -rf /)` would
+ * be matched as a single opaque argument and bypass a `run_command(sudo *)`
+ * deny rule.
  */
-const SHELL_TOOLS: ReadonlySet<string> = new Set(["Bash", "Shell", "Exec", "Sh"]);
+const SHELL_TOOLS: ReadonlySet<string> = new Set([
+	"Bash",
+	"Shell",
+	"Exec",
+	"Sh",
+	"run_command",
+]);
 
 /**
  * Evaluate a tool call string against the policy's tool rules.
