@@ -121,6 +121,7 @@ export async function run(ctx: ServerContext, options: RunOptions = {}): Promise
 		await waitForClose(server);
 	} finally {
 		detach();
+		await shutdown();
 	}
 }
 

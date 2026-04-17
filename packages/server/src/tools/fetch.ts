@@ -64,7 +64,7 @@ export async function handler(
 	}
 
 	if (!args.force) {
-		const cached = findFreshUrlSource(ctx, label);
+		const cached = findFreshUrlSource(ctx, label, args.url);
 		if (cached !== undefined) {
 			ctx.counters.fetchCacheHits += 1;
 			return jsonResult({
@@ -95,6 +95,21 @@ export async function handler(
 			code: "http_error",
 			status: response.status,
 		});
+	}
+
+	// Early-reject when the server advertises a Content-Length that
+	// exceeds the cap. This avoids buffering the full body in memory
+	// for obviously-oversized responses. Not a complete guard (chunked
+	// responses omit the header), but covers the common case cheaply.
+	const contentLength = response.headers.get("content-length");
+	if (contentLength !== null) {
+		const declared = Number(contentLength);
+		if (!Number.isNaN(declared) && declared > MAX_RESPONSE_BYTES) {
+			return errorResult(`response Content-Length (${declared}) exceeds max fetchable size of ${MAX_RESPONSE_BYTES} bytes`, {
+				code: "too_large",
+				maxBytes: MAX_RESPONSE_BYTES,
+			});
+		}
 	}
 
 	let body: string;
@@ -146,11 +161,17 @@ interface FreshSource {
 	readonly expiresAt: string | null;
 }
 
-function findFreshUrlSource(ctx: ServerContext, label: string): FreshSource | undefined {
+function findFreshUrlSource(ctx: ServerContext, label: string, url: string): FreshSource | undefined {
 	const nowIso = ctx.now().toISOString();
+	// When the caller supplied an explicit label that differs from the
+	// URL we cannot rely on label-only matching — a different URL may
+	// have been indexed under the same label. Only return a cache hit
+	// when the label *is* the URL (the default path) so we know the
+	// content corresponds to the requested URL.
 	const match = ctx.contentIndex.listSources().find((s) =>
 		s.label === label
 		&& s.sourceType === "url"
+		&& label === url
 		&& (s.expiresAt === null || s.expiresAt > nowIso)
 	);
 	if (match === undefined) return undefined;
