@@ -6,10 +6,7 @@
  * saveSnapshot → SessionStart → restore" loop is exercised end-to-end.
  */
 import { claudeCodeAdapter } from "@aegis/adapters";
-import {
-	postToolUseBashFailureFixture,
-	postToolUseWriteFixture,
-} from "@aegis/adapters/testing";
+import { postToolUseBashFailureFixture, postToolUseWriteFixture } from "@aegis/adapters/testing";
 import { type SessionId } from "@aegis/core";
 import {
 	openDatabase,
