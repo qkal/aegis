@@ -2,7 +2,7 @@
  * Server-side policy loader.
  *
  * Reads `~/.aegis/config.json` (user-wide) and/or `.aegis/config.json`
- * (project-local), validates each with {@link normalizePolicy}, and
+ * (project-local), validates each with {@link mergePolicy}, and
  * stacks them onto {@link DEFAULT_POLICY} so callers receive a single
  * fully-populated {@link AegisPolicy}.
  *
@@ -19,7 +19,6 @@ import {
 	DEFAULT_POLICY,
 	InvalidPolicyError,
 	mergePolicy,
-	normalizePolicy,
 } from "@aegis/core";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -36,13 +35,11 @@ export const PROJECT_CONFIG_RELATIVE = ".aegis/config.json" as const;
  */
 export class PolicyConfigError extends Error {
 	readonly path: string;
-	readonly cause?: unknown;
 
 	constructor(path: string, message: string, cause?: unknown) {
-		super(`${path}: ${message}`);
+		super(`${path}: ${message}`, cause !== undefined ? { cause } : undefined);
 		this.name = "PolicyConfigError";
 		this.path = path;
-		if (cause !== undefined) this.cause = cause;
 	}
 }
 
@@ -101,7 +98,7 @@ export function loadPolicy(options: LoadPolicyOptions = {}): LoadedPolicy {
 	if (userPath !== null) {
 		const parsed = readAndParse(userPath, readFile);
 		if (parsed !== undefined) {
-			policy = mergePolicy(policy, parsed);
+			policy = mergeWithPath(policy, parsed, userPath);
 			sources.push({ scope: "user", path: userPath });
 		}
 	}
@@ -109,7 +106,7 @@ export function loadPolicy(options: LoadPolicyOptions = {}): LoadedPolicy {
 	if (projectPath !== null && projectPath !== userPath) {
 		const parsed = readAndParse(projectPath, readFile);
 		if (parsed !== undefined) {
-			policy = mergePolicy(policy, parsed);
+			policy = mergeWithPath(policy, parsed, projectPath);
 			sources.push({ scope: "project", path: projectPath });
 		}
 	}
@@ -127,6 +124,22 @@ export interface PolicySource {
 	readonly path: string | null;
 }
 
+/**
+ * Merge a parsed config layer onto a base policy, wrapping any
+ * {@link InvalidPolicyError} into a {@link PolicyConfigError} that
+ * carries the file path for a clear error message.
+ */
+function mergeWithPath(base: AegisPolicy, parsed: unknown, path: string): AegisPolicy {
+	try {
+		return mergePolicy(base, parsed);
+	} catch (err) {
+		if (err instanceof InvalidPolicyError) {
+			throw new PolicyConfigError(path, err.message, err);
+		}
+		throw err;
+	}
+}
+
 function readAndParse(
 	path: string,
 	readFile: PolicyFileReader,
@@ -139,25 +152,11 @@ function readAndParse(
 	}
 	if (raw === undefined) return undefined;
 
-	let parsed: unknown;
 	try {
-		parsed = JSON.parse(raw);
+		return JSON.parse(raw) as unknown;
 	} catch (err) {
 		throw new PolicyConfigError(path, `invalid JSON`, err);
 	}
-
-	try {
-		// Validate (but do not merge onto defaults here — the caller
-		// stacks layers in the correct order).
-		normalizePolicy(parsed);
-	} catch (err) {
-		if (err instanceof InvalidPolicyError) {
-			throw new PolicyConfigError(path, err.message, err);
-		}
-		throw err;
-	}
-
-	return parsed;
 }
 
 function defaultReadFile(absolutePath: string): string | undefined {

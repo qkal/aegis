@@ -28,20 +28,12 @@
  */
 
 import type { NormalizedHookResponse, NormalizedToolCall } from "@aegis/adapters";
-import { type AegisPolicy, evaluateToolCall, type PolicyDecision } from "@aegis/core";
-
-/**
- * Tools whose first argument is a shell command line. Mirrors the
- * list built into `@aegis/core`'s `evaluateToolCall` + any adapter-
- * specific aliases (OpenCode uses `run_command`).
- */
-const SHELL_TOOL_NAMES: ReadonlySet<string> = new Set([
-	"Bash",
-	"Shell",
-	"Exec",
-	"Sh",
-	"run_command",
-]);
+import {
+	type AegisPolicy,
+	evaluateToolCall,
+	type PolicyDecision,
+	SHELL_TOOL_NAMES,
+} from "@aegis/core";
 
 /** File-path-bearing tools. */
 const FILE_PATH_TOOLS: ReadonlySet<string> = new Set([
@@ -77,7 +69,7 @@ export function renderPolicyToolCall(call: NormalizedToolCall): string {
 		return `${name}(${cmd ?? ""})`;
 	}
 	if (FILE_PATH_TOOLS.has(name)) {
-		const path = firstString(call.arguments, ["file_path", "path"]);
+		const path = firstString(call.arguments, ["file_path", "notebook_path", "path"]);
 		return `${name}(${path ?? ""})`;
 	}
 	if (SEARCH_TOOLS.has(name)) {

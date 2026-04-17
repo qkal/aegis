@@ -7,7 +7,7 @@ import { handler, htmlToMarkdown, TOOL_NAME } from "./fetch.js";
 
 // Existing fetch tests predate M1.5 and assume unrestricted network
 // access. The default policy denies all net, so the existing tests
-// now rely on this opt-in policy that permits example.com:443.
+// now rely on this opt-in policy that permits any host on :80/:443.
 const fetchTestPolicy = normalizePolicy({
 	sandbox: { net: { allow: ["*:443", "*:80"], deny: [] } },
 });
@@ -132,11 +132,11 @@ describe("aegis_fetch handler", () => {
 	});
 
 	it("follows redirects and validates each hop against the policy", async () => {
-		let callCount = 0;
+		const requestedUrls: string[] = [];
 		const built = await buildTestContext({
 			policy: fetchTestPolicy,
 			fetch: stubFetch((url) => {
-				callCount++;
+				requestedUrls.push(url);
 				if (url === "https://example.com/start") {
 					return fetchResponse({
 						ok: false,
@@ -163,7 +163,10 @@ describe("aegis_fetch handler", () => {
 			ctx,
 		);
 		expect(result.isError).toBeFalsy();
-		expect(callCount).toBe(2);
+		expect(requestedUrls).toEqual([
+			"https://example.com/start",
+			"https://example.com/final",
+		]);
 	});
 
 	it("denies redirects to hosts not permitted by policy", async () => {

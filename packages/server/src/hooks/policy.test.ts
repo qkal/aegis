@@ -40,6 +40,11 @@ describe("renderPolicyToolCall", () => {
 			.toBe("SomeOtherTool()");
 	});
 
+	it("renders NotebookEdit calls using notebook_path", () => {
+		expect(renderPolicyToolCall(call("NotebookEdit", { notebook_path: "/tmp/nb.ipynb" })))
+			.toBe("NotebookEdit(/tmp/nb.ipynb)");
+	});
+
 	it("treats missing or non-string arguments as empty", () => {
 		expect(renderPolicyToolCall(call("Bash", { command: 42 as unknown as string })))
 			.toBe("Bash()");

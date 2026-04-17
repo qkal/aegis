@@ -7,6 +7,7 @@ export {
 	matchGlob,
 	matchToolPattern,
 	normalizePathForPolicy,
+	SHELL_TOOL_NAMES,
 } from "./evaluate.js";
 export type {
 	PartialAegisPolicy,

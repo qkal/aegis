@@ -283,10 +283,10 @@ describe("evaluateToolCall", () => {
 
 		it("expands chained commands inside `run_command(...)` too", () => {
 			// Regression for https://github.com/qkal/aegis/pull/10 — OpenCode's
-			// shell tool is named `run_command`, not `Bash`. The hook layer's
-			// SHELL_TOOL_NAMES routes it through shell argument extraction,
-			// so core's SHELL_TOOLS must also expand it; otherwise an agent
-			// could prefix a denied command with an allowed one
+			// shell tool is named `run_command`, not `Bash`. The hook layer
+			// imports SHELL_TOOL_NAMES from core to route it through shell
+			// argument extraction, so core must also expand it; otherwise an
+			// agent could prefix a denied command with an allowed one
 			// (`run_command(echo ok; sudo rm -rf /)`) and escape detection.
 			const p = policy({
 				tools: {
