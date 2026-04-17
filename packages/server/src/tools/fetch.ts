@@ -64,7 +64,7 @@ export async function handler(
 	}
 
 	if (!args.force) {
-		const cached = findFreshUrlSource(ctx, label, args.url);
+		const cached = findFreshUrlSource(ctx, args.url);
 		if (cached !== undefined) {
 			ctx.counters.fetchCacheHits += 1;
 			return jsonResult({
@@ -105,10 +105,13 @@ export async function handler(
 	if (contentLength !== null) {
 		const declared = Number(contentLength);
 		if (!Number.isNaN(declared) && declared > MAX_RESPONSE_BYTES) {
-			return errorResult(`response Content-Length (${declared}) exceeds max fetchable size of ${MAX_RESPONSE_BYTES} bytes`, {
-				code: "too_large",
-				maxBytes: MAX_RESPONSE_BYTES,
-			});
+			return errorResult(
+				`response Content-Length (${declared}) exceeds max fetchable size of ${MAX_RESPONSE_BYTES} bytes`,
+				{
+					code: "too_large",
+					maxBytes: MAX_RESPONSE_BYTES,
+				},
+			);
 		}
 	}
 
@@ -134,8 +137,14 @@ export async function handler(
 	const ttlSeconds = args.ttlSeconds ?? DEFAULT_TTL_SECONDS;
 	const expiresAt = new Date(ctx.now().getTime() + ttlSeconds * 1_000).toISOString();
 
+	// Cache-key by URL: the `label` param is a human-readable hint that the
+	// agent may change between calls. Using the URL as the stored label
+	// guarantees that a subsequent fetch of the same URL hits the cache
+	// regardless of what label the caller supplied, and — critically —
+	// prevents a *different* URL from ever aliasing onto this cache entry
+	// just because the labels happened to collide.
 	const indexed = ctx.contentIndex.index(markdown, {
-		label,
+		label: args.url,
 		sourceType: "url",
 		expiresAt,
 	});
@@ -161,17 +170,13 @@ interface FreshSource {
 	readonly expiresAt: string | null;
 }
 
-function findFreshUrlSource(ctx: ServerContext, label: string, url: string): FreshSource | undefined {
+function findFreshUrlSource(ctx: ServerContext, url: string): FreshSource | undefined {
 	const nowIso = ctx.now().toISOString();
-	// When the caller supplied an explicit label that differs from the
-	// URL we cannot rely on label-only matching — a different URL may
-	// have been indexed under the same label. Only return a cache hit
-	// when the label *is* the URL (the default path) so we know the
-	// content corresponds to the requested URL.
+	// Fetched sources are always stored under `label: url` (see handler),
+	// so URL-equality is both necessary and sufficient for a safe cache hit.
 	const match = ctx.contentIndex.listSources().find((s) =>
-		s.label === label
+		s.label === url
 		&& s.sourceType === "url"
-		&& label === url
 		&& (s.expiresAt === null || s.expiresAt > nowIso)
 	);
 	if (match === undefined) return undefined;
