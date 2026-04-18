@@ -57,9 +57,9 @@ plugin system.
 
 Every MVP adapter must:
 
-1. Implement `HookAdapter` from `@aegis/adapters/types`.
+1. Implement `HookAdapter` from `@aegisctx/adapters/types`.
 2. Report `capabilities()` honestly, including `interceptedTools` for Tier 1L.
-3. Provide an `aegis init <platform>` flow that writes the platform-native
+3. Provide an `aegisctx init <platform>` flow that writes the platform-native
    config snippet (and prints a diff before applying).
 4. Ship fixture-based tests against recorded real hook payloads (or, for
    Tier 3 platforms like AmpCode, against recorded MCP request/response
@@ -91,9 +91,9 @@ Every MVP adapter must:
   for the updated plan.
 - Each new MVP adapter requires its own integration-test fixture set
   (`packages/adapters/test/fixtures/<platform>/`).
-- The `aegis init` CLI must learn three more platform sub-commands
+- The `aegisctx init` CLI must learn three more platform sub-commands
   (`codex`, `opencode`, `amp`).
-- The `aegis doctor` CLI must learn three more platform check sets.
+- The `aegisctx doctor` CLI must learn three more platform check sets.
 - README, CLI help, and docs must be updated to advertise four supported
   platforms in MVP (not one).
 - If Codex extends its tool matcher beyond `Bash` during the Phase 1 window,

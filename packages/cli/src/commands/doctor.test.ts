@@ -1,4 +1,4 @@
-import type { DetectedRuntime } from "@aegis/engine";
+import type { DetectedRuntime } from "@aegisctx/engine";
 import { describe, expect, it } from "vitest";
 import { type DoctorEnv, renderReport, runChecks } from "./doctor.js";
 
@@ -40,11 +40,11 @@ describe("runChecks: Platform", () => {
 		expect(platform?.summary).toContain("claude-code");
 	});
 
-	it("warns and hints to run aegis init when no signal is present", async () => {
+	it("warns and hints to run aegisctx init when no signal is present", async () => {
 		const results = await runChecks(makeEnv({ env: {} }));
 		const platform = results.find((r) => r.title === "Platform");
 		expect(platform?.status).toBe("warn");
-		expect(platform?.hint).toContain("aegis init");
+		expect(platform?.hint).toContain("aegisctx init");
 	});
 });
 
@@ -137,8 +137,8 @@ describe("runChecks: Policy", () => {
 				loadPolicy: () => ({
 					sources: [
 						{ scope: "defaults", path: null },
-						{ scope: "user", path: "/home/tester/.aegis/config.json" },
-						{ scope: "project", path: "/tmp/proj/.aegis/config.json" },
+						{ scope: "user", path: "/home/tester/.aegisctx/config.json" },
+						{ scope: "project", path: "/tmp/proj/.aegisctx/config.json" },
 					],
 				}),
 			}),
@@ -146,8 +146,8 @@ describe("runChecks: Policy", () => {
 		const policy = results.find((r) => r.title === "Policy");
 		expect(policy?.status).toBe("ok");
 		expect(policy?.summary).toContain("2 config layer(s)");
-		expect(policy?.detail?.join("\n")).toContain("/home/tester/.aegis/config.json");
-		expect(policy?.detail?.join("\n")).toContain("/tmp/proj/.aegis/config.json");
+		expect(policy?.detail?.join("\n")).toContain("/home/tester/.aegisctx/config.json");
+		expect(policy?.detail?.join("\n")).toContain("/tmp/proj/.aegisctx/config.json");
 	});
 });
 
@@ -167,10 +167,10 @@ describe("runChecks: Hooks", () => {
 		const results = await runChecks(makeEnv({ env: { CLAUDE_PROJECT_DIR: "/tmp/proj" } }));
 		const hooks = results.find((r) => r.title === "Hooks");
 		expect(hooks?.status).toBe("warn");
-		expect(hooks?.hint).toContain("aegis init claude-code");
+		expect(hooks?.hint).toContain("aegisctx init claude-code");
 	});
 
-	it("warns when the platform's config exists but doesn't reference aegis", async () => {
+	it("warns when the platform's config exists but does not reference aegisctx", async () => {
 		const results = await runChecks(
 			makeEnv({
 				env: { CLAUDE_PROJECT_DIR: "/tmp/proj" },
@@ -179,14 +179,14 @@ describe("runChecks: Hooks", () => {
 		);
 		const hooks = results.find((r) => r.title === "Hooks");
 		expect(hooks?.status).toBe("warn");
-		expect(hooks?.summary).toContain("does not reference aegis");
+		expect(hooks?.summary).toContain("does not reference aegisctx");
 	});
 
-	it("reports ok when the platform's config references aegis", async () => {
+	it("reports ok when the platform's config references aegisctx", async () => {
 		const results = await runChecks(
 			makeEnv({
 				env: { CLAUDE_PROJECT_DIR: "/tmp/proj" },
-				readFile: () => `{"hooks":{"PreToolUse":[{"command":"aegis mcp hook pre-tool-use"}]}}`,
+				readFile: () => `{"hooks":{"PreToolUse":[{"command":"aegisctx mcp hook pre-tool-use"}]}}`,
 			}),
 		);
 		const hooks = results.find((r) => r.title === "Hooks");

@@ -1,5 +1,5 @@
 /**
- * aegis_stats — Session statistics tool.
+ * aegisctx_stats — Session statistics tool.
  *
  * Reads per-process counters plus index-level totals and returns a
  * single snapshot. Counters come from `ServerContext.counters`, which
@@ -12,7 +12,7 @@ import type { ServerContext } from "../runtime/context.js";
 import { SERVER_NAME, SERVER_VERSION } from "../server-info.js";
 import { jsonResult } from "./helpers.js";
 
-export const TOOL_NAME = "aegis_stats" as const;
+export const TOOL_NAME = "aegisctx_stats" as const;
 
 export const TOOL_DESCRIPTION = "Show session statistics: context bytes saved, tool call counts, "
 	+ "cache hit rates, and sandbox execution metrics.";

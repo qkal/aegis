@@ -1,5 +1,5 @@
 /**
- * `aegis init <platform>` — platform configuration scaffolder.
+ * `aegisctx init <platform>` — platform configuration scaffolder.
  *
  * Computes a list of files to create or update for the chosen
  * platform, prints a diff preview to stdout, and (unless `--dry-run`
@@ -8,15 +8,15 @@
  * Supported platforms in Phase 1a: claude-code, codex, opencode, amp,
  * and a generic fallback. Each platform contributes its own set of
  * `PlannedFile`s (hook config, MCP server entry, AGENTS.md stub).
- * The default Aegis policy is written to `~/.aegis/config.json`
- * unconditionally so `aegis doctor` has something to load.
+ * The default Aegis policy is written to `~/.aegisctx/config.json`
+ * unconditionally so `aegisctx doctor` has something to load.
  *
  * The planner is pure — the default environment injects the real
  * filesystem, but tests mount an in-memory shim and assert on the
  * generated plan.
  */
 
-import { DEFAULT_POLICY } from "@aegis/core";
+import { DEFAULT_POLICY } from "@aegisctx/core";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
@@ -25,7 +25,7 @@ import { bold, cyan, dim, green, shouldUseColor, type TermStyle, yellow } from "
 export const COMMAND_NAME = "init" as const;
 export const COMMAND_DESCRIPTION = "Set up Aegis for your AI coding agent platform";
 
-/** Platforms for which `aegis init` knows how to scaffold configuration. */
+/** Platforms for which `aegisctx init` knows how to scaffold configuration. */
 export const INIT_PLATFORMS = [
 	"claude-code",
 	"codex",
@@ -132,7 +132,7 @@ function isInitPlatform(value: string): value is InitPlatform {
 }
 
 /**
- * Compute the set of files `aegis init <platform>` would write.
+ * Compute the set of files `aegisctx init <platform>` would write.
  * Pure — does not touch the filesystem.
  */
 export function plan(platform: InitPlatform, home: string): readonly PlannedFile[] {
@@ -264,7 +264,7 @@ function policyFile(home: string): PlannedFile {
 	// make diffs against future updates reviewable.
 	const contents = `${JSON.stringify(DEFAULT_POLICY, stableSortReplacer, "\t")}\n`;
 	return {
-		path: join(home, ".aegis", "config.json"),
+		path: join(home, ".aegisctx", "config.json"),
 		description:
 			"Aegis policy — default deny list (sudo, rm -rf, .env reads, credential env vars, all network)",
 		contents,
@@ -282,10 +282,10 @@ function claudeCodeHookFile(home: string): PlannedFile {
 			{
 				$schema: "https://schemas.claude.com/claude-code/settings.json",
 				hooks: {
-					PreToolUse: [{ command: "aegis mcp hook pre-tool-use" }],
-					PostToolUse: [{ command: "aegis mcp hook post-tool-use" }],
-					SessionStart: [{ command: "aegis mcp hook session-start" }],
-					PreCompact: [{ command: "aegis mcp hook pre-compact" }],
+					PreToolUse: [{ command: "aegisctx mcp hook pre-tool-use" }],
+					PostToolUse: [{ command: "aegisctx mcp hook post-tool-use" }],
+					SessionStart: [{ command: "aegisctx mcp hook session-start" }],
+					PreCompact: [{ command: "aegisctx mcp hook pre-compact" }],
 				},
 			},
 			null,
@@ -295,7 +295,7 @@ function claudeCodeHookFile(home: string): PlannedFile {
 	return {
 		path: join(home, ".claude", "settings.json"),
 		description:
-			"Claude Code hooks — routes PreToolUse / PostToolUse / SessionStart / PreCompact through aegis.",
+			"Claude Code hooks — routes PreToolUse / PostToolUse / SessionStart / PreCompact through aegisctx.",
 		contents,
 	};
 }
@@ -305,8 +305,8 @@ function codexHookFile(home: string): PlannedFile {
 		JSON.stringify(
 			{
 				hooks: {
-					pre_tool_use: { command: ["aegis", "mcp", "hook", "pre-tool-use"] },
-					post_tool_use: { command: ["aegis", "mcp", "hook", "post-tool-use"] },
+					pre_tool_use: { command: ["aegisctx", "mcp", "hook", "pre-tool-use"] },
+					post_tool_use: { command: ["aegisctx", "mcp", "hook", "post-tool-use"] },
 				},
 			},
 			null,
@@ -327,8 +327,8 @@ function opencodePluginFile(home: string): PlannedFile {
 			{
 				plugins: [
 					{
-						id: "aegis",
-						command: ["aegis", "mcp", "serve"],
+						id: "aegisctx",
+						command: ["aegisctx", "mcp", "serve"],
 					},
 				],
 			},
@@ -339,7 +339,7 @@ function opencodePluginFile(home: string): PlannedFile {
 	return {
 		path: join(home, ".opencode", "plugins.json"),
 		description:
-			"OpenCode plugin registration — routes session.idle and tool events through aegis.",
+			"OpenCode plugin registration — routes session.idle and tool events through aegisctx.",
 		contents,
 	};
 }
@@ -349,8 +349,8 @@ function ampMcpFile(home: string): PlannedFile {
 		JSON.stringify(
 			{
 				mcpServers: {
-					aegis: {
-						command: "aegis",
+					aegisctx: {
+						command: "aegisctx",
 						args: ["mcp", "serve"],
 					},
 				},

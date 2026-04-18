@@ -19,7 +19,7 @@ import {
 } from "./commands/init.js";
 import { bold, cyan, shouldUseColor, type TermStyle } from "./term.js";
 
-export const CLI_NAME = "aegis" as const;
+export const CLI_NAME = "aegisctx" as const;
 export const CLI_VERSION = "0.1.0" as const;
 export const CLI_DESCRIPTION = "Context infrastructure engine for AI coding agents";
 

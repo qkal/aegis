@@ -20,7 +20,7 @@ The reference project has three separate adapter classes with manual API bridgin
 
 ## Decision
 
-Implement a **unified `Database` interface** in `@aegis/storage` that abstracts over all three backends:
+Implement a **unified `Database` interface** in `@aegisctx/storage` that abstracts over all three backends:
 
 ```typescript
 interface Database {

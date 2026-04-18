@@ -21,9 +21,9 @@ beforeEach(async () => {
 });
 afterEach(() => close?.());
 
-describe("aegis_search handler", () => {
+describe("aegisctx_search handler", () => {
 	it("uses the canonical tool name", () => {
-		expect(TOOL_NAME).toBe("aegis_search");
+		expect(TOOL_NAME).toBe("aegisctx_search");
 	});
 
 	it("returns results from indexed content and updates counters", () => {

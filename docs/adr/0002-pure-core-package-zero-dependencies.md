@@ -18,7 +18,7 @@ The policy engine, event model, and routing logic are the most critical componen
 
 ## Decision
 
-`@aegis/core` has **zero npm dependencies** and **zero I/O**. It contains only:
+`@aegisctx/core` has **zero npm dependencies** and **zero I/O**. It contains only:
 
 - Branded type definitions (`SessionId`, `EventId`, `PolicyId`, etc.)
 - Discriminated union event model (`SessionEvent`, `FileEvent`, `GitEvent`, etc.)
@@ -39,4 +39,4 @@ The package uses only TypeScript language features. No `fs`, no `net`, no `child
 
 - Any feature that requires I/O must live in a different package (`engine`, `storage`, `server`).
 - Utilities that seem "core" but need dependencies (e.g., Zod schema validation) are placed at the package boundary that consumes them, not in core.
-- Core types are re-exported by downstream packages, so consumers rarely import from `@aegis/core` directly.
+- Core types are re-exported by downstream packages, so consumers rarely import from `@aegisctx/core` directly.

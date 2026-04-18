@@ -1,5 +1,5 @@
 /**
- * aegis_fetch — URL fetch + minimal markdownification + index.
+ * aegisctx_fetch — URL fetch + minimal markdownification + index.
  *
  * Fetches a URL over HTTP(S), strips HTML to plain-ish markdown, and
  * pipes the result through `ContentIndex.index()`. The resulting
@@ -12,16 +12,16 @@
  * browser-grade parser would add a large native dependency to the
  * server for no win on the pages agents typically fetch (docs sites
  * + markdown). Callers that need high-fidelity scraping can POST the
- * pre-converted markdown to `aegis_index` directly.
+ * pre-converted markdown to `aegisctx_index` directly.
  */
 
-import { evaluateNetAccess } from "@aegis/core";
+import { evaluateNetAccess } from "@aegisctx/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import type { ServerContext } from "../runtime/context.js";
 import { errorResult, jsonResult } from "./helpers.js";
 
-export const TOOL_NAME = "aegis_fetch" as const;
+export const TOOL_NAME = "aegisctx_fetch" as const;
 
 export const TOOL_DESCRIPTION =
 	"Fetch a URL, convert to markdown, and index into the knowledge base. "
@@ -76,7 +76,7 @@ export async function handler(
 
 	// Policy enforcement at the MCP boundary. `evaluateNetAccess`
 	// walks the sandbox.net deny/allow lists against `host:port`; the
-	// default policy denies all network access, so `aegis_fetch` is a
+	// default policy denies all network access, so `aegisctx_fetch` is a
 	// no-op until the user opts in via their config.
 	const hostPort = netHostPort(parsed);
 	if (!evaluateNetAccess(hostPort, ctx.policy)) {
@@ -114,7 +114,7 @@ export async function handler(
 		try {
 			response = await ctx.fetch(currentUrl, {
 				headers: {
-					"user-agent": "aegis-mcp-server",
+					"user-agent": "aegisctx-mcp-server",
 					accept: "text/html, text/markdown, text/plain;q=0.9, */*;q=0.5",
 				},
 				redirect: "manual",

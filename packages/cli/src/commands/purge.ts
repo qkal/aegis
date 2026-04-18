@@ -1,9 +1,9 @@
 /**
- * aegis purge — Content cleanup command.
+ * aegisctx purge — Content cleanup command.
  *
  * Subcommands:
- * - aegis purge          — Delete all indexed content
- * - aegis purge --expired — Delete only expired content
+ * - aegisctx purge          — Delete all indexed content
+ * - aegisctx purge --expired — Delete only expired content
  *
  * Implementation deferred to Phase 4.
  */

@@ -6,18 +6,18 @@ import { type AegisTool, routeTool } from "./router.js";
 
 describe("routeTool", () => {
 	it("routes execution tools to the sandbox", () => {
-		const execTools: AegisTool[] = ["aegis_execute", "aegis_execute_file", "aegis_batch"];
+		const execTools: AegisTool[] = ["aegisctx_execute", "aegisctx_execute_file", "aegisctx_batch"];
 		for (const tool of execTools) {
 			expect(routeTool(tool)).toEqual({ route: "sandbox", language: "auto" });
 		}
 	});
 
 	it("routes search, index, fetch, stats, doctor, audit to their own routes", () => {
-		expect(routeTool("aegis_search").route).toBe("search");
-		expect(routeTool("aegis_index").route).toBe("index");
-		expect(routeTool("aegis_fetch").route).toBe("fetch");
-		expect(routeTool("aegis_stats").route).toBe("stats");
-		expect(routeTool("aegis_doctor").route).toBe("doctor");
-		expect(routeTool("aegis_audit").route).toBe("audit");
+		expect(routeTool("aegisctx_search").route).toBe("search");
+		expect(routeTool("aegisctx_index").route).toBe("index");
+		expect(routeTool("aegisctx_fetch").route).toBe("fetch");
+		expect(routeTool("aegisctx_stats").route).toBe("stats");
+		expect(routeTool("aegisctx_doctor").route).toBe("doctor");
+		expect(routeTool("aegisctx_audit").route).toBe("audit");
 	});
 });

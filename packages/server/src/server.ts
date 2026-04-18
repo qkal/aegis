@@ -102,7 +102,7 @@ export interface RunOptions {
 }
 
 /**
- * Entry point for `npx aegis serve` / the package `bin` script.
+ * Entry point for `npx aegisctxctx serve` / the package `bin` script.
  *
  * Wires up stdio, registers SIGINT/SIGTERM handlers, and resolves
  * when shutdown is complete. Any failure inside a handler is logged
@@ -152,13 +152,13 @@ function createShutdown(
 			try {
 				await server.close();
 			} catch (err) {
-				process.stderr.write(`aegis: server.close failed: ${(err as Error).message}\n`);
+				process.stderr.write(`aegisctx: server.close failed: ${(err as Error).message}\n`);
 			}
 			if (onShutdown !== undefined) {
 				try {
 					await onShutdown();
 				} catch (err) {
-					process.stderr.write(`aegis: shutdown hook failed: ${(err as Error).message}\n`);
+					process.stderr.write(`aegisctx: shutdown hook failed: ${(err as Error).message}\n`);
 				}
 			}
 		})();

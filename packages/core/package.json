@@ -1,5 +1,5 @@
 {
-	"name": "@aegis/core",
+	"name": "@aegisctx/core",
 	"version": "0.1.0",
 	"description": "Pure logic: policy engine, event model, routing decisions — zero dependencies",
 	"type": "module",

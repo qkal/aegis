@@ -6,12 +6,12 @@
  * boundary — all data from the agent platform is validated here.
  */
 
-import type { SessionEvent } from "@aegis/core";
+import type { SessionEvent } from "@aegisctx/core";
 
 /**
  * Canonical list of Aegis hook kinds. Exported as a readonly tuple so the
  * type `HookType` is derived from a single source of truth and downstream
- * code (e.g. `@aegis/server`'s orchestrator) can re-use the same constant
+ * code (e.g. `@aegisctx/server`'s orchestrator) can re-use the same constant
  * instead of redeclaring the list.
  */
 export const HOOK_TYPES = ["PreToolUse", "PostToolUse", "PreCompact", "SessionStart"] as const;
@@ -95,7 +95,7 @@ export interface PlatformCapabilities {
 	readonly tier: PlatformTier;
 	/**
 	 * Human-readable tier label for serialization (session-start messages,
-	 * `aegis doctor` output, JSON payloads). Maps `1` → `"1"`, `1.5` → `"1L"`,
+	 * `aegisctx doctor` output, JSON payloads). Maps `1` → `"1"`, `1.5` → `"1L"`,
 	 * `2` → `"2"`, `3` → `"3"`. Use `tier` for ordinal comparisons; use
 	 * `tierLabel` when the value is shown to agents or users.
 	 */

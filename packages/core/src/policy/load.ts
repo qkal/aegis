@@ -2,7 +2,7 @@
  * Policy normalization and merge.
  *
  * Pure utilities for turning a partial, externally-supplied policy
- * document (e.g. `~/.aegis/config.json`) into a fully-populated
+ * document (e.g. `~/.aegisctx/config.json`) into a fully-populated
  * `AegisPolicy` by layering onto {@link DEFAULT_POLICY}.
  *
  * This module is I/O-free: the caller is responsible for reading and
@@ -23,7 +23,7 @@
  *
  * To make the default deny list stick even when a user overrides the
  * `deny` array, callers are expected to copy the defaults into their
- * config. `aegis init` writes a config that does exactly that.
+ * config. `aegisctx init` writes a config that does exactly that.
  */
 
 import {

@@ -38,7 +38,7 @@ importers:
 
   packages/adapters:
     dependencies:
-      '@aegis/core':
+      '@aegisctx/core':
         specifier: workspace:*
         version: link:../core
       zod:
@@ -47,19 +47,19 @@ importers:
 
   packages/cli:
     dependencies:
-      '@aegis/adapters':
+      '@aegisctx/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@aegis/core':
+      '@aegisctx/core':
         specifier: workspace:*
         version: link:../core
-      '@aegis/engine':
+      '@aegisctx/engine':
         specifier: workspace:*
         version: link:../engine
-      '@aegis/server':
+      '@aegisctx/server':
         specifier: workspace:*
         version: link:../server
-      '@aegis/storage':
+      '@aegisctx/storage':
         specifier: workspace:*
         version: link:../storage
     devDependencies:
@@ -75,7 +75,7 @@ importers:
 
   packages/engine:
     dependencies:
-      '@aegis/core':
+      '@aegisctx/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -85,16 +85,16 @@ importers:
 
   packages/server:
     dependencies:
-      '@aegis/adapters':
+      '@aegisctx/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@aegis/core':
+      '@aegisctx/core':
         specifier: workspace:*
         version: link:../core
-      '@aegis/engine':
+      '@aegisctx/engine':
         specifier: workspace:*
         version: link:../engine
-      '@aegis/storage':
+      '@aegisctx/storage':
         specifier: workspace:*
         version: link:../storage
       '@modelcontextprotocol/sdk':
@@ -110,7 +110,7 @@ importers:
 
   packages/storage:
     dependencies:
-      '@aegis/core':
+      '@aegisctx/core':
         specifier: workspace:*
         version: link:../core
     optionalDependencies:

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CLI_VERSION, dispatch, renderUsage } from "./cli.js";
+import { CLI_NAME, CLI_VERSION, dispatch, renderUsage } from "./cli.js";
 
 const TERM = { useColor: false };
 
@@ -14,6 +14,18 @@ function captureDispatch(argv: readonly string[]) {
 	});
 	return { out, err, codePromise };
 }
+
+describe("CLI identity", () => {
+	it("exports the canonical binary name", () => {
+		expect(CLI_NAME).toBe("aegisctx");
+	});
+
+	it("never shows the legacy `aegis` command prefix in usage", () => {
+		const usage = renderUsage(TERM);
+		expect(usage).not.toMatch(/\baegis\s+(init|doctor|audit|config|policy|session|stats|purge|mcp)\b/);
+		expect(usage).not.toMatch(/npm install -g aegis\b/);
+	});
+});
 
 describe("renderUsage", () => {
 	it("lists the known commands and platforms", () => {

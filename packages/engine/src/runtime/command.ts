@@ -11,7 +11,7 @@
  * testable.
  */
 
-import type { Language } from "@aegis/core";
+import type { Language } from "@aegisctx/core";
 import type { AvailableRuntime } from "./detect.js";
 
 /** A fully-specified invocation for a runtime. */

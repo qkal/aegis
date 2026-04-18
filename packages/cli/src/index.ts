@@ -1,5 +1,5 @@
 /**
- * @aegis/cli — Command-line interface.
+ * @aegisctx/cli — Command-line interface.
  *
  * User-facing commands for setup, diagnostics, policy management,
  * audit inspection, and configuration. Depends on all other packages.

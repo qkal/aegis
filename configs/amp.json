@@ -83,7 +83,7 @@
 		"checkOnStart": false
 	},
 	"amp": {
-		"_comment": "Amp has no public hook API as of 2026-04. This adapter is Tier 3 (MCP-only). Policy is enforced inside the MCP tool wrapper. Routing is steered by .amp/AGENTS.md installed by `aegis init amp`.",
+		"_comment": "Amp has no public hook API as of 2026-04. This adapter is Tier 3 (MCP-only). Policy is enforced inside the MCP tool wrapper. Routing is steered by .amp/AGENTS.md installed by `aegisctx init amp`.",
 		"settingsLocations": ["~/.amp/settings.json", ".amp/settings.json"],
 		"agentsFile": ".amp/AGENTS.md"
 	}

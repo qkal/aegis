@@ -1,7 +1,7 @@
 /**
  * Server-side policy loader.
  *
- * Reads `~/.aegis/config.json` (user-wide) and/or `.aegis/config.json`
+ * Reads `~/.aegisctx/config.json` (user-wide) and/or `.aegisctx/config.json`
  * (project-local), validates each with {@link mergePolicy}, and
  * stacks them onto {@link DEFAULT_POLICY} so callers receive a single
  * fully-populated {@link AegisPolicy}.
@@ -14,15 +14,15 @@
  * The filesystem shim is injectable so the tests don't touch disk.
  */
 
-import { type AegisPolicy, DEFAULT_POLICY, InvalidPolicyError, mergePolicy } from "@aegis/core";
+import { type AegisPolicy, DEFAULT_POLICY, InvalidPolicyError, mergePolicy } from "@aegisctx/core";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
 /** Default location of the user-wide policy config. */
-export const USER_CONFIG_RELATIVE = ".aegis/config.json" as const;
+export const USER_CONFIG_RELATIVE = ".aegisctx/config.json" as const;
 /** Default location of the project-local policy config, relative to CWD. */
-export const PROJECT_CONFIG_RELATIVE = ".aegis/config.json" as const;
+export const PROJECT_CONFIG_RELATIVE = ".aegisctx/config.json" as const;
 
 /**
  * Thrown when a policy config file exists but can't be loaded.
@@ -45,12 +45,12 @@ export type PolicyFileReader = (absolutePath: string) => string | undefined;
 export interface LoadPolicyOptions {
 	/**
 	 * Absolute path to the user-wide policy config.
-	 * Defaults to `~/.aegis/config.json`. Pass `null` to disable.
+	 * Defaults to `~/.aegisctx/config.json`. Pass `null` to disable.
 	 */
 	readonly userConfigPath?: string | null;
 	/**
 	 * Absolute path to the project-local policy config.
-	 * Defaults to `<cwd>/.aegis/config.json`. Pass `null` to disable.
+	 * Defaults to `<cwd>/.aegisctx/config.json`. Pass `null` to disable.
 	 */
 	readonly projectConfigPath?: string | null;
 	/** Current working directory used to resolve the project config. Defaults to `process.cwd()`. */

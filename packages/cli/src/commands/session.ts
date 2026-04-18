@@ -1,9 +1,9 @@
 /**
- * aegis session — Session management commands.
+ * aegisctx session — Session management commands.
  *
  * Subcommands:
- * - aegis session show   — Display current session events
- * - aegis session export — Export session as JSON
+ * - aegisctx session show   — Display current session events
+ * - aegisctx session export — Export session as JSON
  *
  * Implementation deferred to Phase 4.
  */

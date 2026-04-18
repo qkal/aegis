@@ -1,5 +1,5 @@
-import type { NormalizedToolCall } from "@aegis/adapters";
-import { DEFAULT_POLICY, normalizePolicy } from "@aegis/core";
+import type { NormalizedToolCall } from "@aegisctx/adapters";
+import { DEFAULT_POLICY, normalizePolicy } from "@aegisctx/core";
 import { describe, expect, it } from "vitest";
 
 import { evaluatePreToolUse, renderPolicyToolCall, toHookResponse } from "./policy.js";

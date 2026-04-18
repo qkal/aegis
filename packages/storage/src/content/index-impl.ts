@@ -16,10 +16,10 @@
  * label is a no-op (the source row is updated; chunks are not rewritten).
  *
  * The implementation is sync — every operation runs against the synchronous
- * `Database` interface from `@aegis/storage/adapters`.
+ * `Database` interface from `@aegisctx/storage/adapters`.
  */
 
-import type { ContentSourceId } from "@aegis/core";
+import type { ContentSourceId } from "@aegisctx/core";
 import { createHash } from "node:crypto";
 import type { Database } from "../adapters/types.js";
 import { chunkContent, type ChunkOptions, DEFAULT_MAX_CHUNK_BYTES } from "./chunk.js";
@@ -32,9 +32,9 @@ import type {
 } from "./types.js";
 
 /**
- * Local copy of `contentSourceIdUnsafe` from `@aegis/core`. Inlined so the
- * storage test suite does not need a runtime `@aegis/core` build — CI runs
- * `pnpm test:coverage` before `pnpm build`, and `@aegis/core`'s package.json
+ * Local copy of `contentSourceIdUnsafe` from `@aegisctx/core`. Inlined so the
+ * storage test suite does not need a runtime `@aegisctx/core` build — CI runs
+ * `pnpm test:coverage` before `pnpm build`, and `@aegisctx/core`'s package.json
  * maps the `import` condition to `./dist/index.js`. The cast is identity at
  * runtime since branded number types carry no shape.
  */

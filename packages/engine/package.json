@@ -1,5 +1,5 @@
 {
-	"name": "@aegis/engine",
+	"name": "@aegisctx/engine",
 	"version": "0.1.0",
 	"description": "Side-effectful execution: sandbox process spawning, runtime management, output processing",
 	"type": "module",
@@ -30,7 +30,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@aegis/core": "workspace:*"
+		"@aegisctx/core": "workspace:*"
 	},
 	"devDependencies": {
 		"@types/node": "^22.10.5"

@@ -5,7 +5,7 @@
  * Events are stored as typed records (not bags of strings).
  */
 
-import type { EventId, SessionEvent, SessionId } from "@aegis/core";
+import type { EventId, SessionEvent, SessionId } from "@aegisctx/core";
 
 /** A persisted session event record. */
 export interface SessionEventRecord {

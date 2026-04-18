@@ -1,10 +1,10 @@
 {
-	"name": "aegis",
+	"name": "aegisctx",
 	"version": "0.1.0",
 	"description": "CLI for Aegis — context infrastructure engine for AI coding agents",
 	"type": "module",
 	"bin": {
-		"aegis": "./dist/bin.js"
+		"aegisctx": "./dist/bin.js"
 	},
 	"main": "./dist/index.js",
 	"types": "./src/index.ts",
@@ -33,11 +33,11 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@aegis/core": "workspace:*",
-		"@aegis/engine": "workspace:*",
-		"@aegis/storage": "workspace:*",
-		"@aegis/adapters": "workspace:*",
-		"@aegis/server": "workspace:*"
+		"@aegisctx/core": "workspace:*",
+		"@aegisctx/engine": "workspace:*",
+		"@aegisctx/storage": "workspace:*",
+		"@aegisctx/adapters": "workspace:*",
+		"@aegisctx/server": "workspace:*"
 	},
 	"devDependencies": {
 		"@types/node": "^22.10.5"

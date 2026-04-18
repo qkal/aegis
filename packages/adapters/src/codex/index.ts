@@ -6,12 +6,12 @@
  * currently only emits PreToolUse/PostToolUse for the `Bash` tool.
  *
  * Integration surface (per ADR-0016):
- *  - `~/.codex/config.toml` — `[mcp_servers.aegis]` (stdio command/args/env)
+ *  - `~/.codex/config.toml` — `[mcp_servers.aegisctx]` (stdio command/args/env)
  *  - `~/.codex/hooks.json` and `<project>/.codex/hooks.json` — command hooks
  *  - Feature flag: `[features] codex_hooks = true`
  *
  * Implementation lands in M1.7. This stub exists so the platform constant,
- * detect signals, and `aegis init codex` skeleton can compile against the
+ * detect signals, and `aegisctx init codex` skeleton can compile against the
  * adapter package boundary.
  */
 

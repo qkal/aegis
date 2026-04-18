@@ -1,4 +1,4 @@
-import type { PlatformCapabilities } from "@aegis/adapters";
+import type { PlatformCapabilities } from "@aegisctx/adapters";
 import { describe, expect, it } from "vitest";
 import {
 	ADVERTISED_TOOLS,
@@ -10,12 +10,12 @@ describe("buildSessionStartCapabilities", () => {
 	it("advertises all six M1.2 tools in a stable order", () => {
 		const names = ADVERTISED_TOOLS.map((t) => t.name);
 		expect(names).toEqual([
-			"aegis_execute",
-			"aegis_index",
-			"aegis_search",
-			"aegis_fetch",
-			"aegis_stats",
-			"aegis_doctor",
+			"aegisctx_execute",
+			"aegisctx_index",
+			"aegisctx_search",
+			"aegisctx_fetch",
+			"aegisctx_stats",
+			"aegisctx_doctor",
 		]);
 	});
 

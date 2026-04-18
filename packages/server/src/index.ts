@@ -1,5 +1,5 @@
 /**
- * @aegis/server — MCP server package.
+ * @aegisctx/server — MCP server package.
  *
  * Tool registration, transport, hook orchestration, and lifecycle.
  * Depends on all other packages: core, engine, storage, adapters.

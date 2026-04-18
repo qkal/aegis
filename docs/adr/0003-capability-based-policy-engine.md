@@ -53,4 +53,4 @@ type PolicyDecision =
 - Users must learn Aegis's policy format (not just their platform's settings).
 - `ask` mode requires a mechanism to prompt the user and record their decision.
 - Policy changes require session restart (no hot-reload).
-- Default deny may frustrate users initially — clear error messages and `aegis policy check` CLI command mitigate this.
+- Default deny may frustrate users initially — clear error messages and `aegisctx policy check` CLI command mitigate this.

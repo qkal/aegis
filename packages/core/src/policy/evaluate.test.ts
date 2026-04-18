@@ -316,7 +316,7 @@ describe("matchGlob — ReDoS resistance", () => {
 		const input = "b".repeat(200);
 
 		// Use Date.now() rather than performance.now() so the test file
-		// stays dependency-free (no @types/node in @aegis/core).
+		// stays dependency-free (no @types/node in @aegisctx/core).
 		const start = Date.now();
 		const result = matchGlob(input, pattern);
 		const elapsed = Date.now() - start;
