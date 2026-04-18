@@ -16,20 +16,20 @@ shards (format, lint, typecheck) on Ubuntu only.
 
 ### Matrix
 
-| Job | OS matrix | Rationale |
-|---|---|---|
-| `format` | ubuntu-latest | dprint is deterministic across OSes. |
-| `lint` | ubuntu-latest | oxlint is deterministic. |
-| `typecheck` | ubuntu-latest | TS output is identical. |
-| `test-core` | ubuntu, macos, windows | Touches branded types, serialization — quick to run. |
-| `test-storage` | ubuntu, macos, windows × node22 + bun-latest* | SQLite backends differ per OS. |
-| `test-engine` | ubuntu, macos, windows | Process-spawning semantics differ. |
-| `test-server` | ubuntu, macos, windows | Adapter registration + runtime context touches fs + env. |
-| `test-adapters` | ubuntu, macos, windows | Claude Code/Codex/OpenCode fixtures must pass on all OSes. |
-| `smoke` | ubuntu, macos, windows | Real MCP E2E (plan 14). |
-| `hygiene` | ubuntu-latest | Repo-structure grep checks. |
-| `license-check` | ubuntu-latest | Single source of truth. |
-| `audit-npm` | ubuntu-latest | `npm audit --omit=dev`. |
+| Job             | OS matrix                                     | Rationale                                                  |
+| --------------- | --------------------------------------------- | ---------------------------------------------------------- |
+| `format`        | ubuntu-latest                                 | dprint is deterministic across OSes.                       |
+| `lint`          | ubuntu-latest                                 | oxlint is deterministic.                                   |
+| `typecheck`     | ubuntu-latest                                 | TS output is identical.                                    |
+| `test-core`     | ubuntu, macos, windows                        | Touches branded types, serialization — quick to run.       |
+| `test-storage`  | ubuntu, macos, windows × node22 + bun-latest* | SQLite backends differ per OS.                             |
+| `test-engine`   | ubuntu, macos, windows                        | Process-spawning semantics differ.                         |
+| `test-server`   | ubuntu, macos, windows                        | Adapter registration + runtime context touches fs + env.   |
+| `test-adapters` | ubuntu, macos, windows                        | Claude Code/Codex/OpenCode fixtures must pass on all OSes. |
+| `smoke`         | ubuntu, macos, windows                        | Real MCP E2E (plan 14).                                    |
+| `hygiene`       | ubuntu-latest                                 | Repo-structure grep checks.                                |
+| `license-check` | ubuntu-latest                                 | Single source of truth.                                    |
+| `audit-npm`     | ubuntu-latest                                 | `npm audit --omit=dev`.                                    |
 
 *Bun-on-Windows is still alpha in 2026; include as `continue-on-error:
 true` until it's stable.
@@ -49,27 +49,27 @@ true` until it's stable.
 
 1. **Workflow refactor**
    - [ ] Split the monolithic `test` concept into the shards in the
-     table above.
+         table above.
    - [ ] Use a matrix strategy with `fail-fast: false` so one OS failure
-     doesn't cancel the others.
+         doesn't cancel the others.
    - [ ] Add shared `setup` composite action
-     (`.github/actions/setup-pnpm-node/action.yml`) so we don't
-     duplicate checkout + pnpm + node steps.
+         (`.github/actions/setup-pnpm-node/action.yml`) so we don't
+         duplicate checkout + pnpm + node steps.
 2. **Windows-specific tweaks**
    - [ ] Set `shell: bash` explicitly on all `run:` steps so Git Bash is
-     used, not `cmd.exe`. This avoids escaping gotchas.
+         used, not `cmd.exe`. This avoids escaping gotchas.
    - [ ] Disable Defender real-time on test dirs (via a setup step with
-     `Set-MpPreference -DisableRealtimeMonitoring $true`) to stop
-     spurious timeouts when Defender scans the thousands of small files
-     spawned by the engine tests.
+         `Set-MpPreference -DisableRealtimeMonitoring $true`) to stop
+         spurious timeouts when Defender scans the thousands of small files
+         spawned by the engine tests.
    - [ ] Increase `timeout-minutes` on the engine shard to 20 (from 10)
-     on Windows.
+         on Windows.
 3. **macOS-specific tweaks**
    - [ ] Use `macos-14` (Apple Silicon) when available and pin via SHA
-     like the existing actions.
+         like the existing actions.
 4. **Reporting**
    - [ ] Emit JUnit XML via `pnpm test:ci` and upload as artifacts per
-     shard.
+         shard.
 5. **Branch protection (out of workflow, documented)**
    - [ ] `main` requires: all `test-*` shards green × all three OSes.
 

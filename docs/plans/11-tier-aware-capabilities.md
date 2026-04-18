@@ -20,20 +20,20 @@ depends on this.
 
 ```ts
 interface Capabilities {
-  readonly platform:
-    | 'claude-code'
-    | 'codex-cli'
-    | 'codex-gui'
-    | 'opencode'
-    | 'amp'              // deferred to Phase 1.5
-    | 'unknown';
-  readonly tier: 1 | '1L' | 2 | 3;
-  readonly supportedHooks: readonly HookName[];
-  readonly interceptedTools: readonly string[];
-  readonly notes: readonly string[];  // e.g. "codex_hooks flag disabled"
-  readonly aegisctxVersion: string;
-  readonly storageBackend: 'better-sqlite3' | 'node-sqlite' | 'bun-sqlite';
-  readonly platformDetails: Record<string, unknown>; // platform-specific
+	readonly platform:
+		| "claude-code"
+		| "codex-cli"
+		| "codex-gui"
+		| "opencode"
+		| "amp" // deferred to Phase 1.5
+		| "unknown";
+	readonly tier: 1 | "1L" | 2 | 3;
+	readonly supportedHooks: readonly HookName[];
+	readonly interceptedTools: readonly string[];
+	readonly notes: readonly string[]; // e.g. "codex_hooks flag disabled"
+	readonly aegisctxVersion: string;
+	readonly storageBackend: "better-sqlite3" | "node-sqlite" | "bun-sqlite";
+	readonly platformDetails: Record<string, unknown>; // platform-specific
 }
 ```
 
@@ -63,18 +63,18 @@ result.
 
 1. **`packages/core/src/capabilities.ts`**
    - [ ] Move types from `@aegisctx/server` into `@aegisctx/core` so
-     adapters can import without taking a server dep.
+         adapters can import without taking a server dep.
 2. **Per-adapter `probeCapabilities`**
    - [ ] `claude-code/adapter.ts`: probe Claude Code version + hook
-     registration.
+         registration.
    - [ ] `codex/adapter.ts`: probe `config.toml` + `hooks.json` +
-     `codex_hooks` flag.
+         `codex_hooks` flag.
    - [ ] `codex/gui/adapter.ts`: return the probe branch from plan 09.
    - [ ] `opencode/adapter.ts`: probe SDK version, list loaded event
-     handlers.
+         handlers.
 3. **Server wiring**
    - [ ] `packages/server/src/capabilities.ts`: replace static TODO
-     with a call to the active adapter's probe.
+         with a call to the active adapter's probe.
    - [ ] Emit the capability payload at session start.
    - [ ] Expose via `aegisctx_doctor` MCP tool response.
 4. **CLI**

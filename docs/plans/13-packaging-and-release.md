@@ -15,15 +15,15 @@ provenance attestations and an SBOM. Zero lifecycle scripts. Only
 
 ### Published packages
 
-| Package | Why ship | Contents |
-|---|---|---|
-| `aegisctx` | User install target | CLI bin + runtime deps on scoped packages |
-| `@aegisctx/core` | Reusable pure logic | `dist/index.js` + types |
-| `@aegisctx/engine` | Reusable sandbox primitives | ditto |
-| `@aegisctx/storage` | Reusable SQLite layer | ditto |
-| `@aegisctx/adapters` | Platform abstractions | ditto |
-| `@aegisctx/server` | MCP server core | ditto |
-| `@aegisctx/opencode-plugin` | OpenCode plugin entrypoint | ditto |
+| Package                     | Why ship                    | Contents                                  |
+| --------------------------- | --------------------------- | ----------------------------------------- |
+| `aegisctx`                  | User install target         | CLI bin + runtime deps on scoped packages |
+| `@aegisctx/core`            | Reusable pure logic         | `dist/index.js` + types                   |
+| `@aegisctx/engine`          | Reusable sandbox primitives | ditto                                     |
+| `@aegisctx/storage`         | Reusable SQLite layer       | ditto                                     |
+| `@aegisctx/adapters`        | Platform abstractions       | ditto                                     |
+| `@aegisctx/server`          | MCP server core             | ditto                                     |
+| `@aegisctx/opencode-plugin` | OpenCode plugin entrypoint  | ditto                                     |
 
 ### Versioning
 
@@ -55,13 +55,14 @@ provenance attestations and an SBOM. Zero lifecycle scripts. Only
 
 CI guard `scripts/ci/no-lifecycle-scripts.mjs` walks every
 `package.json` and fails if any has `scripts.preinstall`,
-`scripts.install`, `scripts.postinstall`, `scripts.prepare` *for the
-published packages* (dev deps and the root `package.json` `prepare`
+`scripts.install`, `scripts.postinstall`, `scripts.prepare` _for the
+published packages_ (dev deps and the root `package.json` `prepare`
 used for husky-equivalent setup can be allowlisted).
 
 ### `npm pack` hygiene
 
 For each published package, CI runs `npm pack --dry-run --json` and:
+
 - asserts the `files` list contains only `LICENSE`, `README.md`,
   `dist/**`, `package.json`.
 - asserts no `src/`, no fixtures, no tests.
@@ -70,26 +71,26 @@ For each published package, CI runs `npm pack --dry-run --json` and:
 
 1. **Changesets**
    - [ ] `.changeset/config.json`: `access: public`, ignore root
-     package, `privatePackages: { version: false, tag: false }`.
+         package, `privatePackages: { version: false, tag: false }`.
    - [ ] `pnpm add -D -w @changesets/cli` and run `pnpm changeset init`.
    - [ ] CI check: require a changeset on any PR touching `packages/**`
-     unless labeled `no-changeset`.
+         unless labeled `no-changeset`.
 2. **Release workflow**
    - [ ] `.github/workflows/release.yml` per the design.
    - [ ] `.github/workflows/release-rc.yml` for `v*-rc.*` tags that
-     publish under the `next` dist-tag.
+         publish under the `next` dist-tag.
 3. **Hygiene checks**
    - [ ] `scripts/ci/no-lifecycle-scripts.mjs`.
    - [ ] `scripts/ci/pack-check.mjs`.
    - [ ] `scripts/ci/zero-deps-core.mjs` (verifies
-     `@aegisctx/core` has no runtime deps).
+         `@aegisctx/core` has no runtime deps).
 4. **Docs**
    - [ ] `CHANGELOG.md` auto-generated at the root.
    - [ ] `docs/releasing.md` — how to cut a release (maintainer
-     playbook).
+         playbook).
 5. **SBOM**
    - [ ] `@cyclonedx/cyclonedx-npm` added as a dev dep; invoked in the
-     release workflow.
+         release workflow.
 
 ## Acceptance criteria
 

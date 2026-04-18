@@ -16,18 +16,18 @@ network calls slip in.
 
 ### Approach per OS
 
-| OS | Mechanism |
-|---|---|
-| Linux | Run the smoke job inside `unshare -n` so the job has no network namespace. Loopback-only. |
-| macOS | `pfctl` anchor that blocks all outbound TCP/UDP except loopback, enabled for the smoke job's duration. |
-| Windows | `New-NetFirewallRule` outbound block profile enabled on job start, removed on cleanup. |
+| OS      | Mechanism                                                                                              |
+| ------- | ------------------------------------------------------------------------------------------------------ |
+| Linux   | Run the smoke job inside `unshare -n` so the job has no network namespace. Loopback-only.              |
+| macOS   | `pfctl` anchor that blocks all outbound TCP/UDP except loopback, enabled for the smoke job's duration. |
+| Windows | `New-NetFirewallRule` outbound block profile enabled on job start, removed on cleanup.                 |
 
 ### Scope
 
 The egress-blocked job runs: `pnpm build && pnpm ci:smoke && pnpm
 test:core && pnpm test:storage`.
 
-Jobs *not* in the block: dependency install (needs registry),
+Jobs _not_ in the block: dependency install (needs registry),
 `test:adapters` (Claude Code/Codex/OpenCode fixture fetches — if any —
 happen here rather than being baked in), `license-check`, `audit-npm`.
 
@@ -46,7 +46,7 @@ When the env var is set (or the resolved config has
 `network.disable = true`):
 
 1. `packages/server/src/runtime/context.ts` sets up a network kill
-   switch *before* any I/O:
+   switch _before_ any I/O:
    - `require('net').connect` and `require('net').createConnection`
      patched to throw `NetworkDisabledError`.
    - `require('tls').connect` patched similarly.
@@ -98,23 +98,23 @@ tarball scan (which only runs on release builds).
 
 1. **Layer 1**
    - [ ] `.github/actions/network-block/action.yml` — composite action
-     that enables the block per-OS.
+         that enables the block per-OS.
    - [ ] Smoke job wraps its run steps in the block action.
    - [ ] A dedicated smoke test
-     (`scripts/ci/network-block-canary.mjs`) that asserts network is
-     blocked — if it passes (network works), fail the job.
+         (`scripts/ci/network-block-canary.mjs`) that asserts network is
+         blocked — if it passes (network works), fail the job.
 2. **Layer 2**
    - [ ] `packages/server/src/runtime/no-network.ts` — kill-switch
-     impl.
+         impl.
    - [ ] Wired into `createServer()` before any other side effect.
    - [ ] `packages/server/src/runtime/no-network.test.ts`.
    - [ ] `aegisctx doctor` prints the status.
    - [ ] Documented in `README.md` under "Offline mode" and in
-     `docs/security.md`.
+         `docs/security.md`.
 3. **Layer 3**
    - [ ] `.github/workflows/ci.yml` new job `supply-chain-scan`.
    - [ ] `scripts/ci/telemetry-scan.mjs` — does the scan + allowlist
-     check.
+         check.
    - [ ] `scripts/ci/telemetry-allowlist.txt` — empty at MVP.
    - [ ] `scripts/ci/lockfile-scan.mjs` — lockfile-name denylist check.
 

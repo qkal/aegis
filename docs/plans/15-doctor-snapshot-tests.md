@@ -14,31 +14,31 @@ user. Every documented failure mode in `PLAN.md §10.4` must produce
 
 ## Failure modes in scope
 
-| # | Mode | Expected status | Fix hint |
-|---|---|---|---|
-| 1 | Node < 22 | fail | Upgrade to Node 22.0.0+ |
-| 2 | Python runtime missing | warn | Install `python3` or (Windows) the `py` launcher |
-| 3 | SQLite FTS5 unavailable | fail | Switch storage backend or rebuild binding |
-| 4 | Audit key missing | warn | `aegisctx audit init` or wait for auto-create |
-| 5 | Audit key wrong perms (POSIX) | fail | `chmod 600 ~/.aegisctx/audit-key` |
-| 6 | Audit key wrong ACL (Windows) | fail | `icacls` rewrite command snippet |
-| 7 | Audit chain broken | fail | Run `aegisctx audit verify` for the break point |
-| 8 | Policy file invalid JSON | fail | Show file + line + column |
-| 9 | Policy file denies every allowlist — sanity warn | warn | Suggest `aegisctx policy check` |
-| 10 | Claude Code hooks not registered | warn | Re-run `aegisctx init claude-code` |
-| 11 | Codex `codex_hooks` flag disabled | warn | One-line TOML edit snippet |
-| 12 | Codex `config.toml` syntax-invalid | fail | Show parse error |
-| 13 | OpenCode plugin not importable | warn | `npm install @aegisctx/opencode-plugin` |
-| 14 | VS Code Codex extension MCP entry malformed | warn | Show JSON path + expected shape |
-| 15 | Sandbox tempdir perms wrong (POSIX) | fail | `chmod 700` |
-| 16 | Sandbox tempdir ACL wrong (Windows) | fail | `icacls` snippet |
-| 17 | PowerShell execution policy too restrictive (Windows) | warn | `Set-ExecutionPolicy` snippet |
-| 18 | `py` launcher missing (Windows) | warn | Install link |
-| 19 | `AEGISCTX_NO_NETWORK=1` active | info | Inform user offline mode is on |
-| 20 | Capability tier downgraded | warn | Explain why, per adapter probe |
-| 21 | Migration pending on session DB | fail | `aegisctx session migrate` |
-| 22 | Content DB schema mismatch | fail | Same |
-| 23 | Corrupt session DB | fail | Renamed-then-recreated message |
+| #  | Mode                                                  | Expected status | Fix hint                                         |
+| -- | ----------------------------------------------------- | --------------- | ------------------------------------------------ |
+| 1  | Node < 22                                             | fail            | Upgrade to Node 22.0.0+                          |
+| 2  | Python runtime missing                                | warn            | Install `python3` or (Windows) the `py` launcher |
+| 3  | SQLite FTS5 unavailable                               | fail            | Switch storage backend or rebuild binding        |
+| 4  | Audit key missing                                     | warn            | `aegisctx audit init` or wait for auto-create    |
+| 5  | Audit key wrong perms (POSIX)                         | fail            | `chmod 600 ~/.aegisctx/audit-key`                |
+| 6  | Audit key wrong ACL (Windows)                         | fail            | `icacls` rewrite command snippet                 |
+| 7  | Audit chain broken                                    | fail            | Run `aegisctx audit verify` for the break point  |
+| 8  | Policy file invalid JSON                              | fail            | Show file + line + column                        |
+| 9  | Policy file denies every allowlist — sanity warn      | warn            | Suggest `aegisctx policy check`                  |
+| 10 | Claude Code hooks not registered                      | warn            | Re-run `aegisctx init claude-code`               |
+| 11 | Codex `codex_hooks` flag disabled                     | warn            | One-line TOML edit snippet                       |
+| 12 | Codex `config.toml` syntax-invalid                    | fail            | Show parse error                                 |
+| 13 | OpenCode plugin not importable                        | warn            | `npm install @aegisctx/opencode-plugin`          |
+| 14 | VS Code Codex extension MCP entry malformed           | warn            | Show JSON path + expected shape                  |
+| 15 | Sandbox tempdir perms wrong (POSIX)                   | fail            | `chmod 700`                                      |
+| 16 | Sandbox tempdir ACL wrong (Windows)                   | fail            | `icacls` snippet                                 |
+| 17 | PowerShell execution policy too restrictive (Windows) | warn            | `Set-ExecutionPolicy` snippet                    |
+| 18 | `py` launcher missing (Windows)                       | warn            | Install link                                     |
+| 19 | `AEGISCTX_NO_NETWORK=1` active                        | info            | Inform user offline mode is on                   |
+| 20 | Capability tier downgraded                            | warn            | Explain why, per adapter probe                   |
+| 21 | Migration pending on session DB                       | fail            | `aegisctx session migrate`                       |
+| 22 | Content DB schema mismatch                            | fail            | Same                                             |
+| 23 | Corrupt session DB                                    | fail            | Renamed-then-recreated message                   |
 
 ## Design
 
@@ -50,7 +50,7 @@ user. Every documented failure mode in `PLAN.md §10.4` must produce
   filesystem (via `memfs`) + fake `os.platform()` + fake runtime
   probes, invokes `runDoctor(env)`, and snapshots the structured
   output.
-- Snapshot format: the *structured* `DoctorReport` object, not the
+- Snapshot format: the _structured_ `DoctorReport` object, not the
   ANSI-rendered string. Rendering is tested separately with a single
   golden rendering test.
 
@@ -58,19 +58,19 @@ user. Every documented failure mode in `PLAN.md §10.4` must produce
 
 ```ts
 interface DoctorReport {
-  readonly overall: 'pass' | 'warn' | 'fail';
-  readonly sections: readonly DoctorSection[];
-  readonly summary: { pass: number; warn: number; fail: number };
+	readonly overall: "pass" | "warn" | "fail";
+	readonly sections: readonly DoctorSection[];
+	readonly summary: { pass: number; warn: number; fail: number; };
 }
 interface DoctorSection {
-  readonly name: string;
-  readonly checks: readonly DoctorCheck[];
+	readonly name: string;
+	readonly checks: readonly DoctorCheck[];
 }
 interface DoctorCheck {
-  readonly id: string;            // stable: 'node-version', 'audit-key-perms', ...
-  readonly status: 'pass' | 'warn' | 'fail' | 'info';
-  readonly message: string;
-  readonly fixHint?: string;      // copy-paste-safe command
+	readonly id: string; // stable: 'node-version', 'audit-key-perms', ...
+	readonly status: "pass" | "warn" | "fail" | "info";
+	readonly message: string;
+	readonly fixHint?: string; // copy-paste-safe command
 }
 ```
 
@@ -78,27 +78,27 @@ interface DoctorCheck {
 
 1. **`packages/cli/src/commands/doctor/`**
    - [ ] Split the current `doctor.ts` into one file per section
-     (`platform.ts`, `runtimes.ts`, `storage.ts`, `audit.ts`,
-     `policy.ts`, `hooks.ts`, `sandbox.ts`, `network.ts`,
-     `capabilities.ts`).
+         (`platform.ts`, `runtimes.ts`, `storage.ts`, `audit.ts`,
+         `policy.ts`, `hooks.ts`, `sandbox.ts`, `network.ts`,
+         `capabilities.ts`).
    - [ ] Each exports `runSection(env): Promise<DoctorSection>`.
 2. **`@aegisctx/core/src/doctor-types.ts`**
    - [ ] The types above, shared with server (so
-     `aegisctx_doctor` MCP tool returns the same shape).
+         `aegisctx_doctor` MCP tool returns the same shape).
 3. **Test harness**
    - [ ] `packages/cli/src/commands/doctor/virtual-env.ts` — mock
-     filesystem + runtime probe + env var injection.
+         filesystem + runtime probe + env var injection.
 4. **23 snapshot tests**, one per failure mode.
 5. **Render golden**
    - [ ] `packages/cli/src/commands/doctor/render.test.ts` — ANSI
-     render of a representative mixed-status report.
+         render of a representative mixed-status report.
 
 ## Acceptance criteria
 
 - All 23 failure modes have a passing snapshot test.
 - Running `aegisctx doctor --json` on a failure-mode fixture produces
   the asserted `DoctorReport` shape.
-- Renderer test asserts no secrets or env var *values* leak into
+- Renderer test asserts no secrets or env var _values_ leak into
   output (only names).
 
 ## Test strategy

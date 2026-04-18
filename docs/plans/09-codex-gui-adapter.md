@@ -53,14 +53,14 @@ Example target state:
 
 ```jsonc
 {
-  // ... existing keys ...
-  "codex.mcpServers": {
-    "aegisctx": {
-      "command": "aegisctx",
-      "args": ["serve"],
-      "env": { "AEGISCTX_PLATFORM": "codex-gui" }
-    }
-  }
+	// ... existing keys ...
+	"codex.mcpServers": {
+		"aegisctx": {
+			"command": "aegisctx",
+			"args": ["serve"],
+			"env": { "AEGISCTX_PLATFORM": "codex-gui" },
+		},
+	},
 }
 ```
 
@@ -70,21 +70,21 @@ Example target state:
    - [ ] `probe.ts` — per-OS config probe with the order above.
    - [ ] `vscode-settings.ts` — `jsonc-parser` read/edit/write.
    - [ ] `adapter.ts` — `HookAdapter` impl (reuses event extraction
-     from plan 08's `codex/events.ts` where overlap exists).
+         from plan 08's `codex/events.ts` where overlap exists).
    - [ ] `fixtures/` — sample `settings.json` files for Windows,
-     macOS, Linux; dry-run + apply goldens.
+         macOS, Linux; dry-run + apply goldens.
    - [ ] `adapter.test.ts`.
 2. **`packages/cli/src/commands/init.ts`**
    - [ ] New branch: `aegisctx init codex-gui`.
    - [ ] `--config-path <path>` override for users with non-standard
-     VS Code installs (Portable Mode, Flatpak, etc.).
+         VS Code installs (Portable Mode, Flatpak, etc.).
 3. **AGENTS.md template**
    - [ ] `configs/codex-gui.AGENTS.md` — routing instructions for the
-     Tier-3 fallback.
+         Tier-3 fallback.
 4. **Doctor integration**
    - [ ] `aegisctx doctor` reports: which config branch was taken, MCP
-     entry present, AGENTS.md present (if fallback branch), hook
-     support detected vs not.
+         entry present, AGENTS.md present (if fallback branch), hook
+         support detected vs not.
 
 ## Acceptance criteria
 

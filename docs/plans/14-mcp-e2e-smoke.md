@@ -48,8 +48,8 @@ stdin/stdout normalized to LF.
    - [ ] Uses `@modelcontextprotocol/sdk` as a dev dep (pinned).
 2. **`scripts/ci/codex-hook-smoke.mjs`**
    - [ ] Feeds
-     `packages/adapters/src/codex/fixtures/pre-tool-use-bash-denied.json`
-     to the hook binary; asserts exit 2 + structured JSON stderr.
+         `packages/adapters/src/codex/fixtures/pre-tool-use-bash-denied.json`
+         to the hook binary; asserts exit 2 + structured JSON stderr.
 3. **Integration with `pnpm ci:smoke`**
    - [ ] Update `package.json` `ci:smoke` to run:
      1. `assertSmokeFiles` (existing).
@@ -57,11 +57,11 @@ stdin/stdout normalized to LF.
      3. `codex-hook-smoke`.
 4. **CI**
    - [ ] `.github/workflows/ci.yml` smoke shard runs this on
-     ubuntu + macos + windows.
+         ubuntu + macos + windows.
 5. **Network-block integration**
    - [ ] The smoke shard runs under the Layer-1 network block from
-     plan 12 so a regression that reintroduces outbound calls fails
-     the smoke.
+         plan 12 so a regression that reintroduces outbound calls fails
+         the smoke.
 
 ## Acceptance criteria
 

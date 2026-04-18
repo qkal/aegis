@@ -16,28 +16,28 @@ does but with more ceremony. Simpler text, same protection class.
 
 1. **Root `LICENSE`**
    - [ ] Replace Apache-2.0 text with the SPDX-identifier-matching
-     BSD-2-Clause-Patent text. Copyright line: `Copyright (c) 2026, Qkal
+         BSD-2-Clause-Patent text. Copyright line: `Copyright (c) 2026, Qkal
      and contributors`.
 2. **`package.json` files (all six)**
    - [ ] `"license": "BSD-2-Clause-Patent"` in root `package.json`.
    - [ ] Same in `packages/{core,engine,storage,adapters,server,cli}/package.json`.
 3. **README**
    - [ ] Update the `## License` section to `BSD-2-Clause-Patent` with a
-     one-sentence explanation and a link to the SPDX text.
+         one-sentence explanation and a link to the SPDX text.
 4. **ADR**
    - [ ] New ADR: `docs/adr/0018-license-bsd-2-clause-patent.md`.
-     Content: why the explicit patent grant, why BSD-2 over Apache-2.0
-     for brevity, compatibility notes (GPL-compatible, MIT-compatible
-     for downstream users).
+         Content: why the explicit patent grant, why BSD-2 over Apache-2.0
+         for brevity, compatibility notes (GPL-compatible, MIT-compatible
+         for downstream users).
 5. **SPDX headers (optional, not required)**
    - If we want SPDX headers in source, land them here as
      `// SPDX-License-Identifier: BSD-2-Clause-Patent`. Default: skip,
      document the top-level license only.
 6. **CI license-compat check**
    - [ ] New `license-check` job in `.github/workflows/ci.yml` using
-     `license-checker-rseidelsohn` (or `pnpm licenses list` + a script)
-     that fails if any transitive production dep carries a license not
-     in the allowlist.
+         `license-checker-rseidelsohn` (or `pnpm licenses list` + a script)
+         that fails if any transitive production dep carries a license not
+         in the allowlist.
    - Allowlist (initial): `BSD-2-Clause`, `BSD-2-Clause-Patent`,
      `BSD-3-Clause`, `ISC`, `MIT`, `MIT-0`, `Apache-2.0`, `0BSD`,
      `BlueOak-1.0.0`, `CC0-1.0`, `Unlicense`, `Python-2.0`.

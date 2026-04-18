@@ -2,7 +2,7 @@
 
 **Priority:** P0-4 prerequisite. Blocks publish-to-npm work in plan 13.
 **Size:** Medium (wide but shallow).
-**Dependencies:** None. Must land *before* any new user-facing copy is
+**Dependencies:** None. Must land _before_ any new user-facing copy is
 written so we don't cement the old name in docs.
 
 ## Why
@@ -15,52 +15,52 @@ renamed to `aegisctx` (bin name `aegisctx`). Internal packages move to the
 
 1. **Workspace rename**
    - [ ] `packages/cli/package.json`: `"name": "aegisctx"`, bin key stays
-     `"aegisctx"` (already named correctly on the bin side).
+         `"aegisctx"` (already named correctly on the bin side).
    - [ ] `packages/core/package.json`: `"name": "@aegisctx/core"`.
    - [ ] `packages/engine/package.json`: `"name": "@aegisctx/engine"`.
    - [ ] `packages/storage/package.json`: `"name": "@aegisctx/storage"`.
    - [ ] `packages/adapters/package.json`: `"name": "@aegisctx/adapters"`.
    - [ ] `packages/server/package.json`: `"name": "@aegisctx/server"`.
    - [ ] All internal `workspace:*` dependency keys updated to the new
-     names.
+         names.
    - [ ] `pnpm-workspace.yaml` unchanged (path-based), but run
-     `pnpm install` and commit the updated lockfile.
+         `pnpm install` and commit the updated lockfile.
 2. **Source code rename**
    - [ ] `rg -l '@aegis/' packages/ scripts/ | xargs sed -i
      's|@aegis/|@aegisctx/|g'` (or equivalent manual edits).
    - [ ] `rg -l '"aegis"' packages/` — any bare `"aegis"` string that
-     refers to the CLI package gets updated; product name "Aegis" in
-     docstrings stays.
+         refers to the CLI package gets updated; product name "Aegis" in
+         docstrings stays.
    - [ ] Vitest alias in `vitest.config.ts` updated
-     (`@aegis/*` → `@aegisctx/*`).
+         (`@aegis/*` → `@aegisctx/*`).
 3. **CLI surface**
    - [ ] `CLI_NAME` constant in `packages/cli/src/index.ts` stays
-     `"aegisctx"` (the bin was already named right; confirm and add a
-     test).
+         `"aegisctx"` (the bin was already named right; confirm and add a
+         test).
    - [ ] `aegis_*` MCP tool names renamed to `aegisctx_*`
-     (`aegis_execute` → `aegisctx_execute`, etc.) in
-     `packages/server/src/tools/` + tests.
+         (`aegis_execute` → `aegisctx_execute`, etc.) in
+         `packages/server/src/tools/` + tests.
    - [ ] `aegis init`, `aegis doctor`, `aegis audit` references in
-     terminal output + help text say `aegisctx`.
+         terminal output + help text say `aegisctx`.
 4. **Directory structure on disk**
    - [ ] `~/.aegis/` → `~/.aegisctx/` across `packages/cli/src/commands/`
-     and `packages/server/src/runtime/context.ts`.
+         and `packages/server/src/runtime/context.ts`.
    - [ ] One-time migration helper in `packages/cli/src/commands/init.ts`:
-     if `~/.aegis/` exists and `~/.aegisctx/` does not, print a hint to
-     the user (no automatic move — safer during rename).
+         if `~/.aegis/` exists and `~/.aegisctx/` does not, print a hint to
+         the user (no automatic move — safer during rename).
 5. **Documentation**
    - [ ] `README.md`, `PLAN.md`, `MILESTONES.md`, all ADRs, all `docs/`
-     files — every `aegis init`, `aegis doctor`, `aegis audit`,
-     `npm install -g aegis`, and `@aegis/*` import becomes the new form.
+         files — every `aegis init`, `aegis doctor`, `aegis audit`,
+         `npm install -g aegis`, and `@aegis/*` import becomes the new form.
    - [ ] `docs/plans/*.md` already use the new names (reference only).
 6. **CI / scripts**
    - [ ] `scripts/ci/smoke.mjs`: CLI_NAME assertion updated.
    - [ ] `scripts/ci/hygiene.mjs`: any grep/regex keyed on the old name
-     updated.
+         updated.
    - [ ] `.github/workflows/ci.yml`: no change needed beyond comments.
 7. **Config file templates**
    - [ ] `configs/*.json` references to `aegis` tool names and `aegis`
-     MCP server names renamed.
+         MCP server names renamed.
 
 ## Acceptance criteria
 
@@ -83,7 +83,7 @@ renamed to `aegisctx` (bin name `aegisctx`). Internal packages move to the
 - Add `packages/cli/src/cli.test.ts` assertion that `CLI_NAME` is
   `"aegisctx"`.
 - Add a regression test: snapshot of `aegisctx doctor --help` output,
-  asserting it does not contain the string `aegis ` (with trailing
+  asserting it does not contain the string `aegis` (with trailing
   space) as a command prefix.
 
 ## Out of scope

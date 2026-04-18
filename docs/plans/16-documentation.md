@@ -83,6 +83,7 @@ Each `docs/getting-started/<platform>.md` follows the same structure:
 ## README refresh
 
 Update `README.md` with:
+
 - New name everywhere (`aegisctx`).
 - New license callout (`BSD-2-Clause-Patent`).
 - Platform × OS × tier matrix.

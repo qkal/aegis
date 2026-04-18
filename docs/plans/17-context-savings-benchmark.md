@@ -16,6 +16,7 @@ must be able to check the claim in two commands.
 
 `benchmarks/context-savings/inputs/` — ships a set of representative
 large tool outputs:
+
 - `playwright-snapshot.xml` (56 KB)
 - `jq-full-package-json.json` (typical large JSON payload)
 - `grep-noisy-find.txt` (wide directory tree)
@@ -31,10 +32,10 @@ directly to the LLM.
 1. For each input:
    a. `rawSize = Buffer.byteLength(input, 'utf8')`.
    b. Feed it through `aegisctx_execute` with a canned script that
-      produces the same content, or directly through the output
-      processor for a pure unit measurement.
+   produces the same content, or directly through the output
+   processor for a pure unit measurement.
    c. Measure the bytes actually returned to the MCP client
-      (`returnedSize`).
+   (`returnedSize`).
 2. Print a table: input, rawSize, returnedSize, savings %.
 3. Write `benchmarks/context-savings/latest.json` with the machine-
    readable output.
@@ -42,12 +43,12 @@ directly to the LLM.
 
 ### Budgets (committed in `benchmarks/context-savings/budgets.json`)
 
-| Input | Max returned bytes |
-|---|---|
-| playwright-snapshot.xml | 500 |
-| jq-full-package-json.json | 2048 |
-| grep-noisy-find.txt | 1024 |
-| node-types-d-ts.txt | 4096 |
+| Input                     | Max returned bytes |
+| ------------------------- | ------------------ |
+| playwright-snapshot.xml   | 500                |
+| jq-full-package-json.json | 2048               |
+| grep-noisy-find.txt       | 1024               |
+| node-types-d-ts.txt       | 4096               |
 
 ### CI wiring
 

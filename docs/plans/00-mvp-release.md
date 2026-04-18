@@ -5,53 +5,55 @@ decisions you confirmed.
 
 ## Locked decisions
 
-| Decision | Choice | Impact |
-|---|---|---|
-| **npm name** | `aegisctx` (binary: `aegisctx`). All three options (`aegisctx`, `ctxaegis`, `contextaegis`) returned 404 on the npm registry, so all are available; I'm picking `aegisctx` because it's shortest and keeps "aegis" as the recognizable prefix. Scoped packages move to `@aegisctx/*`. | Rename `packages/cli` package from `aegis` → `aegisctx`; rename `@aegis/*` internal scopes → `@aegisctx/*`; update README, PLAN, every CLI snippet in docs, CI scripts, `aegis init` → `aegisctx init`. |
-| **License** | `BSD-2-Clause-Patent` (replaces `Apache-2.0`). | Update root `LICENSE`, all six `packages/*/package.json`, `README.md`, add an ADR documenting the rationale, add CI license-compat check for transitive deps. |
-| **Windows** | First-class MVP target alongside macOS and Linux. | Adds ~1 week to the schedule; forces Windows-native `PolyglotExecutor` (no POSIX-shell assumptions), Windows path handling in `aegisctx init`, Windows CI matrix, ACL-based perms instead of `0o700`. |
-| **Platform focus** | **Codex CLI + Codex GUI** as co-equal primary targets with **Claude Code**. OpenCode stays in MVP. **AmpCode is deferred** to Phase 1.5. | Frees up ~1 week of adapter work; that capacity redirects into Codex hardening (`codex_hooks` feature flag, safe TOML writes, GUI config probing on Windows/macOS/Linux). |
-| **Telemetry-free verification** | Belt + braces: (a) CI network-egress block on unit + smoke tests, (b) runtime `AEGISCTX_NO_NETWORK=1` kill-switch that patches `net.connect` / `undici.request` to throw before I/O, (c) published-tarball scan for known telemetry SDKs/domains with an allowlist in `docs/security.md`. | Strongest "no telemetry" guarantee a local-first CLI can credibly make without going full container. |
+| Decision                        | Choice                                                                                                                                                                                                                                                                                    | Impact                                                                                                                                                                                                  |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **npm name**                    | `aegisctx` (binary: `aegisctx`). All three options (`aegisctx`, `ctxaegis`, `contextaegis`) returned 404 on the npm registry, so all are available; I'm picking `aegisctx` because it's shortest and keeps "aegis" as the recognizable prefix. Scoped packages move to `@aegisctx/*`.     | Rename `packages/cli` package from `aegis` → `aegisctx`; rename `@aegis/*` internal scopes → `@aegisctx/*`; update README, PLAN, every CLI snippet in docs, CI scripts, `aegis init` → `aegisctx init`. |
+| **License**                     | `BSD-2-Clause-Patent` (replaces `Apache-2.0`).                                                                                                                                                                                                                                            | Update root `LICENSE`, all six `packages/*/package.json`, `README.md`, add an ADR documenting the rationale, add CI license-compat check for transitive deps.                                           |
+| **Windows**                     | First-class MVP target alongside macOS and Linux.                                                                                                                                                                                                                                         | Adds ~1 week to the schedule; forces Windows-native `PolyglotExecutor` (no POSIX-shell assumptions), Windows path handling in `aegisctx init`, Windows CI matrix, ACL-based perms instead of `0o700`.   |
+| **Platform focus**              | **Codex CLI + Codex GUI** as co-equal primary targets with **Claude Code**. OpenCode stays in MVP. **AmpCode is deferred** to Phase 1.5.                                                                                                                                                  | Frees up ~1 week of adapter work; that capacity redirects into Codex hardening (`codex_hooks` feature flag, safe TOML writes, GUI config probing on Windows/macOS/Linux).                               |
+| **Telemetry-free verification** | Belt + braces: (a) CI network-egress block on unit + smoke tests, (b) runtime `AEGISCTX_NO_NETWORK=1` kill-switch that patches `net.connect` / `undici.request` to throw before I/O, (c) published-tarball scan for known telemetry SDKs/domains with an allowlist in `docs/security.md`. | Strongest "no telemetry" guarantee a local-first CLI can credibly make without going full container.                                                                                                    |
 
 ---
 
 ## 1. Where we are today
 
 ### 1.1 Shipped (Phase 0 + Phase 1a)
-| Area | Status | Notes |
-|---|---|---|
-| Monorepo + toolchain | Done | pnpm 9, oxlint, dprint, Vitest, tsup, Node 22 (M0.1, M0.5). |
-| Policy engine (`@aegis/core` → `@aegisctx/core`) | Done | Branded types, policy eval, routing, snapshot builder (M0.2). |
-| SQLite abstraction (`@aegis/storage` → `@aegisctx/storage`) | Done in code | `better-sqlite3`, `bun-sqlite`, `node-sqlite` + factory (M0.3). |
-| Migrations | Done in code | `storage/migrations/runner.ts`. |
-| FTS5 content index | Done in code | Porter + trigram + RRF (M0.4). |
-| Session event store + snapshots | Done | `storage/session/store.ts` + `core/snapshot/builder.ts` (M1.4). |
-| Sandbox engine | Done (POSIX only) | `PolyglotExecutor` (M1.1). |
-| MCP server | Done | `server.ts` ≤200 LOC; `execute`, `audit`, `doctor` tools; hooks (M1.2). |
-| Claude Code adapter (Tier 1) | Done | Schemas, fixtures, tests (M1.3). |
-| Policy enforcement at hook + MCP wrapper | Done | M1.5. |
-| CLI `aegis doctor` + `aegis init` | Done | To be renamed to `aegisctx` (M1.6). |
-| CI | Minimal | `ubuntu-latest` only; format / lint / typecheck / test shards. |
+
+| Area                                                        | Status            | Notes                                                                   |
+| ----------------------------------------------------------- | ----------------- | ----------------------------------------------------------------------- |
+| Monorepo + toolchain                                        | Done              | pnpm 9, oxlint, dprint, Vitest, tsup, Node 22 (M0.1, M0.5).             |
+| Policy engine (`@aegis/core` → `@aegisctx/core`)            | Done              | Branded types, policy eval, routing, snapshot builder (M0.2).           |
+| SQLite abstraction (`@aegis/storage` → `@aegisctx/storage`) | Done in code      | `better-sqlite3`, `bun-sqlite`, `node-sqlite` + factory (M0.3).         |
+| Migrations                                                  | Done in code      | `storage/migrations/runner.ts`.                                         |
+| FTS5 content index                                          | Done in code      | Porter + trigram + RRF (M0.4).                                          |
+| Session event store + snapshots                             | Done              | `storage/session/store.ts` + `core/snapshot/builder.ts` (M1.4).         |
+| Sandbox engine                                              | Done (POSIX only) | `PolyglotExecutor` (M1.1).                                              |
+| MCP server                                                  | Done              | `server.ts` ≤200 LOC; `execute`, `audit`, `doctor` tools; hooks (M1.2). |
+| Claude Code adapter (Tier 1)                                | Done              | Schemas, fixtures, tests (M1.3).                                        |
+| Policy enforcement at hook + MCP wrapper                    | Done              | M1.5.                                                                   |
+| CLI `aegis doctor` + `aegis init`                           | Done              | To be renamed to `aegisctx` (M1.6).                                     |
+| CI                                                          | Minimal           | `ubuntu-latest` only; format / lint / typecheck / test shards.          |
 
 ### 1.2 Gaps that block an MVP public release
-| Gap | Milestone | Disposition under the new decisions |
-|---|---|---|
-| Codex CLI adapter | M1.7 | **Expanded** into Codex CLI + Codex GUI adapter pair (P0-1). |
-| OpenCode adapter + plugin | M1.8 | Still in MVP. |
-| AmpCode adapter | M1.9 | **Deferred** to Phase 1.5. |
-| HMAC-chained audit log | M2.1 | Pulled forward into MVP (P0-2). |
-| Hardened sandbox defaults | M2.2 slice | Pulled forward into MVP (P0-3). |
-| Publish pipeline + `aegisctx` name | Release blocker | P0-4. |
-| Security posture (`SECURITY.md`, SBOM, audit, egress) | Release blocker | P0-5. |
-| Cross-OS CI (macOS **and Windows**) | Release blocker | P0-6, Windows is now a hard requirement. |
-| Real MCP E2E smoke | Release blocker | P0-7. |
-| Release documentation | Release blocker | P0-8. |
-| Context-savings benchmark | Release blocker | P0-9. |
-| `aegisctx doctor` accuracy | Release blocker | P0-10. |
-| **License change to `BSD-2-Clause-Patent`** | Release blocker | New P0-11. |
-| **Windows-native `PolyglotExecutor`** | Release blocker | New P0-12. |
-| **Codex hardening (CLI + GUI) as primary target** | Release blocker | New P0-13. |
-| **Telemetry-free verification layers** | Release blocker | New P0-14. |
+
+| Gap                                                   | Milestone       | Disposition under the new decisions                          |
+| ----------------------------------------------------- | --------------- | ------------------------------------------------------------ |
+| Codex CLI adapter                                     | M1.7            | **Expanded** into Codex CLI + Codex GUI adapter pair (P0-1). |
+| OpenCode adapter + plugin                             | M1.8            | Still in MVP.                                                |
+| AmpCode adapter                                       | M1.9            | **Deferred** to Phase 1.5.                                   |
+| HMAC-chained audit log                                | M2.1            | Pulled forward into MVP (P0-2).                              |
+| Hardened sandbox defaults                             | M2.2 slice      | Pulled forward into MVP (P0-3).                              |
+| Publish pipeline + `aegisctx` name                    | Release blocker | P0-4.                                                        |
+| Security posture (`SECURITY.md`, SBOM, audit, egress) | Release blocker | P0-5.                                                        |
+| Cross-OS CI (macOS **and Windows**)                   | Release blocker | P0-6, Windows is now a hard requirement.                     |
+| Real MCP E2E smoke                                    | Release blocker | P0-7.                                                        |
+| Release documentation                                 | Release blocker | P0-8.                                                        |
+| Context-savings benchmark                             | Release blocker | P0-9.                                                        |
+| `aegisctx doctor` accuracy                            | Release blocker | P0-10.                                                       |
+| **License change to `BSD-2-Clause-Patent`**           | Release blocker | New P0-11.                                                   |
+| **Windows-native `PolyglotExecutor`**                 | Release blocker | New P0-12.                                                   |
+| **Codex hardening (CLI + GUI) as primary target**     | Release blocker | New P0-13.                                                   |
+| **Telemetry-free verification layers**                | Release blocker | New P0-14.                                                   |
 
 ---
 
@@ -72,7 +74,7 @@ Node 22+ can:
    - `aegisctx_search` / `aegisctx_index` round-trip works.
    - Session events persist and restore across compaction (Claude Code,
      OpenCode, Codex GUI) or idle windows (Codex CLI without `codex_hooks`).
-   - Policy-denied commands are blocked at the hook *or* the MCP tool
+   - Policy-denied commands are blocked at the hook _or_ the MCP tool
      wrapper with a structured error.
 4. `aegisctx doctor` produces an accurate, actionable pass/warn/fail report
    per platform and OS (especially Windows runtime detection: `py`
@@ -95,6 +97,7 @@ Level 3 sandbox.
 ### P0 — Must ship to call it MVP
 
 #### P0-1. Close the four MVP adapters (M1.7, new M1.7b, M1.8)
+
 - **M1.7 Codex CLI (Tier 1L).** Schemas for `~/.codex/hooks.json` and
   `~/.codex/config.toml` `[mcp_servers.aegisctx]`. `aegisctx hook codex
   pre-tool-use` subcommands. Capability `{ tier: '1L', interceptedTools:
@@ -112,8 +115,8 @@ Level 3 sandbox.
      before writing).
   3. Fallback: MCP-only registration with an `AGENTS.md` routing template
      for sessions that don't surface hooks.
-  Capability advertisement honestly reflects whichever branch the probe
-  took.
+     Capability advertisement honestly reflects whichever branch the probe
+     took.
 - **M1.8 OpenCode (Tier 1).** Ship `@aegisctx/opencode-plugin` as a
   separate npm package. Subscribe to `tool.execute.before/after`,
   `session.compacted`, `session.idle`, `permission.asked`. Write MCP
@@ -122,6 +125,7 @@ Level 3 sandbox.
   start — stubbed in `server/capabilities.ts`; wire each adapter.
 
 #### P0-2. HMAC-chained audit log (M2.1, pulled forward)
+
 - `storage/audit/chain.ts`: UUIDv7 IDs, canonical JSON serialization,
   `hmac = HMAC_SHA256(key, prev_hmac ‖ canonical(entry))`.
 - Key material at `~/.aegisctx/audit-key` (`0o600` on POSIX; equivalent
@@ -132,6 +136,7 @@ Level 3 sandbox.
 - CI test: mutate one entry, `verify` must report the exact break point.
 
 #### P0-3. Hardened sandbox defaults (M2.2 slice)
+
 - Default `aegisctx init` policy denies `AWS_*`, `GH_TOKEN`,
   `GITHUB_TOKEN`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`,
   `AZURE_*`, `GCP_*`, plus Windows-specific `USERPROFILE`, `LOCALAPPDATA`,
@@ -148,6 +153,7 @@ Level 3 sandbox.
   /T /F` against the child PID.
 
 #### P0-4. Packaging and publish pipeline
+
 - Reserve `aegisctx` and the `@aegisctx` org on npm.
 - Rename `packages/cli` package → `aegisctx` (bin stays `aegisctx`).
   Internal packages → `@aegisctx/core`, `@aegisctx/engine`,
@@ -162,6 +168,7 @@ Level 3 sandbox.
 - Generate SBOM (`@cyclonedx/cyclonedx-npm`) and attach to releases.
 
 #### P0-5. Security posture for a public release
+
 - `SECURITY.md` (disclosure channel, threat model → `PLAN.md §6`, SLAs).
 - `npm audit --omit=dev` on every PR; fail on high/critical.
 - `osv-scanner` on every PR.
@@ -172,6 +179,7 @@ Level 3 sandbox.
 - Telemetry-free verification — see P0-14.
 
 #### P0-6. Cross-platform CI matrix (incl. Windows)
+
 - `ci.yml`: `os: [ubuntu-latest, macos-latest, windows-latest]`.
 - Storage shard: Node 22 (`node:sqlite`) on all three OSes; Bun-latest on
   Linux + macOS (Bun Windows is still alpha — documented as best-effort).
@@ -180,6 +188,7 @@ Level 3 sandbox.
 - Smoke shard: real MCP E2E (P0-7) on all three OSes.
 
 #### P0-7. End-to-end smoke test with a real MCP client
+
 - Build CLI.
 - Spawn `aegisctx serve` over stdio.
 - `@modelcontextprotocol/sdk` client sends `initialize`, lists tools,
@@ -190,6 +199,7 @@ Level 3 sandbox.
   stdin fixtures and checks exit code + JSON stdout.
 
 #### P0-8. Release documentation
+
 - Expand `README.md` with a platform × OS matrix, capability tiers,
   troubleshooting.
 - `docs/getting-started/claude-code.md`, `codex-cli.md`, `codex-gui.md`,
@@ -205,6 +215,7 @@ Level 3 sandbox.
 - `CHANGELOG.md` auto-generated from changesets.
 
 #### P0-9. Reproducible context-savings benchmark
+
 - `benchmarks/context-savings/` with a recorded Playwright snapshot + a
   script that runs it through `aegisctx_execute` and asserts output size
   ≤ 500 B.
@@ -212,6 +223,7 @@ Level 3 sandbox.
   regression.
 
 #### P0-10. `aegisctx doctor` accuracy
+
 - Snapshot tests for every failure mode in `PLAN.md §10.4`, on each OS:
   runtime missing, FTS5 unavailable, audit key missing / wrong perms,
   policy file syntactically invalid, hook not registered, corrupt DB.
@@ -219,6 +231,7 @@ Level 3 sandbox.
   restrictive.
 
 #### P0-11. License migration to `BSD-2-Clause-Patent`
+
 - Replace root `LICENSE` with the SPDX `BSD-2-Clause-Patent` text.
 - Set `"license": "BSD-2-Clause-Patent"` in every workspace
   `package.json`.
@@ -229,6 +242,7 @@ Level 3 sandbox.
   any transitive dep with an incompatible license (AGPL, SSPL, etc.).
 
 #### P0-12. Windows-native `PolyglotExecutor`
+
 - Replace POSIX-only `spawn` calls with OS-aware invocation:
   - Default shell: `pwsh.exe` (fallback `powershell.exe`) on Windows;
     `bash` on POSIX.
@@ -242,7 +256,9 @@ Level 3 sandbox.
 - Integration tests in the Windows CI job.
 
 #### P0-13. Codex hardening (CLI + GUI as primary targets)
+
 Treat Codex as a co-equal primary target with Claude Code.
+
 - Robust TOML read/modify/write for `~/.codex/config.toml` that preserves
   keys and comments (e.g. `@iarna/toml`), with a dry-run diff.
 - Detect `[features] codex_hooks = true`; when unset, `aegisctx init
@@ -262,6 +278,7 @@ Treat Codex as a co-equal primary target with Claude Code.
   clean green `aegisctx doctor` at the end.
 
 #### P0-14. Telemetry-free verification (belt + braces)
+
 1. **CI network-egress block.** Run the smoke job under `unshare -n`
    (Linux), a loopback-only `pfctl` rule on macOS, and a Windows Defender
    Firewall outbound-block profile on Windows. Any attempt to open an
@@ -279,6 +296,7 @@ Treat Codex as a co-equal primary target with Claude Code.
    Fails on any hit unless explicitly allowlisted in `docs/security.md`.
 
 ### P1 — Ship within 2 weeks after `v0.1.0`
+
 - **Phase 1.5: AmpCode adapter (M1.9).** Deferred from MVP; immediate
   next item after `v0.1.0`.
 - **Ask mode** (M2.4): closes the deny / ask / allow triad.
@@ -290,6 +308,7 @@ Treat Codex as a co-equal primary target with Claude Code.
 - **Wave-2 adapter: Cursor** (Tier 2) + **generic MCP fallback** (Tier 3).
 
 ### P2 — Post-MVP, in order
+
 - Plugin system with worker-thread isolation (M3.2).
 - Gemini CLI adapter.
 - VS Code Copilot (non-Codex) adapter.
@@ -324,6 +343,7 @@ Treat Codex as a co-equal primary target with Claude Code.
 ## 5. Sequenced 5-week delivery plan (Windows adds a week)
 
 ### Week 1 — Rename, relicense, reconcile
+
 1. Reserve `aegisctx` + `@aegisctx` on npm. Rename `packages/cli` →
    `aegisctx`; rename workspace scopes to `@aegisctx/*`; update every
    reference in source, tests, docs, CI.
@@ -334,12 +354,14 @@ Treat Codex as a co-equal primary target with Claude Code.
 5. Hardened sandbox defaults on POSIX (P0-3, POSIX slice).
 
 ### Week 2 — Windows-native engine + Codex hardening (part 1)
+
 1. Windows-native `PolyglotExecutor` (P0-12). Green on Windows CI.
 2. Codex CLI adapter with safe TOML rewrite (M1.7, P0-13 part).
 3. Start Codex GUI adapter (M1.7b): config-probe strategy across all
    three OSes; land fixtures for Linux + macOS.
 
 ### Week 3 — Remaining adapters + Windows audit/policy + telemetry
+
 1. Finish Codex GUI adapter; Windows fixtures.
 2. OpenCode plugin + adapter (M1.8), publish `@aegisctx/opencode-plugin`
    as a preview tag.
@@ -348,6 +370,7 @@ Treat Codex as a co-equal primary target with Claude Code.
 5. Tier-aware capability advertisement through every adapter.
 
 ### Week 4 — Packaging, E2E, docs scaffolding
+
 1. Changesets + `release.yml` with provenance + SBOM (P0-4).
 2. Real MCP SDK smoke test on Linux, macOS, Windows (P0-7).
 3. `aegisctx doctor` failure-mode snapshot tests on all three OSes
@@ -358,6 +381,7 @@ Treat Codex as a co-equal primary target with Claude Code.
    templates.
 
 ### Week 5 — Polish, benchmark, release
+
 1. Context-savings benchmark in CI (P0-9).
 2. Second-pass docs: troubleshooting, policy reference, security scope,
    license note.

@@ -17,11 +17,11 @@ rewrites, and `[features] codex_hooks = true` handling.
 
 ### Files Codex touches
 
-| Path | POSIX | Windows |
-|---|---|---|
-| MCP server registration | `~/.codex/config.toml` | `%USERPROFILE%\.codex\config.toml` |
-| Hooks | `~/.codex/hooks.json` and `<project>/.codex/hooks.json` | `%USERPROFILE%\.codex\hooks.json` and `<project>\.codex\hooks.json` |
-| Feature flag | `[features] codex_hooks = true` in `config.toml` | same |
+| Path                    | POSIX                                                   | Windows                                                             |
+| ----------------------- | ------------------------------------------------------- | ------------------------------------------------------------------- |
+| MCP server registration | `~/.codex/config.toml`                                  | `%USERPROFILE%\.codex\config.toml`                                  |
+| Hooks                   | `~/.codex/hooks.json` and `<project>/.codex/hooks.json` | `%USERPROFILE%\.codex\hooks.json` and `<project>\.codex\hooks.json` |
+| Feature flag            | `[features] codex_hooks = true` in `config.toml`        | same                                                                |
 
 ### `config.toml` edits
 
@@ -40,6 +40,7 @@ codex_hooks = true
 ```
 
 Rewrite must:
+
 - preserve existing keys + comments + ordering elsewhere in the file
 - be idempotent (re-running `aegisctx init codex-cli` is a no-op)
 - accept `--dry-run` and print a unified diff
@@ -52,33 +53,33 @@ Library: `@iarna/toml` (permissive, preserves comments better than
 
 ```json
 {
-  "hooks": [
-    {
-      "event": "PreToolUse",
-      "matcher": "Bash",
-      "command": "aegisctx hook codex pre-tool-use"
-    },
-    {
-      "event": "PostToolUse",
-      "matcher": "Bash",
-      "command": "aegisctx hook codex post-tool-use"
-    },
-    {
-      "event": "UserPromptSubmit",
-      "matcher": "*",
-      "command": "aegisctx hook codex user-prompt-submit"
-    },
-    {
-      "event": "SessionStart",
-      "matcher": "*",
-      "command": "aegisctx hook codex session-start"
-    },
-    {
-      "event": "Stop",
-      "matcher": "*",
-      "command": "aegisctx hook codex stop"
-    }
-  ]
+	"hooks": [
+		{
+			"event": "PreToolUse",
+			"matcher": "Bash",
+			"command": "aegisctx hook codex pre-tool-use"
+		},
+		{
+			"event": "PostToolUse",
+			"matcher": "Bash",
+			"command": "aegisctx hook codex post-tool-use"
+		},
+		{
+			"event": "UserPromptSubmit",
+			"matcher": "*",
+			"command": "aegisctx hook codex user-prompt-submit"
+		},
+		{
+			"event": "SessionStart",
+			"matcher": "*",
+			"command": "aegisctx hook codex session-start"
+		},
+		{
+			"event": "Stop",
+			"matcher": "*",
+			"command": "aegisctx hook codex stop"
+		}
+	]
 }
 ```
 
@@ -103,6 +104,7 @@ stdout (or exit 2 + JSON stderr on deny), matching Codex's hook
 protocol exactly.
 
 Flow:
+
 1. Parse stdin with Zod against the `CodexHookPayload` discriminated
    union.
 2. For PreToolUse: call the policy engine; on deny, emit
@@ -117,12 +119,12 @@ Flow:
 
 1. **`packages/adapters/src/codex/`**
    - [ ] `schemas.ts` — Zod schemas for Codex hook payloads (per event
-     type).
+         type).
    - [ ] `events.ts` — normalized-event extraction from Codex payloads.
    - [ ] `adapter.ts` — `HookAdapter` impl; platform detection via
-     `CODEX_HOME`, `CODEX_SESSION_ID`, `~/.codex/`.
+         `CODEX_HOME`, `CODEX_SESSION_ID`, `~/.codex/`.
    - [ ] `fixtures/` — recorded JSON payloads for every event × tool
-     permutation we support.
+         permutation we support.
    - [ ] `adapter.test.ts` — fixture-based tests.
 2. **`packages/adapters/src/codex/config/`**
    - [ ] `toml.ts` — safe TOML read/merge/write using `@iarna/toml`.
@@ -135,13 +137,13 @@ Flow:
    - [ ] Prompts for the `codex_hooks` feature flag if not enabled.
 4. **Hook binary**
    - [ ] `aegisctx hook codex <event>` subcommand in
-     `packages/cli/src/commands/hook.ts` (or a dedicated
-     `packages/cli/src/commands/hook/codex.ts`).
+         `packages/cli/src/commands/hook.ts` (or a dedicated
+         `packages/cli/src/commands/hook/codex.ts`).
    - [ ] Emits JSON on stdout; exits 0 on allow/continue, 2 on block.
 5. **Doctor integration**
    - [ ] `aegisctx doctor` checks: `config.toml` has the MCP entry,
-     `hooks.json` has all expected entries, `codex_hooks` is enabled,
-     the hook binary resolves on `PATH`.
+         `hooks.json` has all expected entries, `codex_hooks` is enabled,
+         the hook binary resolves on `PATH`.
 
 ## Acceptance criteria
 

@@ -75,32 +75,32 @@ zero deps).
    - [ ] `audit/chain.ts`: HMAC, canonical JSON, entry builder.
    - [ ] `audit/store.ts`: DB open/migrate, insert, query, verify.
    - [ ] `audit/types.ts`: discriminated union of
-     `AuditCategory`/`AuditAction` pairs.
+         `AuditCategory`/`AuditAction` pairs.
    - [ ] `audit/key.ts`: load-or-create key file with correct perms on
-     POSIX and Windows.
+         POSIX and Windows.
    - [ ] `audit/migrations/001_init.sql` via the existing migrations
-     runner.
+         runner.
 2. **`@aegisctx/core`**
    - [ ] `events/audit-event.ts`: pure (no I/O) types and builders so
-     other packages can construct entries without importing storage.
+         other packages can construct entries without importing storage.
 3. **Server integration**
    - [ ] `packages/server/src/hooks/policy.ts` writes an audit entry on
-     every deny/ask/allow decision.
+         every deny/ask/allow decision.
    - [ ] `packages/server/src/tools/execute.ts` writes `sandbox_exec`
-     entries on spawn/complete/timeout/kill.
+         entries on spawn/complete/timeout/kill.
    - [ ] Content indexing + URL fetch write `content_index` entries.
    - [ ] Session lifecycle writes `session_lifecycle` entries.
 4. **CLI**
    - [ ] `aegisctx audit show` (category/action filters,
-     `--session <id>`, `--since <duration>`, `--limit N`).
+         `--session <id>`, `--since <duration>`, `--limit N`).
    - [ ] `aegisctx audit verify` — walks the chain from genesis, reports
-     "chain intact through <id>" or the first break point.
+         "chain intact through <id>" or the first break point.
    - [ ] `aegisctx audit purge --before <ISO-date>` (user-initiated
-     only).
+         only).
 5. **`aegisctx doctor` integration**
    - [ ] New doctor check: audit key exists, correct perms, DB
-     reachable, chain head verifies. Failure modes snapshot-tested
-     (plan 15).
+         reachable, chain head verifies. Failure modes snapshot-tested
+         (plan 15).
 
 ## Acceptance criteria
 

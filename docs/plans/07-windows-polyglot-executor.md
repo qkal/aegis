@@ -49,25 +49,26 @@ New `@aegisctx/engine/sandbox/spawn.ts`:
 
 ```ts
 export interface SpawnPlan {
-  readonly command: string;
-  readonly args: readonly string[];
-  readonly env: Readonly<Record<string, string>>;
-  readonly cwd: string;
-  readonly timeoutMs: number;
-  readonly stdin?: string;
+	readonly command: string;
+	readonly args: readonly string[];
+	readonly env: Readonly<Record<string, string>>;
+	readonly cwd: string;
+	readonly timeoutMs: number;
+	readonly stdin?: string;
 }
 
 export interface SpawnResult {
-  readonly status: ExecOutcome;
-  readonly stdout: string;
-  readonly stderr: string;
-  readonly durationMs: number;
+	readonly status: ExecOutcome;
+	readonly stdout: string;
+	readonly stderr: string;
+	readonly durationMs: number;
 }
 
 export function spawnSandboxed(plan: SpawnPlan): Promise<SpawnResult>;
 ```
 
 Inside, branch on `process.platform`. On Windows:
+
 - `windowsHide: true`, `windowsVerbatimArguments: false`.
 - Quote any argument containing spaces, double-quotes, or shell
   metacharacters using the CreateProcess quoting rules.
@@ -85,8 +86,7 @@ Inside, branch on `process.platform`. On Windows:
   `chmodSync(dir, 0o700)`.
 - Windows: `mkdtempSync(path.join(process.env.LOCALAPPDATA!,
   'aegisctx', 'tmp', ''))`, then `spawnSync('icacls', [dir,
-  '/inheritance:r', '/grant:r',
-  `${process.env.USERNAME}:(OI)(CI)F`])`.
+  '/inheritance:r', '/grant:r',`${process.env.USERNAME}:(OI)(CI)F`])`.
 
 ### Env filtering (case-insensitive branch)
 
