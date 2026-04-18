@@ -58,12 +58,21 @@ true` until it's stable.
 2. **Windows-specific tweaks**
    - [ ] Set `shell: bash` explicitly on all `run:` steps so Git Bash is
          used, not `cmd.exe`. This avoids escaping gotchas.
-   - [ ] Disable Defender real-time on test dirs (via a setup step with
-         `Set-MpPreference -DisableRealtimeMonitoring $true`) to stop
-         spurious timeouts when Defender scans the thousands of small files
-         spawned by the engine tests.
-   - [ ] Increase `timeout-minutes` on the engine shard to 20 (from 10)
-         on Windows.
+   - [ ] Mitigate Defender-induced flake without trying to disable
+         real-time protection (Tamper Protection blocks
+         `Set-MpPreference -DisableRealtimeMonitoring` on GitHub-hosted
+         runners). In order of preference:
+     - Add an exclusion for the workspace at job start:
+       `Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE"` (runs
+       under the runner's admin token; wrap in `try/catch` so we don't
+       hard-fail if the action is blocked by policy).
+     - Keep test artifacts on the local `D:` drive where possible —
+       hosted Windows runners have a faster, less-scanned data disk.
+     - Increase `timeout-minutes` on the engine shard to 20 (from 10)
+       and add a single retry on spawn-level flakes.
+     - Reduce I/O pressure: run the engine shard with `--pool=threads`
+       and cap parallelism, and keep tempdirs under
+       `%LOCALAPPDATA%\aegisctx\tmp` so they inherit the exclusion above.
 3. **macOS-specific tweaks**
    - [ ] Use `macos-14` (Apple Silicon) when available and pin via SHA
          like the existing actions.
@@ -93,8 +102,10 @@ true` until it's stable.
 
 ## Risks
 
-- **Windows runner slowness and flake.** Mitigation: Defender disable,
-  increased timeouts, `actions/cache` for pnpm store.
+- **Windows runner slowness and flake.** Mitigation: workspace
+  Defender exclusion, increased timeouts + retry, tuned parallelism,
+  `actions/cache` for pnpm store. We explicitly do NOT attempt to
+  disable Defender real-time protection.
 - **`node:sqlite` on Windows.** Node 22 supports it but edge cases
   exist. Mitigation: `test-storage` shard on Windows runs only the
   `node:sqlite` adapter path until we verify parity.

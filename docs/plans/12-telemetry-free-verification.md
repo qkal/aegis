@@ -64,8 +64,11 @@ When the env var is set (or the resolved config has
 ### Testing
 
 A unit test imports the kill-switch, activates it, and asserts that
-`fetch('https://example.com')` rejects with `NetworkDisabledError`
-synchronously (before any socket work).
+`fetch('https://example.com')` returns a rejected promise with
+`NetworkDisabledError` before any socket call is attempted.
+Assertions use `await expect(fetch(...)).rejects.toThrow(NetworkDisabledError)`
+(or `.catch(e => e)`) — never a synchronous `try/catch`, since `fetch`
+always returns a Promise.
 
 ## Layer 3 — Supply-chain telemetry scan
 
@@ -125,9 +128,12 @@ tarball scan (which only runs on release builds).
 - `AEGISCTX_NO_NETWORK=1 node -e "
     const s = require('@aegisctx/server');
     s.createServer({});
-    fetch('https://example.com').catch(e => { console.log(e.name); process.exit(0); });
-    setTimeout(() => { console.log('NO_ERROR'); process.exit(1); }, 1000);
-  "` prints `NetworkDisabledError`.
+    fetch('https://example.com').then(
+      () => { console.log('NO_ERROR'); process.exit(1); },
+      (e) => { console.log(e.name); process.exit(0); }
+    );
+  "` prints `NetworkDisabledError` — `fetch` returns a rejected promise
+  before any socket call.
 - Supply-chain scan reports zero hits on a clean repo.
 - Adding a fake dep named `posthog-node` to any package breaks the
   `lockfile-scan` job (verified by a canary test).

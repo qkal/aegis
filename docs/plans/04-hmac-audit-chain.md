@@ -29,7 +29,7 @@ CREATE TABLE audit_entries (
   reason        TEXT NOT NULL,        -- human-readable
   context_json  TEXT NOT NULL,        -- structured metadata, canonical JSON
   prev_hmac     BLOB NOT NULL,        -- 32 bytes; zero for the genesis entry
-  hmac          BLOB NOT NULL,        -- 32 bytes; HMAC-SHA256(key, canonical(row ‖ prev_hmac))
+  hmac          BLOB NOT NULL,        -- 32 bytes; HMAC-SHA256(key, prev_hmac ‖ canonical(entry))
   schema_version INTEGER NOT NULL     -- starts at 1
 );
 
@@ -55,7 +55,7 @@ canonical(entry) := JSON.stringify({
   context: <canonical JSON of context>, schema_version
 })
 
-hmac(entry) := HMAC-SHA256(key, prev_hmac || SHA256(canonical(entry)))
+hmac(entry) := HMAC-SHA256(key, prev_hmac || canonical(entry))
 ```
 
 Canonical JSON: keys sorted lexicographically, no whitespace, `undefined`

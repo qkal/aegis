@@ -110,7 +110,8 @@ Example target state:
 - Auto-restarting VS Code after config changes (user-visible prompt
   suffices).
 - Codex desktop app auto-update handling.
-- Probing Cursor's settings (that's plan 12's wave-2 scope).
+- Probing Cursor's settings (Cursor support is a wave-2 scope item,
+  tracked separately from the MVP plans in this folder).
 
 ## Risks
 

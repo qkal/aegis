@@ -16,30 +16,49 @@ depends on this.
 
 ## Design
 
-### Capability payload
+### Capability payload — extend, don't replace
+
+`packages/adapters/src/types.ts` already defines `PlatformCapabilities`
+(with `platform`, `tier`, `tierLabel: '1' | '1L' | '2' | '3'`,
+`hasSessionStart`, `hasPreCompact`, `hookEnforcement`, etc.) and the
+server in `packages/server/src/capabilities.ts` is already wired to
+return this shape from `aegisctx_doctor` and `aegisctx_stats`.
+
+This plan **extends** that interface rather than introducing a new
+parallel `Capabilities` type, so adapters, server, and doctor all
+continue to read and write the same object. The migration is
+purely additive:
 
 ```ts
-interface Capabilities {
-	readonly platform:
-		| "claude-code"
-		| "codex-cli"
-		| "codex-gui"
-		| "opencode"
-		| "amp" // deferred to Phase 1.5
-		| "unknown";
-	readonly tier: 1 | "1L" | 2 | 3;
+// packages/adapters/src/types.ts (extended)
+export interface PlatformCapabilities {
+	// existing, unchanged
+	readonly platform: "claude-code" | "codex-cli" | "codex-gui" | "opencode" | "amp" | "unknown";
+	readonly tier: 1 | 2 | 3;
+	readonly tierLabel: "1" | "1L" | "2" | "3";
+	readonly hookEnforcement: "full" | "partial" | "mcp-only";
+	readonly hasSessionStart: boolean;
+	readonly hasPreCompact: boolean;
 	readonly supportedHooks: readonly HookName[];
+
+	// NEW in this plan — additive fields
 	readonly interceptedTools: readonly string[];
 	readonly notes: readonly string[]; // e.g. "codex_hooks flag disabled"
 	readonly aegisctxVersion: string;
 	readonly storageBackend: "better-sqlite3" | "node-sqlite" | "bun-sqlite";
-	readonly platformDetails: Record<string, unknown>; // platform-specific
+	readonly configDir?: string; // e.g. ~/.codex, %APPDATA%/Code/User
+	readonly sessionDir?: string; // adapter-specific session store
+	readonly platformDetails: Record<string, unknown>;
 }
 ```
 
-Emitted at MCP session start via a non-standard-but-harmless
+No `Capabilities` type is introduced. No mapping layer is required.
+Adapters that already return a `PlatformCapabilities` simply populate
+the new fields; the existing `tierLabel`/`hasSessionStart`/
+`hasPreCompact` flags remain the source of truth for downgrade
+decisions. Emitted at MCP session start via a non-standard-but-harmless
 `aegisctx/capabilities` notification, plus returned from
-`aegisctx_doctor` tool calls.
+`aegisctx_doctor` tool calls using this same shape.
 
 ### Detection
 
@@ -61,9 +80,14 @@ result.
 
 ## Deliverables
 
-1. **`packages/core/src/capabilities.ts`**
-   - [ ] Move types from `@aegisctx/server` into `@aegisctx/core` so
-         adapters can import without taking a server dep.
+1. **`packages/adapters/src/types.ts` (extend, don't replace)**
+   - [ ] Add the new fields (`interceptedTools`, `notes`,
+         `aegisctxVersion`, `storageBackend`, `configDir`,
+         `sessionDir`, `platformDetails`) to the existing
+         `PlatformCapabilities` interface.
+   - [ ] Update existing `CAPABILITIES` constants (Claude Code, the
+         generic fallback in the server) to populate the new fields
+         with honest defaults so no downstream consumer breaks.
 2. **Per-adapter `probeCapabilities`**
    - [ ] `claude-code/adapter.ts`: probe Claude Code version + hook
          registration.

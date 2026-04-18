@@ -45,19 +45,21 @@ export default plugin;
 
 ### MCP registration
 
-Edits `opencode.json` (JSON with comments if OpenCode supports it;
-fallback to strict JSON):
+Edits `opencode.json` as strict JSON only — no comments, no trailing
+commas. `aegisctx init opencode` and `aegisctx doctor` both assume a
+strict JSON parser. Any commentary lives in external docs
+(`docs/getting-started/opencode.md`), not in the generated file.
 
-```jsonc
+```json
 {
 	"mcp": {
 		"aegisctx": {
 			"command": "aegisctx",
 			"args": ["serve"],
-			"env": { "AEGISCTX_PLATFORM": "opencode" },
-		},
+			"env": { "AEGISCTX_PLATFORM": "opencode" }
+		}
 	},
-	"plugin": ["@aegisctx/opencode-plugin"],
+	"plugin": ["@aegisctx/opencode-plugin"]
 }
 ```
 
@@ -102,7 +104,10 @@ downgraded hook list honestly.
 ## Acceptance criteria
 
 - `aegisctx init opencode --dry-run` prints the planned edits; apply
-  is idempotent.
+  is idempotent. Generated `opencode.json` is strict JSON (parses with
+  `JSON.parse`); any user-added comments in pre-existing files trigger
+  a clear error with a pointer to the external docs rather than being
+  silently rewritten.
 - In a real OpenCode session, `aegisctx_execute` runs sandboxed and
   returns only stdout; denied commands are blocked at
   `tool.execute.before`.

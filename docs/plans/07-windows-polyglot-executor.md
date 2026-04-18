@@ -17,7 +17,7 @@ abstractions.
 
 ### Runtime selection
 
-```
+```text
 detectRuntime(lang, platform) := {
   javascript: platform === 'win32'
     ? [which('node.exe'), which('bun.exe')]

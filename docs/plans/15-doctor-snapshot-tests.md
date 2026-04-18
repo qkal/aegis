@@ -60,7 +60,12 @@ user. Every documented failure mode in `PLAN.md §10.4` must produce
 interface DoctorReport {
 	readonly overall: "pass" | "warn" | "fail";
 	readonly sections: readonly DoctorSection[];
-	readonly summary: { pass: number; warn: number; fail: number; };
+	readonly summary: {
+		pass: number;
+		warn: number;
+		fail: number;
+		info: number;
+	};
 }
 interface DoctorSection {
 	readonly name: string;
@@ -73,6 +78,28 @@ interface DoctorCheck {
 	readonly fixHint?: string; // copy-paste-safe command
 }
 ```
+
+### Status migration from today's `'ok'` vocabulary
+
+The current `doctor.ts` uses `status: 'ok' | 'warn' | 'fail'` on both
+the per-check result and the overall summary. This plan migrates to
+`'pass' | 'warn' | 'fail' | 'info'` everywhere (tests, CLI render,
+MCP tool payload). To avoid breaking any in-flight consumers, the
+split of `doctor.ts` (deliverable 1 below) includes a single
+`normalizeStatus` helper that:
+
+- Accepts `'ok' | 'pass' | 'warn' | 'fail' | 'info'` on input and
+  emits `'pass' | 'warn' | 'fail' | 'info'` on output.
+- Is applied once, at the boundary of every `runSection` result, so
+  downstream code only ever sees the new vocabulary.
+- Exit-code logic: any `'fail'` → exit 1; `'warn'` and `'info'` →
+  exit 0; `'info'` is excluded from the "passed" count in the
+  summary line but does not count against the user.
+
+A dedicated test (`normalize-status.test.ts`) round-trips both old
+and new inputs through `normalizeStatus` and asserts the legacy
+`'ok'` maps to `'pass'` while `'info'` is preserved as a separate
+category.
 
 ## Deliverables
 

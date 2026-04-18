@@ -52,14 +52,24 @@ directly to the LLM.
 
 ### CI wiring
 
-- New non-blocking CI job `benchmark-context-savings`:
+- New **non-blocking / report-only** CI job
+  `benchmark-context-savings`:
   - Runs the benchmark.
   - Compares `latest.json` against the last committed baseline
     (`benchmarks/context-savings/baseline.json`).
-  - Fails on any regression >20%.
-  - Posts a summary comment on the PR with the table.
+  - On any regression >20%: **reports a failure annotation and posts
+    a summary comment on the PR with the table, but does not block
+    merge.** The job exits non-zero so the annotation is visible, but
+    branch protection for `main` does _not_ require this job.
+  - On any regression ≤20%: posts the summary comment silently.
 - Landing a PR that updates `baseline.json` requires a maintainer
   label.
+- Rationale: context savings are a real product claim but the
+  benchmark is sensitive to platform variance (CPU load, disk
+  caching). Keeping it advisory avoids merge-blocking noise while
+  still surfacing regressions on every PR. If the numbers become
+  stable enough post-MVP to promote the job to a required gate, flip
+  the branch-protection requirement and drop this rationale.
 
 ## Deliverables
 
@@ -68,7 +78,8 @@ directly to the LLM.
 3. **`benchmarks/context-savings/budgets.json`** — the budgets.
 4. **`benchmarks/context-savings/baseline.json`** — the reference
    numbers.
-5. **CI job** — non-blocking but surfacing regressions.
+5. **CI job** — report-only (advisory); surfaces regressions via
+   annotations and PR comments but is not a required gate.
 6. **Docs** — a section in `README.md` under "Context savings" with a
    link to how to reproduce.
 

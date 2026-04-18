@@ -2,8 +2,9 @@
 
 **Priority:** P0-7.
 **Size:** Small-medium.
-**Dependencies:** Plan 01 (tool rename), plan 06 (CI matrix), plan 12
-(runs inside the network-block).
+**Dependencies:** Plan 01 (tool rename), plan 04 (HMAC audit chain —
+the smoke asserts `aegisctx_audit` is registered), plan 06 (CI
+matrix), plan 12 (runs inside the network-block).
 
 ## Why
 
