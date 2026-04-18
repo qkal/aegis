@@ -22,7 +22,9 @@ describe("CLI identity", () => {
 
 	it("never shows the legacy `aegis` command prefix in usage", () => {
 		const usage = renderUsage(TERM);
-		expect(usage).not.toMatch(/\baegis\s+(init|doctor|audit|config|policy|session|stats|purge|mcp)\b/);
+		expect(usage).not.toMatch(
+			/\baegis\s+(init|doctor|audit|config|policy|session|stats|purge|mcp)\b/,
+		);
 		expect(usage).not.toMatch(/npm install -g aegis\b/);
 	});
 });

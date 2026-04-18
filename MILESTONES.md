@@ -128,7 +128,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Platform detection via `CODEX_HOME` / `CODEX_SESSION_ID`
   - Fixture-based tests against recorded Codex hook payloads
 - [ ] **M1.8** — OpenCode adapter (Tier 1)
-  - Plugin shipped as `@aegisctx/opencode-plugin` (separate npm package OR loaded from `~/.config/opencode/plugins/aegis.ts`)
+  - Plugin shipped as `@aegisctx/opencode-plugin` (separate npm package OR loaded from `~/.config/opencode/plugins/aegisctx.ts`)
   - Hooks: `tool.execute.before`, `tool.execute.after`, `session.compacted`, `session.idle`, `permission.asked`
   - MCP registration in `opencode.json` (or `~/.config/opencode/opencode.json`)
   - Platform detection via `OPENCODE_*` env vars + `.opencode/` directory presence
@@ -292,10 +292,10 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Session pattern analysis
   - `aegisctx stats` CLI with detailed report
 - [ ] **M4.2** — Export / Import
-  - `aegis export --session` → JSON (discriminated union schema)
-  - `aegis export --audit` → JSONL
-  - `aegis export --content` → Markdown
-  - `aegis import --session <file>` with schema validation
+  - `aegisctx export --session` → JSON (discriminated union schema)
+  - `aegisctx export --audit` → JSONL
+  - `aegisctx export --content` → Markdown
+  - `aegisctx import --session <file>` with schema validation
   - Round-trip: export → purge → import → verify
 - [ ] **M4.3** — Corruption recovery
   - Corruption detection in all DB operations

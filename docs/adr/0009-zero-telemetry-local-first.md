@@ -21,7 +21,7 @@ Aegis intercepts every command an AI agent runs on the user's machine. The trust
 - No anonymous usage stats
 - No crash reporting
 - No feature flags fetched from a server
-- No "check for updates" call unless the user explicitly runs `aegis upgrade --check`
+- No "check for updates" call unless the user explicitly runs `aegisctx upgrade --check`
 - No cloud sync, no account required
 - Users can opt into update notifications via `aegisctx config set updates.checkOnStart true`
 

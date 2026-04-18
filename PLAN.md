@@ -392,7 +392,7 @@ interface AegisPolicy {
 
 **Zero telemetry. Period.**
 
-No anonymous usage stats, no crash reporting, no feature flags fetched from a server, no "check for updates" network call unless the user explicitly runs `aegis upgrade`. The version check in the reference project (npm registry call on every server start) is removed. Users can opt into update notifications via a CLI flag (`aegisctx config set check-updates true`), but the default is off.
+No anonymous usage stats, no crash reporting, no feature flags fetched from a server, no "check for updates" network call unless the user explicitly runs `aegisctx upgrade`. The version check in the reference project (npm registry call on every server start) is removed. Users can opt into update notifications via a CLI flag (`aegisctx config set check-updates true`), but the default is off.
 
 ### 6.8 Audit Log Design
 
@@ -872,10 +872,10 @@ If SQLite reports corruption (`SQLITE_CORRUPT`, `SQLITE_NOTADB`):
 ### 9.9 Backup / Export / Import
 
 ```bash
-aegis export --session           # Export current session events as JSON
-aegis export --audit             # Export audit log as JSONL
-aegis export --content           # Export content index as markdown
-aegis import --session <file>    # Import session events
+aegisctx export --session           # Export current session events as JSON
+aegisctx export --audit             # Export audit log as JSONL
+aegisctx export --content           # Export content index as markdown
+aegisctx import --session <file>    # Import session events
 ```
 
 JSON export uses the discriminated union event schema directly — no lossy transformation. Import validates every event against the schema before inserting.
@@ -980,8 +980,8 @@ aegisctx purge                     # Delete all indexed content
 aegisctx purge --expired           # Delete only expired content
 
 # Upgrade
-aegis upgrade                   # Update to latest version (npm)
-aegis upgrade --check           # Check for updates without installing
+aegisctx upgrade                   # Update to latest version (npm)
+aegisctx upgrade --check           # Check for updates without installing
 ```
 
 ### 11.2 Config UX
@@ -1071,7 +1071,7 @@ aegisctx init
 # → Runs `aegisctx doctor` to verify
 
 # Upgrade
-aegis upgrade
+aegisctx upgrade
 # → Checks npm for latest version
 # → Installs update
 # → Runs migrations on existing DBs
@@ -1243,7 +1243,7 @@ Users who need credential passthrough or network access from sandbox code must e
 **Deliverables**:
 
 - `aegisctx stats` with detailed analytics (per-tool savings, cache performance)
-- `aegis export` / `aegis import` for all data types
+- `aegisctx export` / `aegisctx import` for all data types
 - Corruption detection and recovery in all DB operations
 - Startup time <100ms to first MCP response
 - Memory usage <50 MB for typical session
@@ -1443,16 +1443,16 @@ Three things separate a good context tool from an excellent one:
 
 ## Recommended MVP Boundary
 
-| In MVP                              | Out of MVP            |
-| ----------------------------------- | --------------------- |
-| MCP server with 6 sandbox tools     | Analytics dashboard   |
-| Claude Code adapter (Tier 1)        | Non-Claude adapters   |
-| Policy evaluation (deny/allow)      | Policy `ask` mode     |
-| Session event capture + restore     | Audit HMAC chain      |
-| FTS5 content indexing + BM25 search | Embedding search      |
-| `aegisctx doctor` + `aegisctx init` | `aegis export/import` |
-| Env var filtering in sandbox        | Filesystem scoping    |
-| Basic CLI (doctor, init, stats)     | Plugin system         |
+| In MVP                              | Out of MVP               |
+| ----------------------------------- | ------------------------ |
+| MCP server with 6 sandbox tools     | Analytics dashboard      |
+| Claude Code adapter (Tier 1)        | Non-Claude adapters      |
+| Policy evaluation (deny/allow)      | Policy `ask` mode        |
+| Session event capture + restore     | Audit HMAC chain         |
+| FTS5 content indexing + BM25 search | Embedding search         |
+| `aegisctx doctor` + `aegisctx init` | `aegisctx export/import` |
+| Env var filtering in sandbox        | Filesystem scoping       |
+| Basic CLI (doctor, init, stats)     | Plugin system            |
 
 ## Recommended Tech Choices
 
