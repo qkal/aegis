@@ -38,7 +38,7 @@ README.md                   # refreshed
 Each `docs/getting-started/<platform>.md` follows the same structure:
 
 1. **Prerequisites** — OS, Node version, the platform itself installed.
-2. **Install** — `npm install -g aegisctxctx`.
+2. **Install** — `npm install -g aegisctx`.
 3. **Init** — `aegisctx init <platform>` with `--dry-run` first,
    showing sample output.
 4. **First tool call** — "open <platform>, say `run

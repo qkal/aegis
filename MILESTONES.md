@@ -246,7 +246,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 - [ ] **M3.2** — Plugin system with worker-thread isolation
   - `AegisPlugin` interface: `onToolCall`, `onToolResult`, `onSessionStart`, `onSessionCompact`
   - `PluginContext` with constrained API (read sessions, search, index — no policy/audit access)
-  - Plugins loaded from `~/.aegisctx/plugins/` or `<project>/.aegis/plugins/`
+  - Plugins loaded from `~/.aegisctx/plugins/` or `<project>/.aegisctx/plugins/`
   - Worker thread isolation with structured clone boundary
   - Plugin schema validation at load time
 - [ ] **M3.3** — Platform config templates and init

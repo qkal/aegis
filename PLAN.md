@@ -660,7 +660,7 @@ interface PluginContext {
 }
 ```
 
-Plugins are loaded from `~/.aegisctx/plugins/` or `<project>/.aegis/plugins/`. Each plugin is validated against the `AegisPlugin` schema before loading. Plugins that attempt to access undeclared APIs fail at load time, not at runtime.
+Plugins are loaded from `~/.aegisctx/plugins/` or `<project>/.aegisctx/plugins/`. Each plugin is validated against the `AegisPlugin` schema before loading. Plugins that attempt to access undeclared APIs fail at load time, not at runtime.
 
 ### 7.7 Configuration Model
 

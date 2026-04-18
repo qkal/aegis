@@ -102,7 +102,7 @@ export interface RunOptions {
 }
 
 /**
- * Entry point for `npx aegisctxctx serve` / the package `bin` script.
+ * Entry point for `npx aegisctx serve` / the package `bin` script.
  *
  * Wires up stdio, registers SIGINT/SIGTERM handlers, and resolves
  * when shutdown is complete. Any failure inside a handler is logged
