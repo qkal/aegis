@@ -124,7 +124,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Reads `~/.codex/hooks.json` and project `.codex/hooks.json`
   - Installs `aegisctx hook codex pre-tool-use` etc. as command hooks
   - Reports `interceptedTools: ['Bash']` in capabilities (per current Codex matcher)
-  - MCP registration in `~/.codex/config.toml` `[mcp_servers.aegis]`
+  - MCP registration in `~/.codex/config.toml` `[mcp_servers.aegisctx]`
   - Platform detection via `CODEX_HOME` / `CODEX_SESSION_ID`
   - Fixture-based tests against recorded Codex hook payloads
 - [ ] **M1.8** — OpenCode adapter (Tier 1)
@@ -342,8 +342,8 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - macOS: `sandbox-exec` profile (deprecated but functional)
   - Opt-in via `aegisctx config set sandbox.level 3`
   - Fallback to Level 1 with monitoring
-- [ ] **M5.2** — Local analytics dashboard (`aegis insight`)
-  - Local web UI served via `aegis insight`
+- [ ] **M5.2** — Local analytics dashboard (`aegisctx insight`)
+  - Local web UI served via `aegisctx insight`
   - Context savings over time
   - Policy decision distribution
   - Session timeline visualization

@@ -421,7 +421,7 @@ Stored in a separate SQLite database per project. Queryable via `aegisctx audit`
 ### 7.1 Monorepo Layout
 
 ```
-aegis/
+aegisctx/
 ├── packages/
 │   ├── core/                    # Pure logic: policy engine, event model, routing
 │   │   ├── src/
@@ -1267,7 +1267,7 @@ Users who need credential passthrough or network access from sandbox code must e
 **Goals**:
 
 - Level 3 sandbox (Linux namespace isolation)
-- `aegis insight` analytics dashboard (local web UI)
+- `aegisctx insight` analytics dashboard (local web UI)
 - Advanced search features (semantic/embedding search as opt-in)
 - Cross-session knowledge persistence (project-level learned context)
 - Batch execution optimization (parallel sandbox processes)
@@ -1421,7 +1421,7 @@ This is the minimum path to a working, testable, installable tool.
 
 ### What Should Be Intentionally Ignored Early
 
-- Analytics dashboard (`aegis insight`)
+- Analytics dashboard (`aegisctx insight`)
 - Plugin system
 - Non-Claude-Code platform adapters
 - Embedding-based search
