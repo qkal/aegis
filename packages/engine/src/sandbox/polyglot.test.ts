@@ -8,6 +8,8 @@
  * detected.
  */
 
+import assert from "node:assert/strict";
+
 import { describe, expect, it } from "vitest";
 
 import type { Language } from "@aegis/core";
@@ -112,24 +114,20 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 		const out = await exec.execute(
 			baseConfig({ code: "echo hello-sandbox", language: "shell" }),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			expect(out.stdout).toBe("hello-sandbox");
-			expect(out.stderr).toBe("");
-			expect(out.exitCode).toBe(0);
-			expect(out.durationMs).toBeGreaterThanOrEqual(0);
-		}
+		assert.equal(out.status, "success");
+		expect(out.stdout).toBe("hello-sandbox");
+		expect(out.stderr).toBe("");
+		expect(out.exitCode).toBe(0);
+		expect(out.durationMs).toBeGreaterThanOrEqual(0);
 	});
 
 	it("reports failure with non-zero exit code and stderr", async () => {
 		const out = await exec.execute(
 			baseConfig({ code: "echo boom >&2; exit 7", language: "shell" }),
 		);
-		expect(out.status).toBe("failure");
-		if (out.status === "failure") {
-			expect(out.exitCode).toBe(7);
-			expect(out.stderr).toBe("boom");
-		}
+		assert.equal(out.status, "failure");
+		expect(out.exitCode).toBe(7);
+		expect(out.stderr).toBe("boom");
 	});
 
 	it("enforces the timeout and kills the entire process group", async () => {
@@ -152,10 +150,8 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 				language: "shell",
 			}),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			expect(out.stdout).toBe("red");
-		}
+		assert.equal(out.status, "success");
+		expect(out.stdout).toBe("red");
 	});
 
 	it("truncates stdout to maxOutputBytes", async () => {
@@ -166,13 +162,11 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 				maxOutputBytes: 1_000,
 			}),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			// Byte length is bounded by maxOutputBytes; the processed
-			// string may be slightly shorter due to UTF-8 boundary
-			// rounding.
-			expect(Buffer.byteLength(out.stdout, "utf8")).toBeLessThanOrEqual(1_000);
-		}
+		assert.equal(out.status, "success");
+		// Byte length is bounded by maxOutputBytes; the processed
+		// string may be slightly shorter due to UTF-8 boundary
+		// rounding.
+		expect(Buffer.byteLength(out.stdout, "utf8")).toBeLessThanOrEqual(1_000);
 	});
 
 	it("never emits U+FFFD when truncation lands inside a multibyte sequence", async () => {
@@ -187,12 +181,10 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 				maxOutputBytes: 3,
 			}),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			expect(out.stdout).not.toContain("\uFFFD");
-			// Only complete "é" characters should survive.
-			expect(/^é*$/.test(out.stdout)).toBe(true);
-		}
+		assert.equal(out.status, "success");
+		expect(out.stdout).not.toContain("\uFFFD");
+		// Only complete "é" characters should survive.
+		expect(/^é*$/.test(out.stdout)).toBe(true);
 	});
 
 	it("does not inherit parent environment variables", async () => {
@@ -207,10 +199,8 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 				language: "shell",
 			}),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			expect(out.stdout).toBe("missing");
-		}
+		assert.equal(out.status, "success");
+		expect(out.stdout).toBe("missing");
 	});
 
 	it("returns error for rust until compile-then-run lands", async () => {
@@ -248,10 +238,8 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 				language: "javascript",
 			}),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			expect(out.stdout).toBe("js:3");
-		}
+		assert.equal(out.status, "success");
+		expect(out.stdout).toBe("js:3");
 	});
 
 	it("sets a writable working directory when workingDir is omitted", async () => {
@@ -261,11 +249,9 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 				language: "shell",
 			}),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			// The default workDir is a freshly-created temp dir.
-			expect(out.stdout.length).toBeGreaterThan(0);
-		}
+		assert.equal(out.status, "success");
+		// The default workDir is a freshly-created temp dir.
+		expect(out.stdout.length).toBeGreaterThan(0);
 	});
 
 	it("honours an explicit workingDir", async () => {
@@ -276,10 +262,8 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 				workingDir: "/tmp",
 			}),
 		);
-		expect(out.status).toBe("success");
-		if (out.status === "success") {
-			expect(out.stdout).toBe("/tmp");
-		}
+		assert.equal(out.status, "success");
+		expect(out.stdout).toBe("/tmp");
 	});
 
 	it("surfaces spawn errors when the runtime binary cannot be executed", async () => {

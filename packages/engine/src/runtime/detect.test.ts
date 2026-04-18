@@ -1,3 +1,5 @@
+import assert from "node:assert/strict";
+
 import { describe, expect, it } from "vitest";
 import {
 	cachedDetectRuntime,
@@ -44,11 +46,9 @@ describe("detectRuntime", () => {
 			resolveBinary: (name) => name === "python" ? "/usr/bin/python" : undefined,
 			probeVersion: () => ({ stdout: "Python 2.7.18", stderr: "", status: 0 }),
 		});
-		expect(detected.available).toBe(true);
-		if (detected.available) {
-			expect(detected.binary).toBe("python");
-			expect(detected.path).toBe("/usr/bin/python");
-		}
+		assert(detected.available);
+		expect(detected.binary).toBe("python");
+		expect(detected.path).toBe("/usr/bin/python");
 	});
 
 	it("returns unavailable when no candidate resolves", () => {
