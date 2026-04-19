@@ -5,6 +5,8 @@
  * SessionEventStore so the full "PostToolUse → append → PreCompact →
  * saveSnapshot → SessionStart → restore" loop is exercised end-to-end.
  */
+import assert from "node:assert/strict";
+
 import { claudeCodeAdapter } from "@aegisctx/adapters";
 import { postToolUseBashFailureFixture, postToolUseWriteFixture } from "@aegisctx/adapters/testing";
 import { type SessionId } from "@aegisctx/core";
@@ -106,11 +108,9 @@ describe("generateSnapshot + restoreSnapshot round-trip", () => {
 		expect(snapshot.byteLength).toBeLessThanOrEqual(snapshot.budgetBytes);
 
 		const restored = restoreSnapshot(sid("session-1"), ctx);
-		expect(restored.kind).toBe("context");
-		if (restored.kind === "context") {
-			expect(restored.additionalContext).toBe(snapshot.text);
-			expect(restored.additionalContext).toContain("file/write");
-		}
+		assert.equal(restored.kind, "context");
+		expect(restored.additionalContext).toBe(snapshot.text);
+		expect(restored.additionalContext).toContain("file/write");
 	});
 
 	it("honours a caller-supplied budget override", () => {
@@ -151,11 +151,8 @@ describe("generateSnapshot + restoreSnapshot round-trip", () => {
 		expect(second.text).not.toBe(first.text);
 
 		const restored = restoreSnapshot(sid("session-3"), laterCtx);
-		if (restored.kind === "context") {
-			expect(restored.additionalContext).toBe(second.text);
-		} else {
-			throw new Error(`expected context response, got ${restored.kind}`);
-		}
+		assert.equal(restored.kind, "context");
+		expect(restored.additionalContext).toBe(second.text);
 	});
 });
 

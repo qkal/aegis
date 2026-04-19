@@ -56,7 +56,7 @@ function fakeTimer(): FakeTimer {
 describe("IdleWindowSnapshotter", () => {
 	it("invokes onIdle after idleMs of silence", () => {
 		const timer = fakeTimer();
-		const onIdle = vi.fn();
+		const onIdle = vi.fn<() => void>();
 		const snap = new IdleWindowSnapshotter({ idleMs: 1000, timer, onIdle });
 		snap.bump();
 		timer.advance(999);
@@ -67,7 +67,7 @@ describe("IdleWindowSnapshotter", () => {
 
 	it("bump() resets the window each time it's called", () => {
 		const timer = fakeTimer();
-		const onIdle = vi.fn();
+		const onIdle = vi.fn<() => void>();
 		const snap = new IdleWindowSnapshotter({ idleMs: 1000, timer, onIdle });
 
 		snap.bump();
@@ -81,7 +81,7 @@ describe("IdleWindowSnapshotter", () => {
 
 	it("stop() cancels any pending idle fire and is idempotent", () => {
 		const timer = fakeTimer();
-		const onIdle = vi.fn();
+		const onIdle = vi.fn<() => void>();
 		const snap = new IdleWindowSnapshotter({ idleMs: 1000, timer, onIdle });
 		snap.bump();
 		snap.stop();
@@ -93,7 +93,7 @@ describe("IdleWindowSnapshotter", () => {
 
 	it("bump() is a no-op after stop()", () => {
 		const timer = fakeTimer();
-		const onIdle = vi.fn();
+		const onIdle = vi.fn<() => void>();
 		const snap = new IdleWindowSnapshotter({ idleMs: 1000, timer, onIdle });
 		snap.stop();
 		snap.bump();
@@ -115,7 +115,7 @@ describe("IdleWindowSnapshotter", () => {
 
 	it("routes synchronous onIdle exceptions to onError without tearing down", () => {
 		const timer = fakeTimer();
-		const onError = vi.fn();
+		const onError = vi.fn<(err: unknown) => void>();
 		const snap = new IdleWindowSnapshotter({
 			idleMs: 1000,
 			timer,
@@ -132,7 +132,7 @@ describe("IdleWindowSnapshotter", () => {
 
 	it("routes rejected onIdle promises to onError", async () => {
 		const timer = fakeTimer();
-		const onError = vi.fn();
+		const onError = vi.fn<(err: unknown) => void>();
 		const snap = new IdleWindowSnapshotter({
 			idleMs: 1000,
 			timer,
@@ -152,7 +152,7 @@ describe("IdleWindowSnapshotter", () => {
 
 	it("allows re-scheduling after a fire", () => {
 		const timer = fakeTimer();
-		const onIdle = vi.fn();
+		const onIdle = vi.fn<() => void>();
 		const snap = new IdleWindowSnapshotter({ idleMs: 1000, timer, onIdle });
 		snap.bump();
 		timer.advance(1000);
