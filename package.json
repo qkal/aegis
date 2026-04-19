@@ -18,6 +18,7 @@
 		"test:storage": "node ./scripts/ci/run-vitest-shard.mjs storage",
 		"test:rest": "node ./scripts/ci/run-vitest-shard.mjs rest",
 		"test:ci": "vitest run --reporter=default --reporter=junit --outputFile=test-report.junit.xml",
+		"bench": "vitest run --config vitest.bench.config.ts",
 		"lint": "oxlint .",
 		"lint:fix": "oxlint --fix .",
 		"format": "dprint fmt",
