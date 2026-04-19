@@ -57,7 +57,7 @@ plugin system.
 
 Every MVP adapter must:
 
-1. Implement `HookAdapter` from `@aegis/adapters/types`.
+1. Implement `HookAdapter` from `@aegis/adapters`.
 2. Report `capabilities()` honestly, including `interceptedTools` for Tier 1L.
 3. Provide an `aegis init <platform>` flow that writes the platform-native
    config snippet (and prints a diff before applying).
