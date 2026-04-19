@@ -24,6 +24,11 @@ export const USER_CONFIG_RELATIVE = ".aegisctx/config.json" as const;
 /** Default location of the project-local policy config, relative to CWD. */
 export const PROJECT_CONFIG_RELATIVE = ".aegisctx/config.json" as const;
 
+/** Legacy user-wide config path (pre-rename). */
+export const LEGACY_USER_CONFIG_RELATIVE = ".aegis/config.json" as const;
+/** Legacy project-local config path (pre-rename). */
+export const LEGACY_PROJECT_CONFIG_RELATIVE = ".aegis/config.json" as const;
+
 /**
  * Thrown when a policy config file exists but can't be loaded.
  * Carries the absolute path so the caller can show a clear error.
@@ -90,18 +95,38 @@ export function loadPolicy(options: LoadPolicyOptions = {}): LoadedPolicy {
 	let policy: AegisPolicy = DEFAULT_POLICY;
 
 	if (userPath !== null) {
-		const parsed = readAndParse(userPath, readFile);
+		let parsed = readAndParse(userPath, readFile);
 		if (parsed !== undefined) {
 			policy = mergeWithPath(policy, parsed, userPath);
 			sources.push({ scope: "user", path: userPath });
+		} else {
+			// Check for legacy path if new path doesn't exist
+			const legacyUserPath = join(home, LEGACY_USER_CONFIG_RELATIVE);
+			const legacyParsed = readAndParse(legacyUserPath, readFile);
+			if (legacyParsed !== undefined) {
+				policy = mergeWithPath(policy, legacyParsed, legacyUserPath);
+				sources.push({ scope: "legacy-user", path: legacyUserPath });
+			}
 		}
 	}
 
 	if (projectPath !== null && projectPath !== userPath) {
-		const parsed = readAndParse(projectPath, readFile);
+		let parsed = readAndParse(projectPath, readFile);
 		if (parsed !== undefined) {
 			policy = mergeWithPath(policy, parsed, projectPath);
 			sources.push({ scope: "project", path: projectPath });
+		} else {
+			// Check for legacy path if new path doesn't exist
+			const legacyProjectPath = resolve(cwd, LEGACY_PROJECT_CONFIG_RELATIVE);
+			// Only check legacy if it's different from the current paths
+			const legacyUserPath = join(home, LEGACY_USER_CONFIG_RELATIVE);
+			if (legacyProjectPath !== legacyUserPath && legacyProjectPath !== userPath) {
+				const legacyParsed = readAndParse(legacyProjectPath, readFile);
+				if (legacyParsed !== undefined) {
+					policy = mergeWithPath(policy, legacyParsed, legacyProjectPath);
+					sources.push({ scope: "legacy-project", path: legacyProjectPath });
+				}
+			}
 		}
 	}
 
@@ -114,7 +139,7 @@ export interface LoadedPolicy {
 }
 
 export interface PolicySource {
-	readonly scope: "defaults" | "user" | "project";
+	readonly scope: "defaults" | "user" | "project" | "legacy-user" | "legacy-project";
 	readonly path: string | null;
 }
 

@@ -1,7 +1,7 @@
 {
 	"name": "aegisctx",
 	"version": "0.1.0",
-	"description": "CLI for Aegis — context infrastructure engine for AI coding agents",
+	"description": "CLI for aegisctx — context infrastructure engine for AI coding agents",
 	"type": "module",
 	"bin": {
 		"aegisctx": "./dist/bin.js"

@@ -1,2 +1,2 @@
-export type { AegisTool, RoutingDecision } from "./router.js";
+export type { AegisctxTool, RoutingDecision } from "./router.js";
 export { routeTool } from "./router.js";

@@ -22,7 +22,7 @@ export type RoutingDecision =
 	| { readonly route: "deny"; readonly reason: string; };
 
 /** MCP tool names recognized by Aegis. */
-export type AegisTool =
+export type AegisctxTool =
 	| "aegisctx_execute"
 	| "aegisctx_execute_file"
 	| "aegisctx_batch"
@@ -34,7 +34,7 @@ export type AegisTool =
 	| "aegisctx_audit";
 
 /** Map tool names to their routing decisions. */
-export function routeTool(tool: AegisTool): RoutingDecision {
+export function routeTool(tool: AegisctxTool): RoutingDecision {
 	switch (tool) {
 		case "aegisctx_execute":
 		case "aegisctx_execute_file":

@@ -16,8 +16,8 @@ Aegis sits between AI coding agents (Claude Code, Codex CLI, OpenCode, AmpCode, 
 # Install
 npm install -g aegisctx
 
-# Set up for your platform
-aegisctx init
+# Set up for your platform (specify one of: claude-code, codex, opencode, amp, generic)
+aegisctx init <platform>
 
 # Verify installation
 aegisctx doctor
@@ -82,7 +82,7 @@ See [PLAN.md](./PLAN.md) for the full architecture plan, threat model, and secur
 ## CLI
 
 ```bash
-aegisctx init [platform]       # Interactive setup
+aegisctx init <platform>       # Set up for your platform (required: claude-code, codex, opencode, amp, or generic)
 aegisctx doctor                # Full health check
 aegisctx config show           # Display resolved configuration
 aegisctx config validate       # Validate all config files
