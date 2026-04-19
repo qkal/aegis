@@ -34,9 +34,9 @@ beforeEach(async () => {
 });
 afterEach(() => close?.());
 
-describe("aegis_stats handler", () => {
+describe("aegisctx_stats handler", () => {
 	it("uses the canonical tool name", () => {
-		expect(TOOL_NAME).toBe("aegis_stats");
+		expect(TOOL_NAME).toBe("aegisctx_stats");
 	});
 
 	it("reports counters and index totals after a few tool invocations", async () => {
@@ -47,7 +47,7 @@ describe("aegis_stats handler", () => {
 		);
 
 		const body = parseBody(handler({}, ctx));
-		expect(body["server"]).toMatchObject({ name: "aegis" });
+		expect(body["server"]).toMatchObject({ name: "aegisctx" });
 		expect(Number(body["uptimeMs"])).toBeGreaterThan(0);
 		const counters = body["counters"] as Record<string, number>;
 		expect(counters["executeCalls"]).toBe(1);

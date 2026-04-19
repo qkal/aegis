@@ -1,4 +1,4 @@
-import { normalizePolicy } from "@aegis/core";
+import { normalizePolicy } from "@aegisctx/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ServerContext } from "../runtime/context.js";
@@ -16,9 +16,9 @@ let close: () => void;
 
 afterEach(() => close?.());
 
-describe("aegis_execute tool metadata", () => {
+describe("aegisctx_execute tool metadata", () => {
 	it("exposes the canonical tool name and a flat input schema", () => {
-		expect(TOOL_NAME).toBe("aegis_execute");
+		expect(TOOL_NAME).toBe("aegisctx_execute");
 		expect(Object.keys(inputSchema).sort()).toEqual([
 			"allowNetwork",
 			"code",
@@ -30,7 +30,7 @@ describe("aegis_execute tool metadata", () => {
 	});
 });
 
-describe("aegis_execute handler", () => {
+describe("aegisctx_execute handler", () => {
 	beforeEach(async () => {
 		// Default wiring: stub executor is swapped per-test below.
 		const built = await buildTestContext();

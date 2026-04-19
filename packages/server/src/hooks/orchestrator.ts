@@ -8,10 +8,10 @@
  * (M1.5) and full Policy → Execution wiring land in subsequent milestones.
  */
 
-// The canonical hook-kind list lives in `@aegis/adapters` (the untrusted
+// The canonical hook-kind list lives in `@aegisctx/adapters` (the untrusted
 // input boundary). Re-export it here so server-side consumers can import
-// from `@aegis/server` without pulling every adapter in directly.
-export { HOOK_TYPES, type HookType } from "@aegis/adapters";
+// from `@aegisctx/server` without pulling every adapter in directly.
+export { HOOK_TYPES, type HookType } from "@aegisctx/adapters";
 
 // M1.4 — session event capture, compaction snapshot, and restore.
 export {

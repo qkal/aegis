@@ -1,4 +1,4 @@
-import { LANGUAGES } from "@aegis/core";
+import { LANGUAGES } from "@aegisctx/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ServerContext } from "../runtime/context.js";
@@ -21,9 +21,9 @@ beforeEach(async () => {
 });
 afterEach(() => close?.());
 
-describe("aegis_doctor handler", () => {
+describe("aegisctx_doctor handler", () => {
 	it("uses the canonical tool name", () => {
-		expect(TOOL_NAME).toBe("aegis_doctor");
+		expect(TOOL_NAME).toBe("aegisctx_doctor");
 	});
 
 	it("reports one entry per known language and a total count that matches LANGUAGES", () => {

@@ -4,9 +4,9 @@
  * Synchronous, native-addon SQLite binding (https://github.com/WiseLibs/better-sqlite3).
  * Used as the default fallback when neither `node:sqlite` nor `bun:sqlite`
  * is available, and as the primary backend on Node < 22 or when the user
- * forces it via `AEGIS_SQLITE_BACKEND=better-sqlite3`.
+ * forces it via `AEGISCTX_SQLITE_BACKEND=better-sqlite3`.
  *
- * The library is declared as an optional npm dependency on `@aegis/storage`,
+ * The library is declared as an optional npm dependency on `@aegisctx/storage`,
  * so it may not be installed at runtime; we import it dynamically and surface
  * a typed error if it is missing.
  */

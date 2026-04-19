@@ -1,5 +1,5 @@
 {
-	"name": "@aegis/storage",
+	"name": "@aegisctx/storage",
 	"version": "0.1.0",
 	"description": "SQLite persistence: session store, FTS5 content index, HMAC-chained audit log",
 	"type": "module",
@@ -30,7 +30,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@aegis/core": "workspace:*"
+		"@aegisctx/core": "workspace:*"
 	},
 	"optionalDependencies": {
 		"better-sqlite3": "^11.7.0"

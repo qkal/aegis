@@ -1,5 +1,5 @@
 /**
- * @aegis/core — Pure logic package.
+ * @aegisctx/core — Pure logic package.
  *
  * Contains policy evaluation, event model, routing decisions,
  * and branded type definitions. Zero npm dependencies. Zero I/O.

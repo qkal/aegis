@@ -1,10 +1,10 @@
 /**
- * aegis config — Configuration management commands.
+ * aegisctx config — Configuration management commands.
  *
  * Subcommands:
- * - aegis config show    — Display resolved config
- * - aegis config set     — Set a config value
- * - aegis config validate — Validate all config files
+ * - aegisctx config show    — Display resolved config
+ * - aegisctx config set     — Set a config value
+ * - aegisctx config validate — Validate all config files
  *
  * Implementation deferred to Phase 1.
  */

@@ -88,7 +88,7 @@ describe("parseInitArgs", () => {
 describe("plan", () => {
 	it.each(INIT_PLATFORMS)("produces at least the policy file for %s", (platform) => {
 		const files = plan(platform, "/home/tester");
-		expect(files.some((f) => f.path === "/home/tester/.aegis/config.json")).toBe(true);
+		expect(files.some((f) => f.path === "/home/tester/.aegisctx/config.json")).toBe(true);
 		// Every planned file lives under $HOME so tests don't accidentally
 		// write outside the sandbox on a misconfigured env.
 		for (const f of files) expect(f.path.startsWith("/home/tester/")).toBe(true);
@@ -110,12 +110,12 @@ describe("plan", () => {
 	it("writes only the shared policy file for the generic platform", () => {
 		const files = plan("generic", "/home/tester");
 		expect(files).toHaveLength(1);
-		expect(files[0]?.path).toBe("/home/tester/.aegis/config.json");
+		expect(files[0]?.path).toBe("/home/tester/.aegisctx/config.json");
 	});
 
 	it("assigns 0o600 to the policy file and leaves other files at default 0o644", () => {
 		const files = plan("claude-code", "/home/tester");
-		const policy = files.find((f) => f.path.endsWith("/.aegis/config.json"));
+		const policy = files.find((f) => f.path.endsWith("/.aegisctx/config.json"));
 		const hook = files.find((f) => f.path.endsWith("/.claude/settings.json"));
 		expect(policy?.mode).toBe(0o600);
 		expect(hook?.mode).toBeUndefined();
@@ -143,7 +143,7 @@ describe("resolve", () => {
 	});
 
 	it("marks files with different contents as update and preserves the prior text", () => {
-		const fs = fakeFs({ "/home/tester/.aegis/config.json": "{}\n" });
+		const fs = fakeFs({ "/home/tester/.aegisctx/config.json": "{}\n" });
 		const resolved = resolve(plan("generic", "/home/tester"), fakeEnv(fs));
 		expect(resolved[0]?.action).toBe("update");
 		expect(resolved[0]?.before).toBe("{}\n");
@@ -159,9 +159,9 @@ describe("applyInit", () => {
 		const fs = fakeFs();
 		const planned = plan("claude-code", "/home/tester");
 		applyInit(resolve(planned, fakeEnv(fs)), fakeEnv(fs));
-		expect(fs.files.has("/home/tester/.aegis/config.json")).toBe(true);
+		expect(fs.files.has("/home/tester/.aegisctx/config.json")).toBe(true);
 		expect(fs.files.has("/home/tester/.claude/settings.json")).toBe(true);
-		expect(fs.modes.get("/home/tester/.aegis/config.json")).toBe(0o600);
+		expect(fs.modes.get("/home/tester/.aegisctx/config.json")).toBe(0o600);
 		expect(fs.modes.get("/home/tester/.claude/settings.json")).toBe(0o644);
 	});
 
@@ -182,7 +182,7 @@ describe("applyInit", () => {
 		const planned = plan("amp", "/home/tester");
 		const env = fakeEnv(fs);
 		applyInit(resolve(planned, env), env);
-		expect(fs.dirs.has("/home/tester/.aegis")).toBe(true);
+		expect(fs.dirs.has("/home/tester/.aegisctx")).toBe(true);
 		expect(fs.dirs.has("/home/tester/.config/amp")).toBe(true);
 	});
 });
@@ -199,19 +199,19 @@ describe("run (init)", () => {
 		const out: string[] = [];
 		const code = run(["claude-code"], fakeEnv(fs), (s) => out.push(s), TERM);
 		expect(code).toBe(0);
-		expect(fs.files.has("/home/tester/.aegis/config.json")).toBe(true);
+		expect(fs.files.has("/home/tester/.aegisctx/config.json")).toBe(true);
 		expect(fs.files.has("/home/tester/.claude/settings.json")).toBe(true);
 		expect(out.join("\n")).toContain("create");
 		expect(out.join("\n")).toContain("Applied.");
 	});
 
 	it("refuses to overwrite without --force and exits with a note", () => {
-		const fs = fakeFs({ "/home/tester/.aegis/config.json": "{}\n" });
+		const fs = fakeFs({ "/home/tester/.aegisctx/config.json": "{}\n" });
 		const out: string[] = [];
 		const code = run(["generic"], fakeEnv(fs), (s) => out.push(s), TERM);
 		expect(code).toBe(0);
 		// File preserved untouched.
-		expect(fs.files.get("/home/tester/.aegis/config.json")).toBe("{}\n");
+		expect(fs.files.get("/home/tester/.aegisctx/config.json")).toBe("{}\n");
 		const joined = out.join("\n");
 		expect(joined).toContain("one or more files would be overwritten");
 		expect(joined).toContain("Blocked");
@@ -219,11 +219,11 @@ describe("run (init)", () => {
 	});
 
 	it("overwrites when --force is passed", () => {
-		const fs = fakeFs({ "/home/tester/.aegis/config.json": "{}\n" });
+		const fs = fakeFs({ "/home/tester/.aegisctx/config.json": "{}\n" });
 		const out: string[] = [];
 		const code = run(["generic", "--force"], fakeEnv(fs), (s) => out.push(s), TERM);
 		expect(code).toBe(0);
-		expect(fs.files.get("/home/tester/.aegis/config.json")).not.toBe("{}\n");
+		expect(fs.files.get("/home/tester/.aegisctx/config.json")).not.toBe("{}\n");
 	});
 
 	it("respects --dry-run and writes nothing", () => {

@@ -5,7 +5,7 @@
  * merged via Reciprocal Rank Fusion (RRF) for ranked retrieval.
  */
 
-import type { ContentSourceId } from "@aegis/core";
+import type { ContentSourceId } from "@aegisctx/core";
 
 /**
  * Canonical content-type classification for indexed chunks.

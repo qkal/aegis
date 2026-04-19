@@ -27,7 +27,7 @@ beforeEach(async () => {
 	const [serverTransport, clientTransport] = InMemoryTransport.createLinkedPair();
 	await startServer(server, serverTransport);
 
-	client = new Client({ name: "aegis-test-client", version: "0.0.0" });
+	client = new Client({ name: "aegisctx-test-client", version: "0.0.0" });
 	await client.connect(clientTransport);
 });
 
@@ -49,9 +49,9 @@ describe("MCP server wiring", () => {
 		expect(names).toEqual(ADVERTISED_TOOLS.map((t) => t.name).sort());
 	});
 
-	it("round-trips aegis_execute through the stdio-equivalent JSON-RPC transport", async () => {
+	it("round-trips aegisctx_execute through the stdio-equivalent JSON-RPC transport", async () => {
 		const result = await client.callTool({
-			name: "aegis_execute",
+			name: "aegisctx_execute",
 			arguments: { code: "echo hi", language: "shell" },
 		});
 		expect(result.isError).toBeFalsy();
@@ -65,7 +65,7 @@ describe("MCP server wiring", () => {
 	it("surfaces schema violations as MCP errors rather than silently invoking handlers", async () => {
 		await expect(
 			client.callTool({
-				name: "aegis_execute",
+				name: "aegisctx_execute",
 				arguments: { code: "", language: "javascript" },
 			}),
 		).resolves.toMatchObject({ isError: true });

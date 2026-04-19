@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 
 import { describe, expect, it } from "vitest";
 
-import type { Language } from "@aegis/core";
+import type { Language } from "@aegisctx/core";
 
 import { type DetectedRuntime, detectRuntime } from "../runtime/detect.js";
 import { __testing_walkBackToUtf8Boundary, PolyglotExecutor } from "./polyglot.js";
@@ -273,7 +273,7 @@ describeOnPosix("PolyglotExecutor.execute", () => {
 					language: "shell",
 					available: true,
 					version: "fake",
-					path: "/nonexistent/aegis-test-bin-does-not-exist",
+					path: "/nonexistent/aegisctx-test-bin-does-not-exist",
 					binary: "sh",
 				},
 			}),

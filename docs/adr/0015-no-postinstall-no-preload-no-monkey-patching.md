@@ -22,7 +22,7 @@ These are standard patterns, but they create a meaningful attack surface for a t
 
 Aegis ships with **zero supply-chain attack surface in its installation and runtime**:
 
-1. **No postinstall scripts**: All setup is explicit via `aegis init`. The npm package has zero lifecycle scripts.
+1. **No postinstall scripts**: All setup is explicit via `aegisctx init`. The npm package has zero lifecycle scripts.
 2. **No NODE_OPTIONS / --require preload injection**: Aegis does not modify the Node.js runtime environment of other processes.
 3. **No monkey-patching of Node.js builtins**: No patching of `fs.readFileSync`, `child_process.spawn`, or any other built-in module.
 4. **No `eval()`, `Function()`, or `vm.runInNewContext()` on untrusted input**: All external data is parsed into Zod schemas.
@@ -36,6 +36,6 @@ Aegis ships with **zero supply-chain attack surface in its installation and runt
 
 ## Consequences
 
-- First-run setup requires an explicit `aegis init` command (not automatic on install).
+- First-run setup requires an explicit `aegisctx init` command (not automatic on install).
 - Filesystem tracking uses explicit instrumentation, not preload injection. This may be less comprehensive but is more transparent.
 - Some features that the reference implements via preload (e.g., filesystem access tracking) may need alternative approaches.

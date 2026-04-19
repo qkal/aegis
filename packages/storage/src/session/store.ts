@@ -8,7 +8,7 @@
  * next agent context.
  *
  * The store is synchronous — every operation runs against the synchronous
- * `Database` interface from `@aegis/storage/adapters`. Callers in an
+ * `Database` interface from `@aegisctx/storage/adapters`. Callers in an
  * async orchestrator just `await Promise.resolve()` if they want to
  * yield the event loop.
  *
@@ -16,7 +16,7 @@
  * a newly appended event with the persisted record without a round trip.
  * The store trusts that callers supply valid branded `EventId` / `SessionId`
  * values — no runtime validation is performed on insert. Use the safe
- * constructors from `@aegis/core` (`eventId()`, `sessionId()`) at untrusted
+ * constructors from `@aegisctx/core` (`eventId()`, `sessionId()`) at untrusted
  * boundaries before passing IDs into the store.
  */
 
@@ -26,7 +26,7 @@ import type {
 	SessionEvent,
 	SessionEventKind,
 	SessionId,
-} from "@aegis/core";
+} from "@aegisctx/core";
 
 import type { Database } from "../adapters/types.js";
 import type { EventFilter, SessionEventRecord } from "./types.js";
@@ -41,7 +41,7 @@ export interface PersistedSnapshotMetadata {
 
 /**
  * Lightweight identity-casts re-declared locally so this file does not
- * need the compiled `@aegis/core` build at test time. Branded types are
+ * need the compiled `@aegisctx/core` build at test time. Branded types are
  * zero-runtime-cost so these casts are safe.
  */
 const eventIdUnsafe = (raw: string): EventId => raw as EventId;

@@ -5,17 +5,15 @@
  * SessionEventStore so the full "PostToolUse → append → PreCompact →
  * saveSnapshot → SessionStart → restore" loop is exercised end-to-end.
  */
-import { claudeCodeAdapter } from "@aegis/adapters";
-import { postToolUseBashFailureFixture, postToolUseWriteFixture } from "@aegis/adapters/testing";
-import { type SessionId } from "@aegis/core";
+import { claudeCodeAdapter } from "@aegisctx/adapters";
+import { postToolUseBashFailureFixture, postToolUseWriteFixture } from "@aegisctx/adapters/testing";
+import { type SessionId } from "@aegisctx/core";
 import {
 	openDatabase,
 	runMigrations,
 	SESSION_STORE_MIGRATIONS,
 	SessionEventStore,
-} from "@aegis/storage";
-import assert from "node:assert/strict";
-
+} from "@aegisctx/storage";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {

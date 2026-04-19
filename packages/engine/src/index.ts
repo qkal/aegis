@@ -1,8 +1,8 @@
 /**
- * @aegis/engine — Execution engine package.
+ * @aegisctx/engine — Execution engine package.
  *
  * Side-effectful: sandbox process spawning, runtime detection,
- * output processing. Depends only on @aegis/core.
+ * output processing. Depends only on @aegisctx/core.
  */
 
 export * from "./output/index.js";

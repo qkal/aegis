@@ -1,4 +1,4 @@
-import type { Language } from "@aegis/core";
+import type { Language } from "@aegisctx/core";
 import { describe, expect, it } from "vitest";
 import { FILE_EXTENSION, planExecution, SOURCE_PLACEHOLDER } from "./command.js";
 import type { AvailableRuntime } from "./detect.js";

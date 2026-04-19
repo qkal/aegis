@@ -35,13 +35,13 @@ Adopt two rules from the ground-up rules (R9, R10):
 
 - FTS5 unavailable → fall back to LIKE queries (slower, but not a security issue).
 - Missing runtime → report error with install instructions (not a security issue).
-- These are logged as warnings via `aegis doctor`.
+- These are logged as warnings via `aegisctx doctor`.
 
 ## Rationale
 
 - **Security-critical path clarity**: The distinction between "safety-critical" and "convenience" degradation is explicit. Safety never degrades silently.
 - **Auditability**: If the audit log can't write, continuing to process tool calls would create unaudited actions — a violation of the audit guarantee.
-- **User trust**: Users can verify the system's capability level via `aegis doctor` and trust that what it reports is accurate.
+- **User trust**: Users can verify the system's capability level via `aegisctx doctor` and trust that what it reports is accurate.
 - **Debuggability**: Typed errors with context make it possible to diagnose failures after the fact.
 
 ## Consequences

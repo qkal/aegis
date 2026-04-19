@@ -8,14 +8,14 @@
  * the real filesystem.
  */
 
-import type { PlatformCapabilities } from "@aegis/adapters";
-import type { AegisPolicy } from "@aegis/core";
-import type { PolyglotExecutor } from "@aegis/engine";
-import type { ContentIndex, Database } from "@aegis/storage";
+import type { PlatformCapabilities } from "@aegisctx/adapters";
+import type { AegisPolicy } from "@aegisctx/core";
+import type { PolyglotExecutor } from "@aegisctx/engine";
+import type { ContentIndex, Database } from "@aegisctx/storage";
 
 /**
  * Minimal fetch signature. Subset of the DOM `fetch` used by
- * `aegis_fetch`; declared here so the server never depends on the
+ * `aegisctx_fetch`; declared here so the server never depends on the
  * global `fetch` directly and tests can inject a deterministic
  * implementation.
  */
@@ -42,7 +42,7 @@ export interface FetchResponse {
 /**
  * Mutable counters tracked across tool invocations. Pure increment
  * operations — tool handlers must not reorder fields or introduce new
- * counters here without a corresponding update to `aegis_stats`.
+ * counters here without a corresponding update to `aegisctx_stats`.
  */
 export interface ServerCounters {
 	executeCalls: number;
@@ -96,16 +96,16 @@ export interface ServerContext {
 	readonly platform: PlatformCapabilities | undefined;
 	/**
 	 * Effective policy for the session. The server loads this once at
-	 * startup (see `@aegis/server/policy/load`) and stashes it here so
+	 * startup (see `@aegisctx/server/policy/load`) and stashes it here so
 	 * every tool handler enforces the same rules. Tests default to
 	 * `DEFAULT_POLICY` via `buildTestContext`.
 	 */
 	readonly policy: AegisPolicy;
-	/** Process start time in ms since the epoch — used by `aegis_stats`. */
+	/** Process start time in ms since the epoch — used by `aegisctx_stats`. */
 	readonly startedAt: number;
 	readonly counters: ServerCounters;
 	/** Injectable clock so tests can assert on timestamps without freezing global time. */
 	readonly now: () => Date;
-	/** Injectable fetch so `aegis_fetch` is unit-testable without a real network. */
+	/** Injectable fetch so `aegisctx_fetch` is unit-testable without a real network. */
 	readonly fetch: FetchLike;
 }

@@ -11,7 +11,7 @@
  * preserved via `z.looseObject(...)` so forward-compatible additions
  * survive round-tripping through `rawInput` / `rawOutput`.
  */
-import type { SessionEvent } from "@aegis/core";
+import type { SessionEvent } from "@aegisctx/core";
 
 import type {
 	HookAdapter,
@@ -38,7 +38,7 @@ export const CLAUDE_CODE_PLATFORM = "claude-code" as const;
  * The install / init flow writes hook registrations into `configDir`
  * and Claude Code persists per-project transcripts under `sessionDir`.
  * Both paths are home-relative and expanded by the caller (CLI); the
- * adapter reports them verbatim so `aegis doctor` can surface them.
+ * adapter reports them verbatim so `aegisctx doctor` can surface them.
  */
 const CLAUDE_CONFIG_DIR = "~/.claude" as const;
 const CLAUDE_SESSION_DIR = "~/.claude/projects" as const;

@@ -6,7 +6,7 @@
  *   2. `node:sqlite`       — when available (Node 22+ with `--experimental-sqlite`, or Node 24+)
  *   3. `better-sqlite3`    — fallback (npm dep, native addon)
  *
- * The user can force a specific backend with the `AEGIS_SQLITE_BACKEND`
+ * The user can force a specific backend with the `AEGISCTX_SQLITE_BACKEND`
  * environment variable or by passing `backend` explicitly. This is useful
  * for test matrices that exercise every backend regardless of host runtime.
  */
@@ -42,11 +42,11 @@ function isBunRuntime(): boolean {
 
 /**
  * Resolve the backend identifier to use, considering the explicit override,
- * the `AEGIS_SQLITE_BACKEND` env var, and the runtime.
+ * the `AEGISCTX_SQLITE_BACKEND` env var, and the runtime.
  */
 export function detectBackend(override?: SqliteBackend): SqliteBackend {
 	if (override) return override;
-	const envOverride = process.env["AEGIS_SQLITE_BACKEND"];
+	const envOverride = process.env["AEGISCTX_SQLITE_BACKEND"];
 	if (
 		envOverride === "better-sqlite3"
 		|| envOverride === "node-sqlite"

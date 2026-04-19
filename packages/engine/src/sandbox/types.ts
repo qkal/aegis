@@ -6,7 +6,7 @@
  * environments, captures output, and enforces timeouts.
  */
 
-import type { Language } from "@aegis/core";
+import type { Language } from "@aegisctx/core";
 
 /** Configuration for a sandbox execution. */
 export interface SandboxConfig {

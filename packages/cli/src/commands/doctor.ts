@@ -1,5 +1,5 @@
 /**
- * `aegis doctor` — health check command.
+ * `aegisctx doctor` — health check command.
  *
  * Runs a fixed battery of checks and prints one line per check with a
  * status symbol. Any check that returns `fail` causes the command to
@@ -12,11 +12,11 @@
  * to the real `process` / `fs` defaults.
  */
 
-import { detectPlatform, type PlatformId } from "@aegis/adapters";
-import { type Language, LANGUAGES } from "@aegis/core";
-import { type AvailableRuntime, detectAllRuntimes, type DetectedRuntime } from "@aegis/engine";
-import { loadPolicy, PolicyConfigError } from "@aegis/server";
-import { openDatabase } from "@aegis/storage";
+import { detectPlatform, type PlatformId } from "@aegisctx/adapters";
+import { type Language, LANGUAGES } from "@aegisctx/core";
+import { type AvailableRuntime, detectAllRuntimes, type DetectedRuntime } from "@aegisctx/engine";
+import { loadPolicy, PolicyConfigError } from "@aegisctx/server";
+import { openDatabase } from "@aegisctx/storage";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -115,7 +115,7 @@ function checkPlatform(deps: DoctorEnv): CheckResult {
 			status: "warn",
 			summary: "no known platform env signal detected",
 			hint:
-				"run `aegis init <platform>` to opt in explicitly (e.g. claude-code, codex, opencode, amp).",
+				"run `aegisctx init <platform>` to opt in explicitly (e.g. claude-code, codex, opencode, amp).",
 		};
 	}
 	return {
@@ -205,7 +205,7 @@ function checkPolicy(deps: DoctorEnv): CheckResult {
 				status: "fail",
 				summary: "policy config failed to load",
 				detail: [`  ${err.path}`, `  ${err.message}`],
-				hint: "run `aegis init <platform>` to rewrite the config with secure defaults.",
+				hint: "run `aegisctx init <platform>` to rewrite the config with secure defaults.",
 			};
 		}
 		return {
@@ -241,22 +241,22 @@ function checkHooks(deps: DoctorEnv): CheckResult {
 			title: "Hooks",
 			status: "warn",
 			summary: `no ${relative} found under $HOME`,
-			hint: `run \`aegis init ${platform.platform}\` to install hook configuration.`,
+			hint: `run \`aegisctx init ${platform.platform}\` to install hook configuration.`,
 		};
 	}
-	if (!raw.includes("aegis")) {
+	if (!raw.includes("aegisctx")) {
 		return {
 			title: "Hooks",
 			status: "warn",
-			summary: `${relative} exists but does not reference aegis`,
+			summary: `${relative} exists but does not reference aegisctx`,
 			hint:
-				`run \`aegis init ${platform.platform}\` to merge aegis hooks into the existing config.`,
+				`run \`aegisctx init ${platform.platform}\` to merge aegisctx hooks into the existing config.`,
 		};
 	}
 	return {
 		title: "Hooks",
 		status: "ok",
-		summary: `${relative} references aegis`,
+		summary: `${relative} references aegisctx`,
 	};
 }
 

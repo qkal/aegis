@@ -14,7 +14,7 @@
  *                        `additionalContext` on SessionStart.
  *
  * Events are never modified in place: compaction always creates a new
- * snapshot row, and the raw event log is retained so a later `aegis audit`
+ * snapshot row, and the raw event log is retained so a later `aegisctx audit`
  * (Phase 2) can reconstruct what the agent actually did. If the project
  * database is deleted or corrupted, all session history is lost — this is
  * a deliberate local-first trade-off (ADR-0008).

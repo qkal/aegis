@@ -1,4 +1,4 @@
-import { normalizePolicy } from "@aegis/core";
+import { normalizePolicy } from "@aegisctx/core";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ServerContext } from "../runtime/context.js";
@@ -23,9 +23,9 @@ let close: () => void;
 
 afterEach(() => close?.());
 
-describe("aegis_fetch tool metadata", () => {
+describe("aegisctx_fetch tool metadata", () => {
 	it("uses the canonical tool name", () => {
-		expect(TOOL_NAME).toBe("aegis_fetch");
+		expect(TOOL_NAME).toBe("aegisctx_fetch");
 	});
 });
 
@@ -55,7 +55,7 @@ describe("htmlToMarkdown", () => {
 	});
 });
 
-describe("aegis_fetch handler", () => {
+describe("aegisctx_fetch handler", () => {
 	beforeEach(async () => {
 		const built = await buildTestContext({
 			policy: fetchTestPolicy,

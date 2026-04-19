@@ -164,13 +164,13 @@ function singleLine(raw: string, maxLen: number): string {
 }
 
 function defaultHeader(now: Date): string {
-	return `[aegis:session] snapshot generated ${now.toISOString()}`;
+	return `[aegisctx:session] snapshot generated ${now.toISOString()}`;
 }
 
 /**
  * Byte length of a string when encoded as UTF-8.
  *
- * Implemented without touching `TextEncoder` so `@aegis/core` does not
+ * Implemented without touching `TextEncoder` so `@aegisctx/core` does not
  * depend on `DOM` lib types or Node's `Buffer`. Walks the UTF-16 code
  * units, combines surrogate pairs, and counts the bytes each code
  * point contributes per the UTF-8 encoding rules.

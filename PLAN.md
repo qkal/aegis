@@ -310,7 +310,7 @@ New installations block `sudo`, `rm -rf`, `.env` reads, and network access from 
 | **Plugin/extension code**    | Arbitrary code execution in Aegis process       | Plugins run in worker threads with structured clone boundary; no access to policy engine internals or audit store writes       |
 | **Deserialization**          | Unsafe JSON.parse of untrusted data             | All external JSON parsed into Zod schemas; no `eval`, no `Function()`, no `vm.runInNewContext` on untrusted input              |
 | **Temp file creation**       | Race conditions (TOCTOU), symlink attacks       | Use `mkdtemp` with restrictive permissions (0o700); verify parent directory ownership; cleanup with `rmSync` in finally blocks |
-| **npm postinstall**          | Supply-chain code execution                     | Aegis ships zero postinstall scripts; all setup via explicit `aegis init` CLI command                                          |
+| **npm postinstall**          | Supply-chain code execution                     | Aegis ships zero postinstall scripts; all setup via explicit `aegisctx init` CLI command                                       |
 | **Preload script injection** | NODE_OPTIONS hijacking                          | Aegis does NOT use NODE_OPTIONS or `--require` preload; filesystem tracking uses explicit instrumentation                      |
 
 ### 6.4 Abuse Scenarios
@@ -392,7 +392,7 @@ interface AegisPolicy {
 
 **Zero telemetry. Period.**
 
-No anonymous usage stats, no crash reporting, no feature flags fetched from a server, no "check for updates" network call unless the user explicitly runs `aegis upgrade`. The version check in the reference project (npm registry call on every server start) is removed. Users can opt into update notifications via a CLI flag (`aegis config set check-updates true`), but the default is off.
+No anonymous usage stats, no crash reporting, no feature flags fetched from a server, no "check for updates" network call unless the user explicitly runs `aegisctx upgrade`. The version check in the reference project (npm registry call on every server start) is removed. Users can opt into update notifications via a CLI flag (`aegisctx config set check-updates true`), but the default is off.
 
 ### 6.8 Audit Log Design
 
@@ -412,7 +412,7 @@ interface AuditEntry {
 }
 ```
 
-Stored in a separate SQLite database per project. Queryable via `aegis audit` CLI commands. HMAC key derived from a machine-local secret (created on first run, stored in `~/.aegis/audit-key`). Purpose: detect post-hoc tampering, not prevent it — this is forensic integrity, not DRM.
+Stored in a separate SQLite database per project. Queryable via `aegisctx audit` CLI commands. HMAC key derived from a machine-local secret (created on first run, stored in `~/.aegisctx/audit-key`). Purpose: detect post-hoc tampering, not prevent it — this is forensic integrity, not DRM.
 
 ---
 
@@ -421,7 +421,7 @@ Stored in a separate SQLite database per project. Queryable via `aegis audit` CL
 ### 7.1 Monorepo Layout
 
 ```
-aegis/
+aegisctx/
 ├── packages/
 │   ├── core/                    # Pure logic: policy engine, event model, routing
 │   │   ├── src/
@@ -465,7 +465,7 @@ aegis/
 │   │   │   └── server.ts        # MCP server setup, <200 lines
 │   │   └── package.json
 │   │
-│   └── cli/                     # CLI: aegis doctor, aegis audit, aegis config, etc.
+│   └── cli/                     # CLI: aegisctx doctor, aegisctx audit, aegisctx config, etc.
 │       ├── src/
 │       │   ├── commands/        # One file per command
 │       │   └── cli.ts           # Entry point, command routing
@@ -660,20 +660,20 @@ interface PluginContext {
 }
 ```
 
-Plugins are loaded from `~/.aegis/plugins/` or `<project>/.aegis/plugins/`. Each plugin is validated against the `AegisPlugin` schema before loading. Plugins that attempt to access undeclared APIs fail at load time, not at runtime.
+Plugins are loaded from `~/.aegisctx/plugins/` or `<project>/.aegisctx/plugins/`. Each plugin is validated against the `AegisPlugin` schema before loading. Plugins that attempt to access undeclared APIs fail at load time, not at runtime.
 
 ### 7.7 Configuration Model
 
-```
+```text
 Precedence (highest to lowest):
 1. CLI flags (--policy, --timeout, etc.)
 2. Environment variables (AEGIS_*)
-3. Project-local: <project>/.aegis/config.json
-4. User-global: ~/.aegis/config.json
+3. Project-local: <project>/.aegisctx/config.json
+4. User-global: ~/.aegisctx/config.json
 5. Built-in defaults (secure)
 ```
 
-Configuration is validated against a Zod schema at load time. Invalid configuration is a hard error, not a silent fallback. The `aegis config validate` command checks all config files without starting the server.
+Configuration is validated against a Zod schema at load time. Invalid configuration is a hard error, not a silent fallback. The `aegisctx config validate` command checks all config files without starting the server.
 
 ### 7.8 Observability Model
 
@@ -683,7 +683,7 @@ Configuration is validated against a Zod schema at load time. Invalid configurat
 | **Events**  | Every structured session event                                                  | Session SQLite DB                                     |
 | **Audit**   | Every policy decision, every security-relevant action                           | Audit SQLite DB (HMAC-chained)                        |
 | **Traces**  | Optional per-tool-call trace ID linking adapter→router→policy→execution→storage | Trace ID in all log entries when `--trace` is enabled |
-| **Health**  | Runtime availability, FTS5 status, DB integrity, policy validity                | `aegis doctor` command                                |
+| **Health**  | Runtime availability, FTS5 status, DB integrity, policy validity                | `aegisctx doctor` command                             |
 
 ### 7.9 Testing Model
 
@@ -694,7 +694,7 @@ Configuration is validated against a Zod schema at load time. Invalid configurat
 | **storage**    | Integration tests with in-memory SQLite (`:memory:`). Test schema migrations, FTS5 queries, HMAC chain integrity.                     |
 | **adapters**   | Unit tests with fixture-based input/output. Each platform's hook format is tested against recorded real-world samples.                |
 | **server**     | Integration tests using MCP SDK test client. Full request/response cycle without a real agent.                                        |
-| **cli**        | Snapshot tests for command output. Integration tests for `aegis doctor`, `aegis audit`.                                               |
+| **cli**        | Snapshot tests for command output. Integration tests for `aegisctx doctor`, `aegisctx audit`.                                         |
 | **end-to-end** | Smoke tests: start server, send tool calls, verify routing, check audit log, verify session restore.                                  |
 
 Test runner: **Vitest** — fast, ESM-native, good TypeScript support, compatible with the reference project's test infrastructure.
@@ -768,29 +768,29 @@ CREATE TABLE sources (
 
 ### 9.1 What Must Be Persisted
 
-| Data           | Lifetime                                                        | Location                                                  |
-| -------------- | --------------------------------------------------------------- | --------------------------------------------------------- |
-| Session events | Per-session (deleted on fresh start, preserved on `--continue`) | `~/.aegis/<platform>/sessions/<project-hash>.db`          |
-| Content index  | 14-day TTL for URL sources; indefinite for manual indexing      | `~/.aegis/<platform>/content/<project-hash>.db`           |
-| Audit log      | Retained until explicit `aegis audit purge --before <date>`     | `~/.aegis/audit/<project-hash>.db`                        |
-| Configuration  | Indefinite                                                      | `~/.aegis/config.json` and `<project>/.aegis/config.json` |
-| Audit HMAC key | Machine lifetime                                                | `~/.aegis/audit-key` (0o600 permissions)                  |
+| Data           | Lifetime                                                        | Location                                                        |
+| -------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Session events | Per-session (deleted on fresh start, preserved on `--continue`) | `~/.aegisctx/<platform>/sessions/<project-hash>.db`             |
+| Content index  | 14-day TTL for URL sources; indefinite for manual indexing      | `~/.aegisctx/<platform>/content/<project-hash>.db`              |
+| Audit log      | Retained until explicit `aegisctx audit purge --before <date>`  | `~/.aegisctx/audit/<project-hash>.db`                           |
+| Configuration  | Indefinite                                                      | `~/.aegisctx/config.json` and `<project>/.aegisctx/config.json` |
+| Audit HMAC key | Machine lifetime                                                | `~/.aegisctx/audit-key` (0o600 permissions)                     |
 
 ### 9.2 What Must Be Ephemeral
 
-| Data                     | Lifetime                                        | Location                             |
-| ------------------------ | ----------------------------------------------- | ------------------------------------ |
-| Sandbox temp directories | Per-execution (cleaned in finally block)        | OS temp dir (`/tmp/aegis-sandbox-*`) |
-| In-memory session stats  | Per-server-process                              | Memory only                          |
-| Runtime detection cache  | Per-server-process                              | Memory only                          |
-| Policy evaluation cache  | Per-session (invalidated on policy file change) | Memory only                          |
+| Data                     | Lifetime                                        | Location                                |
+| ------------------------ | ----------------------------------------------- | --------------------------------------- |
+| Sandbox temp directories | Per-execution (cleaned in finally block)        | OS temp dir (`/tmp/aegisctx-sandbox-*`) |
+| In-memory session stats  | Per-server-process                              | Memory only                             |
+| Runtime detection cache  | Per-server-process                              | Memory only                             |
+| Policy evaluation cache  | Per-session (invalidated on policy file change) | Memory only                             |
 
 ### 9.3 Retention Rules
 
 - **Session data**: Deleted on fresh session start (no `--continue`). Preserved across compactions and resumes within the same session lineage.
-- **Content sources from URLs**: 24-hour TTL by default. `force: true` bypasses. Configurable via `aegis config set content.url-ttl <duration>`.
-- **Content sources from files/manual**: No automatic expiry. Cleaned on `aegis purge`.
-- **Audit logs**: Never automatically deleted. `aegis audit purge --before 2024-01-01` for manual cleanup.
+- **Content sources from URLs**: 24-hour TTL by default. `force: true` bypasses. Configurable via `aegisctx config set content.url-ttl <duration>`.
+- **Content sources from files/manual**: No automatic expiry. Cleaned on `aegisctx purge`.
+- **Audit logs**: Never automatically deleted. `aegisctx audit purge --before 2024-01-01` for manual cleanup.
 - **Stale databases**: Content DBs not accessed in 14 days are cleaned on startup.
 
 ### 9.4 Indexing Lifecycle
@@ -866,16 +866,16 @@ If SQLite reports corruption (`SQLITE_CORRUPT`, `SQLITE_NOTADB`):
 1. Log the corruption to stderr
 2. Rename the corrupt DB to `<name>.corrupt.<timestamp>.db`
 3. Create a fresh DB with current schema
-4. Report to user via `aegis doctor` (which checks for `.corrupt.*` files)
+4. Report to user via `aegisctx doctor` (which checks for `.corrupt.*` files)
 5. Never silently delete — the user may want to inspect or recover data
 
 ### 9.9 Backup / Export / Import
 
 ```bash
-aegis export --session           # Export current session events as JSON
-aegis export --audit             # Export audit log as JSONL
-aegis export --content           # Export content index as markdown
-aegis import --session <file>    # Import session events
+aegisctx export --session           # Export current session events as JSON
+aegisctx export --audit             # Export audit log as JSONL
+aegisctx export --content           # Export content index as markdown
+aegisctx import --session <file>    # Import session events
 ```
 
 JSON export uses the discriminated union event schema directly — no lossy transformation. Import validates every event against the schema before inserting.
@@ -896,17 +896,17 @@ JSON export uses the discriminated union event schema directly — no lossy tran
 
 Aegis exposes these MCP tools (names chosen for clarity over brevity):
 
-| Tool                 | Description                                          |
-| -------------------- | ---------------------------------------------------- |
-| `aegis_execute`      | Sandboxed code execution in 11 languages             |
-| `aegis_execute_file` | Process a file through sandboxed code                |
-| `aegis_batch`        | Multiple commands + queries in one call              |
-| `aegis_index`        | Index markdown/text content into knowledge base      |
-| `aegis_search`       | BM25-ranked search across indexed content            |
-| `aegis_fetch`        | Fetch URL, convert to markdown, index with TTL cache |
-| `aegis_stats`        | Context savings, call counts, session statistics     |
-| `aegis_doctor`       | Diagnostics: runtimes, hooks, FTS5, policy, versions |
-| `aegis_audit`        | Query recent audit events                            |
+| Tool                    | Description                                          |
+| ----------------------- | ---------------------------------------------------- |
+| `aegisctx_execute`      | Sandboxed code execution in 11 languages             |
+| `aegisctx_execute_file` | Process a file through sandboxed code                |
+| `aegisctx_batch`        | Multiple commands + queries in one call              |
+| `aegisctx_index`        | Index markdown/text content into knowledge base      |
+| `aegisctx_search`       | BM25-ranked search across indexed content            |
+| `aegisctx_fetch`        | Fetch URL, convert to markdown, index with TTL cache |
+| `aegisctx_stats`        | Context savings, call counts, session statistics     |
+| `aegisctx_doctor`       | Diagnostics: runtimes, hooks, FTS5, policy, versions |
+| `aegisctx_audit`        | Query recent audit events                            |
 
 ### 10.3 Hook Integration
 
@@ -921,7 +921,7 @@ Each platform adapter implements the `HookAdapter` interface from `packages/adap
 
 | Capability             | Available                              | Degraded                                                                   | Unavailable                                                                      |
 | ---------------------- | -------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| **Sandbox execution**  | All runtimes detected                  | Some runtimes missing → tool reports which are available                   | No runtimes → `aegis_execute` returns error with install instructions            |
+| **Sandbox execution**  | All runtimes detected                  | Some runtimes missing → tool reports which are available                   | No runtimes → `aegisctx_execute` returns error with install instructions         |
 | **FTS5 search**        | SQLite with FTS5 → full BM25 + trigram | FTS5 unavailable → fallback to LIKE queries (slower, no ranking)           | SQLite unavailable → tools return error, session events still captured in memory |
 | **Session continuity** | All 4 hooks → full capture + restore   | Missing SessionStart → capture works, restore is manual                    | No hooks → MCP tools only, no session tracking                                   |
 | **Policy enforcement** | Hooks + policy file → enforced         | No hooks → policy evaluated but not enforced (logged as warning)           | No policy file → built-in defaults only                                          |
@@ -935,7 +935,7 @@ For Tier 3 platforms (MCP-only):
 
 1. Routing instructions provided via platform-specific file (AGENTS.md, GEMINI.md, etc.)
 2. File is NOT auto-written to the project directory (same as reference — avoids git pollution)
-3. `aegis init <platform>` copies the file and explains what it does
+3. `aegisctx init <platform>` copies the file and explains what it does
 4. Compliance is ~60% (honest about limitations)
 5. Policy evaluation still occurs on MCP tool calls (the sandbox itself is always policy-controlled)
 
@@ -947,41 +947,41 @@ For Tier 3 platforms (MCP-only):
 
 ```bash
 # Setup
-aegis init                      # Interactive setup for detected platform
-aegis init claude-code          # Platform-specific setup
-aegis init --global             # Global (all projects) setup
+aegisctx init                      # Interactive setup for detected platform
+aegisctx init claude-code          # Platform-specific setup
+aegisctx init --global             # Global (all projects) setup
 
 # Configuration
-aegis config show               # Show resolved config (all sources merged)
-aegis config set <key> <value>  # Set a config value
-aegis config validate           # Validate all config files
+aegisctx config show               # Show resolved config (all sources merged)
+aegisctx config set <key> <value>  # Set a config value
+aegisctx config validate           # Validate all config files
 
 # Policy
-aegis policy show               # Show resolved policy (all scopes merged)
-aegis policy check "sudo rm -rf /"  # Test a command against policy
-aegis policy validate           # Validate all policy files
+aegisctx policy show               # Show resolved policy (all scopes merged)
+aegisctx policy check "sudo rm -rf /"  # Test a command against policy
+aegisctx policy validate           # Validate all policy files
 
 # Diagnostics
-aegis doctor                    # Full health check
-aegis doctor --verbose          # Detailed diagnostics
+aegisctx doctor                    # Full health check
+aegisctx doctor --verbose          # Detailed diagnostics
 
 # Audit
-aegis audit show                # Recent audit events
-aegis audit show --category policy_eval  # Filter by category
-aegis audit verify              # Verify HMAC chain integrity
-aegis audit export              # Export as JSONL
+aegisctx audit show                # Recent audit events
+aegisctx audit show --category policy_eval  # Filter by category
+aegisctx audit verify              # Verify HMAC chain integrity
+aegisctx audit export              # Export as JSONL
 
 # Session
-aegis session show              # Current session events
-aegis session export            # Export session as JSON
+aegisctx session show              # Current session events
+aegisctx session export            # Export session as JSON
 
 # Content
-aegis purge                     # Delete all indexed content
-aegis purge --expired           # Delete only expired content
+aegisctx purge                     # Delete all indexed content
+aegisctx purge --expired           # Delete only expired content
 
 # Upgrade
-aegis upgrade                   # Update to latest version (npm)
-aegis upgrade --check           # Check for updates without installing
+aegisctx upgrade                   # Update to latest version (npm)
+aegisctx upgrade --check           # Check for updates without installing
 ```
 
 ### 11.2 Config UX
@@ -989,7 +989,7 @@ aegis upgrade --check           # Check for updates without installing
 Configuration uses a single JSON format with Zod validation:
 
 ```jsonc
-// ~/.aegis/config.json
+// ~/.aegisctx/config.json
 {
 	"$schema": "https://aegis.dev/schema/config.json",
 	"version": 1,
@@ -1018,7 +1018,7 @@ Configuration uses a single JSON format with Zod validation:
 }
 ```
 
-### 11.3 Diagnostics UX (`aegis doctor`)
+### 11.3 Diagnostics UX (`aegisctx doctor`)
 
 ```
 Aegis Doctor v0.1.0
@@ -1039,13 +1039,13 @@ Runtimes
 Storage
   [PASS] SQLite: better-sqlite3 v12.8.0
   [PASS] FTS5: available
-  [PASS] Session DB: ~/.aegis/claude-code/sessions/a1b2c3d4.db (42 events)
-  [PASS] Content DB: ~/.aegis/claude-code/content/a1b2c3d4.db (3 sources, 47 chunks)
-  [PASS] Audit DB: ~/.aegis/audit/a1b2c3d4.db (128 entries, chain intact)
+  [PASS] Session DB: ~/.aegisctx/claude-code/sessions/a1b2c3d4.db (42 events)
+  [PASS] Content DB: ~/.aegisctx/claude-code/content/a1b2c3d4.db (3 sources, 47 chunks)
+  [PASS] Audit DB: ~/.aegisctx/audit/a1b2c3d4.db (128 entries, chain intact)
 
 Policy
-  [PASS] Global policy: ~/.aegis/config.json (valid)
-  [PASS] Project policy: .aegis/config.json (valid)
+  [PASS] Global policy: ~/.aegisctx/config.json (valid)
+  [PASS] Project policy: .aegisctx/config.json (valid)
   [PASS] Resolved: 2 deny rules, 3 allow rules
 
 Hooks
@@ -1061,28 +1061,28 @@ Overall: 14 pass, 2 warn, 0 fail
 
 ```bash
 # Install
-npm install -g aegis
+npm install -g aegisctx
 
 # First run — interactive setup
-aegis init
+aegisctx init
 # → Detects platform
-# → Creates ~/.aegis/config.json with secure defaults
+# → Creates ~/.aegisctx/config.json with secure defaults
 # → Copies platform-specific hook config
-# → Runs `aegis doctor` to verify
+# → Runs `aegisctx doctor` to verify
 
 # Upgrade
-aegis upgrade
+aegisctx upgrade
 # → Checks npm for latest version
 # → Installs update
 # → Runs migrations on existing DBs
-# → Runs `aegis doctor` to verify
+# → Runs `aegisctx doctor` to verify
 ```
 
-**No postinstall scripts.** All setup is explicit via `aegis init`. This eliminates a supply-chain attack vector.
+**No postinstall scripts.** All setup is explicit via `aegisctx init`. This eliminates a supply-chain attack vector.
 
 ### 11.5 Safe Defaults
 
-On first `aegis init`, the generated policy includes:
+On first `aegisctx init`, the generated policy includes:
 
 - **Deny**: `sudo *`, `rm -rf /*`, `chmod 777 *`, `chown *`, reading `.env*` files, reading `~/.ssh/*`, reading `~/.aws/*`
 - **Allow**: `git:*`, `npm:*`, `pnpm:*`, `yarn:*`, `node:*`, `python:*`, `pip:*`
@@ -1144,7 +1144,7 @@ Users who need credential passthrough or network access from sandbox code must e
 - `packages/adapters/claude-code` with full hook support
 - Basic policy evaluation integrated into PreToolUse hook
 - Session event capture via PostToolUse, restore via SessionStart
-- `aegis doctor` and `aegis init claude-code` CLI commands
+- `aegisctx doctor` and `aegisctx init claude-code` CLI commands
 
 **Technical risks**:
 
@@ -1153,11 +1153,11 @@ Users who need credential passthrough or network access from sandbox code must e
 
 **Validation criteria**:
 
-- Install via `npm install -g aegis`, run `aegis init`, start Claude Code session
-- `aegis_execute` runs JavaScript in sandbox, returns only stdout
-- `aegis_search` returns BM25-ranked results from indexed content
+- Install via `npm install -g aegisctx`, run `aegisctx init`, start Claude Code session
+- `aegisctx_execute` runs JavaScript in sandbox, returns only stdout
+- `aegisctx_search` returns BM25-ranked results from indexed content
 - Session events persist across compaction (PreCompact → SessionStart restore)
-- `aegis doctor` reports all checks passing
+- `aegisctx doctor` reports all checks passing
 - Context savings measurable: 56 KB Playwright snapshot → <500 B
 
 **Defer**: Audit log, non-Claude platforms, plugins, advanced policy features
@@ -1179,8 +1179,8 @@ Users who need credential passthrough or network access from sandbox code must e
 - Enhanced sandbox: explicit env allowlist, no credential passthrough by default
 - Adapters: Gemini CLI, Cursor, VS Code Copilot
 - Policy: `ask` mode (user confirmation), file path deny patterns, env var patterns
-- `aegis audit show`, `aegis audit verify` CLI commands
-- `aegis policy check` command for testing policies
+- `aegisctx audit show`, `aegisctx audit verify` CLI commands
+- `aegisctx policy check` command for testing policies
 - Migration system operational across DB schema changes
 
 **Technical risks**:
@@ -1190,7 +1190,7 @@ Users who need credential passthrough or network access from sandbox code must e
 
 **Validation criteria**:
 
-- `aegis audit verify` confirms chain integrity after a full session
+- `aegisctx audit verify` confirms chain integrity after a full session
 - Denied command appears in audit log with reason
 - Three platforms working with appropriate capability tiers
 - Policy `ask` mode prompts user and records decision in audit log
@@ -1204,7 +1204,7 @@ Users who need credential passthrough or network access from sandbox code must e
 - Remaining platform adapters (OpenCode, KiloCode, Codex CLI, Kiro, Zed)
 - Plugin system with worker-thread isolation
 - Config templates and routing instruction files for all platforms
-- Automated hook configuration via `aegis init`
+- Automated hook configuration via `aegisctx init`
 
 **Non-goals**: Analytics dashboard, Level 3 sandbox, cloud anything
 
@@ -1212,9 +1212,9 @@ Users who need credential passthrough or network access from sandbox code must e
 
 - All remaining adapters with appropriate capability levels
 - Plugin loader with worker-thread isolation and constrained API
-- `aegis init <platform>` for all supported platforms
+- `aegisctx init <platform>` for all supported platforms
 - Config templates in `configs/` directory
-- Comprehensive `aegis doctor` validating all platform-specific config
+- Comprehensive `aegisctx doctor` validating all platform-specific config
 
 **Technical risks**:
 
@@ -1223,9 +1223,9 @@ Users who need credential passthrough or network access from sandbox code must e
 
 **Validation criteria**:
 
-- `aegis init <platform>` works for all supported platforms
+- `aegisctx init <platform>` works for all supported platforms
 - Plugin loaded, executed in worker thread, constrained to declared API
-- `aegis doctor` validates all platform configurations
+- `aegisctx doctor` validates all platform configurations
 
 **Defer**: Analytics dashboard, Level 3 sandbox, export/import
 
@@ -1242,8 +1242,8 @@ Users who need credential passthrough or network access from sandbox code must e
 
 **Deliverables**:
 
-- `aegis stats` with detailed analytics (per-tool savings, cache performance)
-- `aegis export` / `aegis import` for all data types
+- `aegisctx stats` with detailed analytics (per-tool savings, cache performance)
+- `aegisctx export` / `aegisctx import` for all data types
 - Corruption detection and recovery in all DB operations
 - Startup time <100ms to first MCP response
 - Memory usage <50 MB for typical session
@@ -1255,7 +1255,7 @@ Users who need credential passthrough or network access from sandbox code must e
 
 **Validation criteria**:
 
-- `aegis stats` produces accurate context savings report
+- `aegisctx stats` produces accurate context savings report
 - Export → purge → import → verify round-trip succeeds
 - Corrupted DB detected and recovered without data loss to other DBs
 - Startup benchmarked at <100ms
@@ -1267,7 +1267,7 @@ Users who need credential passthrough or network access from sandbox code must e
 **Goals**:
 
 - Level 3 sandbox (Linux namespace isolation)
-- `aegis insight` analytics dashboard (local web UI)
+- `aegisctx insight` analytics dashboard (local web UI)
 - Advanced search features (semantic/embedding search as opt-in)
 - Cross-session knowledge persistence (project-level learned context)
 - Batch execution optimization (parallel sandbox processes)
@@ -1333,8 +1333,8 @@ Users who need credential passthrough or network access from sandbox code must e
 
 ### Release Gate: UX/DX
 
-- [ ] `aegis init` completes in <30 seconds interactively
-- [ ] `aegis doctor` produces actionable output for all failure modes
+- [ ] `aegisctx init` completes in <30 seconds interactively
+- [ ] `aegisctx doctor` produces actionable output for all failure modes
 - [ ] Error messages include the failing input, the expected format, and a fix suggestion
 - [ ] CLI `--help` for every command produces useful output
 - [ ] README installation instructions verified on a clean machine
@@ -1349,7 +1349,7 @@ Users who need credential passthrough or network access from sandbox code must e
 ### Release Gate: Privacy
 
 - [ ] Zero network calls in default configuration (verified by network trace in CI)
-- [ ] No filesystem access outside `~/.aegis/`, project directory, and OS temp
+- [ ] No filesystem access outside `~/.aegisctx/`, project directory, and OS temp
 - [ ] No environment variable logging that could contain secrets
 - [ ] Audit log does not record raw command output (only decisions and metadata)
 
@@ -1382,8 +1382,8 @@ Users who need credential passthrough or network access from sandbox code must e
 | R4  | **Sandbox escape** — determined code bypasses process-level isolation                                                     | Medium     | Critical | Defense in depth: env filtering + filesystem scoping + default network deny; security-focused code review; no guarantee of containment (documented as Level 1 isolation) | Document that Level 1 sandbox is not a security boundary against malicious code; recommend Level 3 for sensitive environments |
 | R5  | **Context window format changes** — LLMs may change how they process MCP tool responses                                   | Medium     | Medium   | Aegis returns structured text, not format-dependent output; snapshot format uses XML which is well-understood by all current models                                      | Adapt snapshot format if model behavior changes; A/B test formats                                                             |
 | R6  | **Performance regression** — FTS5 on large content sets, or high-frequency audit writes, slow down the server             | Medium     | Medium   | Benchmark suite in CI; query latency SLO in quality gates; async audit writes                                                                                            | Batch audit writes; reduce indexing granularity; add query result cache if needed                                             |
-| R7  | **Adoption friction** — too many setup steps compared to reference's one-line install                                     | High       | High     | `aegis init` automates everything; Claude Code plugin marketplace listing (Phase 3); one-command install path                                                            | Accept higher friction as tradeoff for security; provide "quick start" that skips policy config                               |
-| R8  | **Policy too restrictive by default** — users frustrated that sandbox blocks everything                                   | Medium     | Medium   | `aegis policy check` lets users test before running; clear error messages explain why something was blocked and how to allow it                                          | Provide "permissive" preset alongside "secure" default                                                                        |
+| R7  | **Adoption friction** — too many setup steps compared to reference's one-line install                                     | High       | High     | `aegisctx init` automates everything; Claude Code plugin marketplace listing (Phase 3); one-command install path                                                         | Accept higher friction as tradeoff for security; provide "quick start" that skips policy config                               |
+| R8  | **Policy too restrictive by default** — users frustrated that sandbox blocks everything                                   | Medium     | Medium   | `aegisctx policy check` lets users test before running; clear error messages explain why something was blocked and how to allow it                                       | Provide "permissive" preset alongside "secure" default                                                                        |
 | R9  | **Worker thread plugin isolation limits API** — structured clone boundary prevents sharing complex objects with plugins   | Medium     | Low      | Design plugin API around serializable data from the start; no Promises or callbacks across boundary                                                                      | Use MessagePort for more complex communication if needed                                                                      |
 | R10 | **Scope creep** — trying to support too many platforms dilutes quality                                                    | High       | Medium   | Tier system with explicit capability levels; Phase 1 supports only Claude Code; new platforms added only when adapter + tests are complete                               | Drop Tier 3 platforms entirely if they provide no hook support after 6 months                                                 |
 
@@ -1415,13 +1415,13 @@ The reference project validates the market. The 7k+ stars and enterprise adoptio
 2. `packages/storage` — SQLite abstraction with migration system
 3. `packages/engine` — sandbox execution with env isolation
 4. `packages/server` — MCP server with Claude Code adapter
-5. `aegis doctor` + `aegis init claude-code`
+5. `aegisctx doctor` + `aegisctx init claude-code`
 
 This is the minimum path to a working, testable, installable tool.
 
 ### What Should Be Intentionally Ignored Early
 
-- Analytics dashboard (`aegis insight`)
+- Analytics dashboard (`aegisctx insight`)
 - Plugin system
 - Non-Claude-Code platform adapters
 - Embedding-based search
@@ -1433,26 +1433,26 @@ This is the minimum path to a working, testable, installable tool.
 
 Three things separate a good context tool from an excellent one:
 
-1. **Trust through transparency.** `aegis audit show` should make a security engineer comfortable. Every command denial has a reason. Every sandbox execution has a trace. Every policy decision is recorded. This is the feature that makes Aegis deployable in environments where "just trust us" isn't acceptable.
+1. **Trust through transparency.** `aegisctx audit show` should make a security engineer comfortable. Every command denial has a reason. Every sandbox execution has a trace. Every policy decision is recorded. This is the feature that makes Aegis deployable in environments where "just trust us" isn't acceptable.
 
 2. **Deterministic policy evaluation.** Given the same policy and the same command, the same decision is made every time. This is testable, explainable, and auditable. The reference makes routing decisions based on runtime state (detection confidence, platform capabilities). Aegis makes them based on explicit, validated policy documents.
 
-3. **Honest capability reporting.** When the system can't enforce a guarantee (no hooks, no FTS5, no runtime), it says so clearly — to the user via `aegis doctor` and to the agent via the SessionStart response. No fake guarantees. No silent degradation. This builds the kind of trust that compounds over time.
+3. **Honest capability reporting.** When the system can't enforce a guarantee (no hooks, no FTS5, no runtime), it says so clearly — to the user via `aegisctx doctor` and to the agent via the SessionStart response. No fake guarantees. No silent degradation. This builds the kind of trust that compounds over time.
 
 ---
 
 ## Recommended MVP Boundary
 
-| In MVP                              | Out of MVP            |
-| ----------------------------------- | --------------------- |
-| MCP server with 6 sandbox tools     | Analytics dashboard   |
-| Claude Code adapter (Tier 1)        | Non-Claude adapters   |
-| Policy evaluation (deny/allow)      | Policy `ask` mode     |
-| Session event capture + restore     | Audit HMAC chain      |
-| FTS5 content indexing + BM25 search | Embedding search      |
-| `aegis doctor` + `aegis init`       | `aegis export/import` |
-| Env var filtering in sandbox        | Filesystem scoping    |
-| Basic CLI (doctor, init, stats)     | Plugin system         |
+| In MVP                              | Out of MVP               |
+| ----------------------------------- | ------------------------ |
+| MCP server with 6 sandbox tools     | Analytics dashboard      |
+| Claude Code adapter (Tier 1)        | Non-Claude adapters      |
+| Policy evaluation (deny/allow)      | Policy `ask` mode        |
+| Session event capture + restore     | Audit HMAC chain         |
+| FTS5 content indexing + BM25 search | Embedding search         |
+| `aegisctx doctor` + `aegisctx init` | `aegisctx export/import` |
+| Env var filtering in sandbox        | Filesystem scoping       |
+| Basic CLI (doctor, init, stats)     | Plugin system            |
 
 ## Recommended Tech Choices
 
@@ -1476,12 +1476,12 @@ Three things separate a good context tool from an excellent one:
 | Decision                                           | Reason                                                                           |
 | -------------------------------------------------- | -------------------------------------------------------------------------------- |
 | **No telemetry, ever**                             | Privacy-first is a core principle, not a marketing claim                         |
-| **No postinstall scripts**                         | Supply-chain attack vector; all setup via explicit `aegis init`                  |
+| **No postinstall scripts**                         | Supply-chain attack vector; all setup via explicit `aegisctx init`               |
 | **No cloud dependency**                            | Local-first means local-first. No "optional cloud sync" that becomes required    |
 | **No `any` in core packages**                      | TypeScript strict mode is meaningless if core logic uses `any`                   |
 | **No credential passthrough by default**           | Least privilege means the sandbox starts with nothing and the user grants access |
 | **No silent error swallowing in security paths**   | A swallowed error in policy evaluation is a security vulnerability               |
-| **No auto-writing files to project directories**   | Respect the user's git tree; `aegis init` is explicit and user-initiated         |
+| **No auto-writing files to project directories**   | Respect the user's git tree; `aegisctx init` is explicit and user-initiated      |
 | **No NODE_OPTIONS / --require preload injection**  | Hidden magic violates R12; explicit instrumentation only                         |
 | **No monkey-patching of Node.js builtins**         | The reference patches `fs.readFileSync` via preload; Aegis does not              |
 | **No `eval()` or `Function()` on untrusted input** | Deserialization attacks are a known class; use schema validation instead         |

@@ -1,5 +1,5 @@
 /**
- * aegis stats — Statistics command.
+ * aegisctx stats — Statistics command.
  *
  * Displays session statistics: context savings, tool call counts,
  * cache hit rates, and performance metrics.

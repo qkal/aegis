@@ -1,5 +1,5 @@
 /**
- * aegis_doctor — Diagnostics tool.
+ * aegisctx_doctor — Diagnostics tool.
  *
  * Reports which runtimes were detected on the host, whether FTS5 and
  * the trigram tokenizer are available on the active SQLite backend,
@@ -7,15 +7,15 @@
  * runtime detection is cached after the first invocation.
  */
 
-import { LANGUAGES } from "@aegis/core";
-import { cachedDetectRuntime } from "@aegis/engine";
+import { LANGUAGES } from "@aegisctx/core";
+import { cachedDetectRuntime } from "@aegisctx/engine";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import type { ServerContext } from "../runtime/context.js";
 import { SERVER_NAME, SERVER_VERSION } from "../server-info.js";
 import { jsonResult } from "./helpers.js";
 
-export const TOOL_NAME = "aegis_doctor" as const;
+export const TOOL_NAME = "aegisctx_doctor" as const;
 
 export const TOOL_DESCRIPTION = "Run diagnostics: check platform detection, available runtimes, "
 	+ "storage health, policy validity, and hook registration.";

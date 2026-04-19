@@ -3,7 +3,7 @@
  *
  * Detects available language runtimes on the host system by spawning
  * each candidate binary with a version-probe flag. Results are cached
- * for the lifetime of the process so that `aegis doctor` and the MCP
+ * for the lifetime of the process so that `aegisctx doctor` and the MCP
  * server do not pay the spawn cost on every invocation.
  *
  * Detection is intentionally defensive:
@@ -17,7 +17,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
 import { delimiter, isAbsolute, join } from "node:path";
 
-import type { Language } from "@aegis/core";
+import type { Language } from "@aegisctx/core";
 
 /**
  * Runtime that was located on the host. Narrowing on `available: true`

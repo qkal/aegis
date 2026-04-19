@@ -11,7 +11,7 @@
  * and tests all read the same contract.
  */
 
-import type { PlatformCapabilities } from "@aegis/adapters";
+import type { PlatformCapabilities } from "@aegisctx/adapters";
 import { SERVER_NAME, SERVER_VERSION } from "./server-info.js";
 import { TOOL_DESCRIPTION as DOCTOR_DESC, TOOL_NAME as DOCTOR_NAME } from "./tools/doctor.js";
 import { TOOL_DESCRIPTION as EXECUTE_DESC, TOOL_NAME as EXECUTE_NAME } from "./tools/execute.js";

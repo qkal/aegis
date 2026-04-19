@@ -9,15 +9,15 @@
  * separator is enforced by convention rather than by tooling.
  */
 
-import { type AegisPolicy, DEFAULT_POLICY } from "@aegis/core";
-import type { ExecOutcome, PolyglotExecutor, SandboxConfig } from "@aegis/engine";
+import { type AegisPolicy, DEFAULT_POLICY } from "@aegisctx/core";
+import type { ExecOutcome, PolyglotExecutor, SandboxConfig } from "@aegisctx/engine";
 import {
 	CONTENT_INDEX_MIGRATIONS,
 	ContentIndex,
 	type Database,
 	openDatabase,
 	runMigrations,
-} from "@aegis/storage";
+} from "@aegisctx/storage";
 import {
 	createServerCounters,
 	type FetchLike,
@@ -51,7 +51,7 @@ export class StubExecutor {
 	}
 }
 
-/** Fixed-response fetch stub for `aegis_fetch` tests. */
+/** Fixed-response fetch stub for `aegisctx_fetch` tests. */
 export function stubFetch(
 	fn: (url: string, init?: Parameters<FetchLike>[1]) => Promise<FetchResponse> | FetchResponse,
 ): FetchLike {

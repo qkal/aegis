@@ -44,7 +44,7 @@ cli → core, engine, storage, adapters, server
 
 ## Rationale
 
-- **Shared types**: Packages share branded types, event models, and policy types from `@aegis/core`. A monorepo makes this trivial; a polyrepo requires publishing and versioning for every type change.
+- **Shared types**: Packages share branded types, event models, and policy types from `@aegisctx/core`. A monorepo makes this trivial; a polyrepo requires publishing and versioning for every type change.
 - **Atomic changes**: A policy schema change that affects core, storage, and server can be committed, tested, and reviewed as a single PR.
 - **Single CI pipeline**: One test run validates all packages and their interactions.
 - **No build orchestrator needed**: pnpm workspaces handle dependency linking. tsup handles per-package builds. Turborepo/Nx would add complexity without proportional benefit at this scale (6 packages).
