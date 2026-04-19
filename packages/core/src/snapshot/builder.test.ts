@@ -59,7 +59,7 @@ describe("buildSnapshot", () => {
 		expect(built.includedEvents).toEqual([]);
 		expect(built.droppedEvents).toEqual([]);
 		expect(built.byteLength).toBe(built.text.length);
-		expect(built.text).toMatch(/\[aegis:session\] snapshot generated /);
+		expect(built.text).toMatch(/\[aegisctx:session\] snapshot generated /);
 	});
 
 	it("orders events by priority ascending, then timestamp descending", () => {

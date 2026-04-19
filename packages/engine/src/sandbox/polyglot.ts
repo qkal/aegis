@@ -24,7 +24,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import type { Language } from "@aegis/core";
+import type { Language } from "@aegisctx/core";
 
 import { DEFAULT_OUTPUT_OPTIONS, processOutput } from "../output/index.js";
 import { planExecution, SOURCE_PLACEHOLDER } from "../runtime/command.js";
@@ -119,7 +119,7 @@ function materializeSource(
 	source: string,
 	extension: string,
 ): { readonly workDir: string; readonly sourcePath: string; } {
-	const workDir = mkdtempSync(join(tempRoot, "aegis-sandbox-"));
+	const workDir = mkdtempSync(join(tempRoot, "aegisctx-sandbox-"));
 	const sourcePath = join(workDir, `sandbox${extension}`);
 	writeFileSync(sourcePath, source, { mode: 0o600 });
 	return { workDir, sourcePath };

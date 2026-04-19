@@ -76,20 +76,20 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Deliverables
 
-- [x] **M1.1** — Sandbox execution engine (`@aegis/engine`)
+- [x] **M1.1** — Sandbox execution engine (`@aegisctx/engine`)
   - `PolyglotExecutor` spawns isolated processes per language
   - Runtime detection for all 11 supported languages
   - Environment explicitly constructed (not inherited)
   - Process timeout with `SIGKILL` to entire process group
   - Output capture with truncation and ANSI stripping
   - Integration tests with real process spawning
-- [ ] **M1.2** — MCP server with tool registration (`@aegis/server`)
-  - `aegis_execute` — sandboxed code execution
-  - `aegis_search` — BM25-ranked content search
-  - `aegis_index` — content indexing
-  - `aegis_fetch` — URL fetch, convert to markdown, index
-  - `aegis_stats` — session statistics
-  - `aegis_doctor` — diagnostics
+- [ ] **M1.2** — MCP server with tool registration (`@aegisctx/server`)
+  - `aegisctx_execute` — sandboxed code execution
+  - `aegisctx_search` — BM25-ranked content search
+  - `aegisctx_index` — content indexing
+  - `aegisctx_fetch` — URL fetch, convert to markdown, index
+  - `aegisctx_stats` — session statistics
+  - `aegisctx_doctor` — diagnostics
   - MCP stdio transport, graceful shutdown
   - Tier-aware capability advertisement to the agent at session start
   - Server.ts stays under 200 lines
@@ -112,30 +112,30 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - MCP tool wrapper enforces policy when hooks are unavailable / unmatched
   - Denied commands return structured error to agent
   - Default policy blocks `sudo`, `rm -rf`, `.env` reads, credential env vars
-  - Policy loaded from `~/.aegis/config.json` and project `.aegis/config.json`
-- [ ] **M1.6** — CLI: `aegis doctor` + `aegis init <platform>`
-  - `aegis doctor` validates platform, runtimes, storage, policy, hooks
-  - `aegis init` creates `~/.aegis/config.json` with secure defaults
-  - `aegis init claude-code|codex|opencode|amp` configures the platform
+  - Policy loaded from `~/.aegisctx/config.json` and project `.aegisctx/config.json`
+- [ ] **M1.6** — CLI: `aegisctx doctor` + `aegisctx init <platform>`
+  - `aegisctx doctor` validates platform, runtimes, storage, policy, hooks
+  - `aegisctx init` creates `~/.aegisctx/config.json` with secure defaults
+  - `aegisctx init claude-code|codex|opencode|amp` configures the platform
   - Each `init` prints the diff before applying and supports `--dry-run`
   - Clear, colored terminal output
 - [ ] **M1.7** — Codex CLI adapter (Tier 1L)
   - Hook support behind `[features] codex_hooks = true` flag check
   - Reads `~/.codex/hooks.json` and project `.codex/hooks.json`
-  - Installs `aegis hook codex pre-tool-use` etc. as command hooks
+  - Installs `aegisctx hook codex pre-tool-use` etc. as command hooks
   - Reports `interceptedTools: ['Bash']` in capabilities (per current Codex matcher)
-  - MCP registration in `~/.codex/config.toml` `[mcp_servers.aegis]`
+  - MCP registration in `~/.codex/config.toml` `[mcp_servers.aegisctx]`
   - Platform detection via `CODEX_HOME` / `CODEX_SESSION_ID`
   - Fixture-based tests against recorded Codex hook payloads
 - [ ] **M1.8** — OpenCode adapter (Tier 1)
-  - Plugin shipped as `@aegis/opencode-plugin` (separate npm package OR loaded from `~/.config/opencode/plugins/aegis.ts`)
+  - Plugin shipped as `@aegisctx/opencode-plugin` (separate npm package OR loaded from `~/.config/opencode/plugins/aegisctx.ts`)
   - Hooks: `tool.execute.before`, `tool.execute.after`, `session.compacted`, `session.idle`, `permission.asked`
   - MCP registration in `opencode.json` (or `~/.config/opencode/opencode.json`)
   - Platform detection via `OPENCODE_*` env vars + `.opencode/` directory presence
   - Fixture-based tests against recorded OpenCode plugin events
 - [ ] **M1.9** — AmpCode adapter (Tier 3)
-  - MCP registration via `amp mcp add aegis -- aegis serve` (or `.amp/settings.json` write)
-  - Routing instruction file `.amp/AGENTS.md` template installed by `aegis init amp`
+  - MCP registration via `amp mcp add aegisctx -- aegisctx serve` (or `.amp/settings.json` write)
+  - Routing instruction file `.amp/AGENTS.md` template installed by `aegisctx init amp`
   - Capabilities honestly report `tier: 3, supportedHooks: []`
   - Policy enforced inside the MCP tool wrapper (no PreToolUse available)
   - Platform detection via `AMP_*` env vars + `~/.amp/` presence
@@ -143,16 +143,16 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Acceptance Criteria
 
-- Install via `npm install -g aegis` (or local `pnpm build`)
-- `aegis init claude-code` + start Claude Code session → hooks registered
-- `aegis init codex` + start Codex CLI session → hooks + MCP registered
-- `aegis init opencode` + start OpenCode session → plugin + MCP registered
-- `aegis init amp` + start Amp session → MCP registered, AGENTS.md routing in place
-- `aegis_execute` runs JavaScript in sandbox, returns only stdout, on all four platforms
-- `aegis_search` returns ranked results from indexed content, on all four platforms
+- Install via `npm install -g aegisctx` (or local `pnpm build`)
+- `aegisctx init claude-code` + start Claude Code session → hooks registered
+- `aegisctx init codex` + start Codex CLI session → hooks + MCP registered
+- `aegisctx init opencode` + start OpenCode session → plugin + MCP registered
+- `aegisctx init amp` + start Amp session → MCP registered, AGENTS.md routing in place
+- `aegisctx_execute` runs JavaScript in sandbox, returns only stdout, on all four platforms
+- `aegisctx_search` returns ranked results from indexed content, on all four platforms
 - Session events persist across compaction → restore cycle (Claude Code, OpenCode)
 - Session events persist across idle → restore cycle (Codex, AmpCode)
-- `aegis doctor` reports all checks passing on each detected platform
+- `aegisctx doctor` reports all checks passing on each detected platform
 - Context savings measurable: 56KB Playwright snapshot → <500B (Claude Code, OpenCode)
 - AmpCode adapter reports `Tier 3` to the agent at session start (verified by fixture)
 - Codex adapter reports `interceptedTools: ['Bash']` (verified by fixture)
@@ -180,13 +180,13 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Deliverables
 
-- [ ] **M2.1** — HMAC-chained audit log (`@aegis/storage/audit`)
+- [ ] **M2.1** — HMAC-chained audit log (`@aegisctx/storage/audit`)
   - Append-only audit entries with UUIDv7 IDs
   - HMAC chain: each entry includes HMAC of previous entry
-  - Audit key generated on first run, stored at `~/.aegis/audit-key` (0o600)
+  - Audit key generated on first run, stored at `~/.aegisctx/audit-key` (0o600)
   - Separate SQLite database per project
-  - `aegis audit show` CLI command with category/action/decision filters
-  - `aegis audit verify` CLI command validates chain integrity
+  - `aegisctx audit show` CLI command with category/action/decision filters
+  - `aegisctx audit verify` CLI command validates chain integrity
 - [ ] **M2.2** — Enhanced sandbox isolation
   - Explicit env var allowlist (no credential passthrough by default)
   - Deny `AWS_*`, `GH_TOKEN`, `GITHUB_TOKEN`, `OPENAI_API_KEY`, etc.
@@ -204,8 +204,8 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - `ask` mode: user confirmation prompt with decision recording
   - File path deny patterns with symlink resolution
   - Environment variable patterns (glob matching)
-  - `aegis policy check <command>` CLI command
-  - `aegis policy validate` CLI command
+  - `aegisctx policy check <command>` CLI command
+  - `aegisctx policy validate` CLI command
 - [ ] **M2.5** — Migration system operational
   - Schema changes across DB versions tested
   - Upgrade path from Phase 1 schema to Phase 2 schema verified
@@ -213,7 +213,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Acceptance Criteria
 
-- `aegis audit verify` confirms chain integrity after full session
+- `aegisctx audit verify` confirms chain integrity after full session
 - Denied command appears in audit log with reason
 - Three platforms working with appropriate capability tiers
 - Policy `ask` mode prompts user and records decision
@@ -246,15 +246,15 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 - [ ] **M3.2** — Plugin system with worker-thread isolation
   - `AegisPlugin` interface: `onToolCall`, `onToolResult`, `onSessionStart`, `onSessionCompact`
   - `PluginContext` with constrained API (read sessions, search, index — no policy/audit access)
-  - Plugins loaded from `~/.aegis/plugins/` or `<project>/.aegis/plugins/`
+  - Plugins loaded from `~/.aegisctx/plugins/` or `<project>/.aegisctx/plugins/`
   - Worker thread isolation with structured clone boundary
   - Plugin schema validation at load time
 - [ ] **M3.3** — Platform config templates and init
-  - `aegis init <platform>` for all supported platforms
+  - `aegisctx init <platform>` for all supported platforms
   - Config templates in `configs/` directory
   - Routing instruction files (AGENTS.md, GEMINI.md, etc.) for Tier 3 platforms
   - Templates not auto-written to project directory (user-initiated only)
-- [ ] **M3.4** — Comprehensive `aegis doctor`
+- [ ] **M3.4** — Comprehensive `aegisctx doctor`
   - Validates all platform-specific configurations
   - Reports capability tier for detected platform
   - Checks plugin validity and isolation
@@ -262,9 +262,9 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Acceptance Criteria
 
-- `aegis init <platform>` works for all supported platforms
+- `aegisctx init <platform>` works for all supported platforms
 - Plugin loaded, executed in worker thread, constrained to declared API
-- `aegis doctor` validates all platform configurations
+- `aegisctx doctor` validates all platform configurations
 - Tier 3 platforms report honest ~60% routing compliance
 
 ### Risks
@@ -290,18 +290,18 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
   - Tool call frequency and latency tracking
   - Cache hit/miss rates
   - Session pattern analysis
-  - `aegis stats` CLI with detailed report
+  - `aegisctx stats` CLI with detailed report
 - [ ] **M4.2** — Export / Import
-  - `aegis export --session` → JSON (discriminated union schema)
-  - `aegis export --audit` → JSONL
-  - `aegis export --content` → Markdown
-  - `aegis import --session <file>` with schema validation
+  - `aegisctx export --session` → JSON (discriminated union schema)
+  - `aegisctx export --audit` → JSONL
+  - `aegisctx export --content` → Markdown
+  - `aegisctx import --session <file>` with schema validation
   - Round-trip: export → purge → import → verify
 - [ ] **M4.3** — Corruption recovery
   - Corruption detection in all DB operations
   - Corrupt DB renamed to `<name>.corrupt.<timestamp>.db`
   - Fresh DB created with current schema
-  - `aegis doctor` checks for `.corrupt.*` files
+  - `aegisctx doctor` checks for `.corrupt.*` files
   - Never silently delete — user may want recovery
 - [ ] **M4.4** — Performance targets
   - Server startup to first MCP response: <100ms
@@ -313,7 +313,7 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 
 ### Acceptance Criteria
 
-- `aegis stats` produces accurate context savings report
+- `aegisctx stats` produces accurate context savings report
 - Export → purge → import → verify round-trip succeeds
 - Corrupted DB detected and recovered without affecting other DBs
 - Startup benchmarked at <100ms
@@ -340,10 +340,10 @@ VS Code Copilot, Gemini CLI, Kiro, and KiloCode are deferred to Phase 2 / 3.
 - [ ] **M5.1** — Level 3 sandbox: Linux namespace isolation
   - `unshare` for PID/network namespace isolation
   - macOS: `sandbox-exec` profile (deprecated but functional)
-  - Opt-in via `aegis config set sandbox.level 3`
+  - Opt-in via `aegisctx config set sandbox.level 3`
   - Fallback to Level 1 with monitoring
-- [ ] **M5.2** — Local analytics dashboard (`aegis insight`)
-  - Local web UI served via `aegis insight`
+- [ ] **M5.2** — Local analytics dashboard (`aegisctx insight`)
+  - Local web UI served via `aegisctx insight`
   - Context savings over time
   - Policy decision distribution
   - Session timeline visualization
@@ -371,7 +371,7 @@ Every phase must satisfy the applicable gates before release:
 
 ### Security
 
-- [ ] Zero `any` in `@aegis/core` (enforced by oxlint `typescript/no-explicit-any`)
+- [ ] Zero `any` in `@aegisctx/core` (enforced by oxlint `typescript/no-explicit-any`)
 - [ ] All external inputs validated by Zod schemas
 - [ ] Policy evaluation has 100% branch coverage
 - [ ] No `eval()`, `Function()`, `vm.runInNewContext()` on untrusted input
@@ -401,5 +401,5 @@ Every phase must satisfy the applicable gates before release:
 ### Privacy
 
 - [ ] Zero network calls in default configuration
-- [ ] No filesystem access outside `~/.aegis/`, project dir, and OS temp
+- [ ] No filesystem access outside `~/.aegisctx/`, project dir, and OS temp
 - [ ] No environment variable logging that could contain secrets

@@ -27,13 +27,13 @@
  * credentials routinely appear in tool arguments).
  */
 
-import type { NormalizedHookResponse, NormalizedToolCall } from "@aegis/adapters";
+import type { NormalizedHookResponse, NormalizedToolCall } from "@aegisctx/adapters";
 import {
 	type AegisPolicy,
 	evaluateToolCall,
 	type PolicyDecision,
 	SHELL_TOOL_NAMES,
-} from "@aegis/core";
+} from "@aegisctx/core";
 
 /** File-path-bearing tools. */
 const FILE_PATH_TOOLS: ReadonlySet<string> = new Set([
@@ -52,7 +52,7 @@ const URL_TOOLS: ReadonlySet<string> = new Set([
 	"WebFetch",
 	"WebSearch",
 	"Fetch",
-	"aegis_fetch",
+	"aegisctx_fetch",
 ]);
 
 /**

@@ -1,5 +1,5 @@
 {
-	"name": "@aegis/adapters",
+	"name": "@aegisctx/adapters",
 	"version": "0.1.0",
 	"description": "Platform-specific adapters: Claude Code, Codex CLI, OpenCode, AmpCode (MVP); Cursor, Windsurf, Antigravity, Gemini CLI, VS Code Copilot, ... (later phases)",
 	"type": "module",
@@ -38,7 +38,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@aegis/core": "workspace:*",
+		"@aegisctx/core": "workspace:*",
 		"zod": "^4.3.6"
 	},
 	"license": "Apache-2.0"

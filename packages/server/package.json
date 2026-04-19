@@ -1,5 +1,5 @@
 {
-	"name": "@aegis/server",
+	"name": "@aegisctx/server",
 	"version": "0.1.0",
 	"description": "MCP server: tool registration, transport, hook orchestration, lifecycle management",
 	"type": "module",
@@ -30,10 +30,10 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@aegis/adapters": "workspace:*",
-		"@aegis/core": "workspace:*",
-		"@aegis/engine": "workspace:*",
-		"@aegis/storage": "workspace:*",
+		"@aegisctx/adapters": "workspace:*",
+		"@aegisctx/core": "workspace:*",
+		"@aegisctx/engine": "workspace:*",
+		"@aegisctx/storage": "workspace:*",
 		"@modelcontextprotocol/sdk": "^1.0.0",
 		"zod": "^4.3.6"
 	},

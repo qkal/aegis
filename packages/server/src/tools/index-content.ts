@@ -1,5 +1,5 @@
 /**
- * aegis_index — Content indexing tool.
+ * aegisctx_index — Content indexing tool.
  *
  * Wraps `ContentIndex.index()`. Chunking, deduplication, and FTS5
  * population all happen inside the storage package; this handler just
@@ -11,10 +11,10 @@ import { z } from "zod";
 import type { ServerContext } from "../runtime/context.js";
 import { errorResult, jsonResult } from "./helpers.js";
 
-export const TOOL_NAME = "aegis_index" as const;
+export const TOOL_NAME = "aegisctx_index" as const;
 
 export const TOOL_DESCRIPTION = "Index markdown or text content into the local knowledge base. "
-	+ "Content is chunked, deduplicated, and searchable via aegis_search.";
+	+ "Content is chunked, deduplicated, and searchable via aegisctx_search.";
 
 const SOURCE_TYPES = ["file", "url", "session-events", "manual"] as const;
 

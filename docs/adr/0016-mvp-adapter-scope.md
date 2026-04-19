@@ -39,12 +39,12 @@ base meaningfully.
 
 The **MVP** (Phase 1) ships Tier-1-class support for **four** platforms:
 
-| Platform        | MVP Tier | Integration surface                                                                                        | Reason                                                                |
-| --------------- | -------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| **Claude Code** | Tier 1   | `~/.claude/settings.json` hooks + MCP server registration                                                  | Largest user base; reference implementation.                          |
-| **Codex CLI**   | Tier 1L  | `~/.codex/config.toml` + `~/.codex/hooks.json` (feature flag `codex_hooks`); MCP via `[mcp_servers.aegis]` | Hooks GA in 2026; matcher limited to `Bash` today, MCP fills the gap. |
-| **OpenCode**    | Tier 1   | `~/.config/opencode/plugins/aegis.ts` plugin + `opencode.json` MCP entry                                   | Documented plugin SDK with full event coverage.                       |
-| **AmpCode**     | Tier 3   | `~/.amp/settings.json` `amp.mcpServers.aegis` + project `.amp/AGENTS.md` routing instructions              | MCP-only; honest tier reporting via `capabilities()`.                 |
+| Platform        | MVP Tier | Integration surface                                                                                           | Reason                                                                |
+| --------------- | -------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Claude Code** | Tier 1   | `~/.claude/settings.json` hooks + MCP server registration                                                     | Largest user base; reference implementation.                          |
+| **Codex CLI**   | Tier 1L  | `~/.codex/config.toml` + `~/.codex/hooks.json` (feature flag `codex_hooks`); MCP via `[mcp_servers.aegisctx]` | Hooks GA in 2026; matcher limited to `Bash` today, MCP fills the gap. |
+| **OpenCode**    | Tier 1   | `~/.config/opencode/plugins/aegisctx.ts` plugin + `opencode.json` MCP entry                                   | Documented plugin SDK with full event coverage.                       |
+| **AmpCode**     | Tier 3   | `~/.amp/settings.json` `amp.mcpServers.aegisctx` + project `.amp/AGENTS.md` routing instructions              | MCP-only; honest tier reporting via `capabilities()`.                 |
 
 **Phase 2** picks up Cursor (Tier 2 hooks), Windsurf (Tier 3 → Tier 2 if
 hooks documented by then), Antigravity (Tier 3), Zed (Tier 3), and the
@@ -57,9 +57,9 @@ plugin system.
 
 Every MVP adapter must:
 
-1. Implement `HookAdapter` from `@aegis/adapters`.
+1. Implement `HookAdapter` from `@aegisctx/adapters`.
 2. Report `capabilities()` honestly, including `interceptedTools` for Tier 1L.
-3. Provide an `aegis init <platform>` flow that writes the platform-native
+3. Provide an `aegisctx init <platform>` flow that writes the platform-native
    config snippet (and prints a diff before applying).
 4. Ship fixture-based tests against recorded real hook payloads (or, for
    Tier 3 platforms like AmpCode, against recorded MCP request/response
@@ -91,9 +91,9 @@ Every MVP adapter must:
   for the updated plan.
 - Each new MVP adapter requires its own integration-test fixture set
   (`packages/adapters/test/fixtures/<platform>/`).
-- The `aegis init` CLI must learn three more platform sub-commands
+- The `aegisctx init` CLI must learn three more platform sub-commands
   (`codex`, `opencode`, `amp`).
-- The `aegis doctor` CLI must learn three more platform check sets.
+- The `aegisctx doctor` CLI must learn three more platform check sets.
 - README, CLI help, and docs must be updated to advertise four supported
   platforms in MVP (not one).
 - If Codex extends its tool matcher beyond `Bash` during the Phase 1 window,

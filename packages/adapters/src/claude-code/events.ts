@@ -8,7 +8,7 @@
  * depend on the command) we return an empty list rather than guess,
  * because downstream consumers treat each event as ground truth.
  */
-import { EventPriority, type SessionEvent } from "@aegis/core";
+import { EventPriority, type SessionEvent } from "@aegisctx/core";
 
 import type { NormalizedToolResult } from "../types.js";
 
@@ -135,7 +135,7 @@ const EXTRACTORS: Record<string, ToolExtractor> = {
  * Returns `[]` when no extractor is registered for `result.toolName` or
  * when the extractor cannot recover enough signal from the raw payload.
  * Callers must treat this as a best-effort signal, not an audit log —
- * authoritative tool tracking lives in `@aegis/storage/audit` (M2.1).
+ * authoritative tool tracking lives in `@aegisctx/storage/audit` (M2.1).
  */
 export function extractClaudeEvents(result: NormalizedToolResult): readonly SessionEvent[] {
 	const extractor = EXTRACTORS[result.toolName];

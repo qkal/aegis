@@ -17,5 +17,5 @@ import { fileURLToPath } from "node:url";
 const manifestPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
 const manifest: { version: string; } = JSON.parse(readFileSync(manifestPath, "utf8"));
 
-export const SERVER_NAME = "aegis" as const;
+export const SERVER_NAME = "aegisctx" as const;
 export const SERVER_VERSION: string = manifest.version;

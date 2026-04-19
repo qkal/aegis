@@ -8,7 +8,7 @@ import {
 	type GitEvent,
 	type SessionId,
 	type TaskEvent,
-} from "@aegis/core";
+} from "@aegisctx/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { openDatabase } from "../adapters/index.js";

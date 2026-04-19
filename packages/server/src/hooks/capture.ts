@@ -24,20 +24,20 @@
  *
  * All three functions are thin wrappers — the heavy lifting (schema
  * validation, event extraction, priority-tiered rendering, SQLite I/O)
- * lives in `@aegis/adapters`, `@aegis/core`, and `@aegis/storage`.
+ * lives in `@aegisctx/adapters`, `@aegisctx/core`, and `@aegisctx/storage`.
  * Keeping them in the server layer means the CLI / MCP harness has
  * a single narrow surface to test against and replace.
  */
 
-import type { HookAdapter, HookType, NormalizedHookResponse } from "@aegis/adapters";
+import type { HookAdapter, HookType, NormalizedHookResponse } from "@aegisctx/adapters";
 import {
 	buildSnapshot,
 	DEFAULT_SNAPSHOT_BUDGET_BYTES,
 	type EventId,
 	type SessionEvent,
 	type SessionId,
-} from "@aegis/core";
-import type { SessionEventRecord, SessionEventStore } from "@aegis/storage";
+} from "@aegisctx/core";
+import type { SessionEventRecord, SessionEventStore } from "@aegisctx/storage";
 
 /** Dependencies required by the capture pipeline. */
 export interface CaptureContext {
@@ -64,7 +64,7 @@ export function defaultEventIdFactory(): () => string {
 /**
  * Parse a PostToolUse payload, extract its structured session events,
  * and persist them. Returns the persisted records so callers can wire
- * them through `aegis_audit` (Phase 2) or emit telemetry.
+ * them through `aegisctx_audit` (Phase 2) or emit telemetry.
  *
  * Returns an empty array — without raising — when the adapter does not
  * recognize this tool. This is intentional: unknown tools are legitimate

@@ -31,7 +31,7 @@ export async function runSmoke(root = process.cwd()) {
 	const cliModule = await importBuiltModule(root, "packages/cli/dist/index.js");
 	const serverModule = await importBuiltModule(root, "packages/server/dist/index.js");
 
-	if (cliModule.CLI_NAME !== "aegis" || typeof cliModule.CLI_VERSION !== "string") {
+	if (cliModule.CLI_NAME !== "aegisctx" || typeof cliModule.CLI_VERSION !== "string") {
 		throw new Error("CLI dist exports are missing expected identifiers.");
 	}
 
@@ -39,7 +39,7 @@ export async function runSmoke(root = process.cwd()) {
 		throw new Error("CLI entrypoint failed to load.");
 	}
 
-	if (serverModule.SERVER_NAME !== "aegis" || typeof serverModule.SERVER_VERSION !== "string") {
+	if (serverModule.SERVER_NAME !== "aegisctx" || typeof serverModule.SERVER_VERSION !== "string") {
 		throw new Error("Server dist exports are missing expected identifiers.");
 	}
 }

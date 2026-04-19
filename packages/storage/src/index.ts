@@ -1,8 +1,8 @@
 /**
- * @aegis/storage — Persistence layer.
+ * @aegisctx/storage — Persistence layer.
  *
  * SQLite-backed storage for session events, content indexing,
- * and HMAC-chained audit logging. Depends only on @aegis/core.
+ * and HMAC-chained audit logging. Depends only on @aegisctx/core.
  */
 
 export * from "./adapters/index.js";

@@ -1,5 +1,5 @@
 /**
- * aegis_search — BM25-ranked content search tool.
+ * aegisctx_search — BM25-ranked content search tool.
  *
  * Delegates to `ContentIndex.search()`, which runs the dual-FTS5 /
  * RRF merge and returns ranked snippets.
@@ -10,7 +10,7 @@ import { z } from "zod";
 import type { ServerContext } from "../runtime/context.js";
 import { jsonResult } from "./helpers.js";
 
-export const TOOL_NAME = "aegis_search" as const;
+export const TOOL_NAME = "aegisctx_search" as const;
 
 export const TOOL_DESCRIPTION = "Search indexed content using BM25-ranked full-text search. "
 	+ "Supports multiple queries, content-type filtering, and recency bias.";

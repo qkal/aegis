@@ -48,7 +48,7 @@ export interface DetectedPlatform {
  * Claude Code wins over Codex if, somehow, both sets of env vars are
  * present simultaneously. In practice a host shell never sets more than
  * one platform's signals at once, but deterministic ordering keeps the
- * fallback predictable for tests and `aegis doctor`.
+ * fallback predictable for tests and `aegisctx doctor`.
  */
 export function detectPlatform(
 	env: Readonly<Record<string, string | undefined>>,

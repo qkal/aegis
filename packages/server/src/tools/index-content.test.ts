@@ -20,9 +20,9 @@ beforeEach(async () => {
 });
 afterEach(() => close?.());
 
-describe("aegis_index handler", () => {
+describe("aegisctx_index handler", () => {
 	it("uses the canonical tool name", () => {
-		expect(TOOL_NAME).toBe("aegis_index");
+		expect(TOOL_NAME).toBe("aegisctx_index");
 	});
 
 	it("indexes prose content and reports the chunk metadata", () => {

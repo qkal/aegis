@@ -140,5 +140,5 @@ function defaultTimer(): TimerLike {
 
 function defaultOnError(err: unknown): void {
 	// eslint-disable-next-line no-console
-	console.error("[aegis:idle-snapshot] onIdle failed:", err);
+	console.error("[aegisctx:idle-snapshot] onIdle failed:", err);
 }

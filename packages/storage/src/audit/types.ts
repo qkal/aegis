@@ -6,7 +6,7 @@
  * Stored in a separate SQLite database per project.
  */
 
-import type { AuditEntryId, PolicyDecision, SessionId } from "@aegis/core";
+import type { AuditEntryId, PolicyDecision, SessionId } from "@aegisctx/core";
 
 /** Categories of auditable actions. */
 export type AuditCategory =
@@ -19,7 +19,7 @@ export type AuditCategory =
 /**
  * Outcome recorded for an audit entry.
  *
- * Derived from the canonical policy verdict union in `@aegis/core` plus an
+ * Derived from the canonical policy verdict union in `@aegisctx/core` plus an
  * "error" sentinel for failures that never reached a verdict (e.g. the
  * evaluator threw or a precondition was not met). Deriving from the core
  * type means the storage layer cannot drift from the policy engine's

@@ -7,7 +7,7 @@
  *
  * The module is loaded dynamically so that running on a Node binary
  * without the SQLite build (or on a Node < 22) doesn't break the import
- * graph for the rest of `@aegis/storage`.
+ * graph for the rest of `@aegisctx/storage`.
  */
 
 import type { Database, PreparedStatement, StatementResult } from "./types.js";

@@ -1,5 +1,5 @@
 /**
- * aegis_execute — Sandboxed code execution tool.
+ * aegisctx_execute — Sandboxed code execution tool.
  *
  * Runs a snippet in an isolated child process via
  * `PolyglotExecutor` and returns stdout/stderr plus exit metadata.
@@ -8,14 +8,14 @@
  * engine's `ExecOutcome` to an MCP tool result.
  */
 
-import { type Language, LANGUAGES } from "@aegis/core";
-import type { ExecOutcome } from "@aegis/engine";
+import { type Language, LANGUAGES } from "@aegisctx/core";
+import type { ExecOutcome } from "@aegisctx/engine";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import type { ServerContext } from "../runtime/context.js";
 import { errorResult, jsonResult } from "./helpers.js";
 
-export const TOOL_NAME = "aegis_execute" as const;
+export const TOOL_NAME = "aegisctx_execute" as const;
 
 export const TOOL_DESCRIPTION = `Execute code in a sandboxed environment. Returns stdout only. `
 	+ `Supports: ${LANGUAGES.join(", ")}.`;
@@ -99,7 +99,7 @@ export async function handler(
 	// conservative definition: total stdout+stderr produced by the
 	// child, capped at maxOutputBytes by BoundedSink. Callers get the
 	// same data, but the savings metric is still interesting when
-	// callers pipe into `aegis_search` / `aegis_index` instead.
+	// callers pipe into `aegisctx_search` / `aegisctx_index` instead.
 	const byteSavings = stdoutBytes(outcome);
 
 	switch (outcome.status) {

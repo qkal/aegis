@@ -14,13 +14,13 @@ Aegis sits between AI coding agents (Claude Code, Codex CLI, OpenCode, AmpCode, 
 
 ```bash
 # Install
-npm install -g aegis
+npm install -g aegisctx
 
-# Set up for your platform
-aegis init
+# Set up for your platform (specify one of: claude-code, codex, opencode, amp, generic)
+aegisctx init <platform>
 
 # Verify installation
-aegis doctor
+aegisctx doctor
 ```
 
 ## Architecture
@@ -34,26 +34,26 @@ packages/
   storage/     SQLite persistence: sessions, FTS5 content index, HMAC audit log
   adapters/    Platform-specific: Claude Code, Codex CLI, OpenCode, AmpCode (MVP); Cursor, Windsurf, Antigravity, Gemini CLI, VS Code Copilot, ... (later phases)
   server/      MCP server: tool registration, transport, hook orchestration
-  cli/         CLI: aegis doctor, aegis init, aegis config, aegis audit
+  cli/         CLI: aegisctx doctor, aegisctx init, aegisctx config, aegisctx audit
 ```
 
 Dependency direction: `core` ← `engine` ← `storage` ← `server` ← `cli`
 
-`@aegis/core` has **zero npm dependencies** — pure TypeScript logic that is testable with just `import` and `assert`.
+`@aegisctx/core` has **zero npm dependencies** — pure TypeScript logic that is testable with just `import` and `assert`.
 
 ## MCP Tools
 
-| Tool                 | Description                                      |
-| -------------------- | ------------------------------------------------ |
-| `aegis_execute`      | Sandboxed code execution in 11 languages         |
-| `aegis_execute_file` | Process a file through sandboxed code            |
-| `aegis_batch`        | Multiple commands + queries in one call          |
-| `aegis_index`        | Index markdown/text into the knowledge base      |
-| `aegis_search`       | BM25-ranked search across indexed content        |
-| `aegis_fetch`        | Fetch URL, convert to markdown, index with cache |
-| `aegis_stats`        | Context savings, call counts, session statistics |
-| `aegis_doctor`       | Diagnostics: runtimes, hooks, FTS5, policy       |
-| `aegis_audit`        | Query recent audit events                        |
+| Tool                    | Description                                      |
+| ----------------------- | ------------------------------------------------ |
+| `aegisctx_execute`      | Sandboxed code execution in 11 languages         |
+| `aegisctx_execute_file` | Process a file through sandboxed code            |
+| `aegisctx_batch`        | Multiple commands + queries in one call          |
+| `aegisctx_index`        | Index markdown/text into the knowledge base      |
+| `aegisctx_search`       | BM25-ranked search across indexed content        |
+| `aegisctx_fetch`        | Fetch URL, convert to markdown, index with cache |
+| `aegisctx_stats`        | Context savings, call counts, session statistics |
+| `aegisctx_doctor`       | Diagnostics: runtimes, hooks, FTS5, policy       |
+| `aegisctx_audit`        | Query recent audit events                        |
 
 ## Platform Support
 
@@ -75,29 +75,29 @@ and MVP rationale.
 - **No credential passthrough** — `AWS_*`, `GH_TOKEN`, `OPENAI_API_KEY` blocked by default
 - **HMAC-chained audit log** — every policy decision recorded with tamper detection
 - **No telemetry** — zero network calls in default configuration
-- **No postinstall scripts** — all setup via explicit `aegis init`
+- **No postinstall scripts** — all setup via explicit `aegisctx init`
 
 See [PLAN.md](./PLAN.md) for the full architecture plan, threat model, and security analysis.
 
 ## CLI
 
 ```bash
-aegis init [platform]       # Interactive setup
-aegis doctor                # Full health check
-aegis config show           # Display resolved configuration
-aegis config validate       # Validate all config files
-aegis policy show           # Display resolved policy
-aegis policy check <cmd>    # Test a command against policy
-aegis audit show            # Recent audit events
-aegis audit verify          # Verify HMAC chain integrity
-aegis stats                 # Session statistics
-aegis purge [--expired]     # Clean up indexed content
+aegisctx init <platform>       # Set up for your platform (required: claude-code, codex, opencode, amp, or generic)
+aegisctx doctor                # Full health check
+aegisctx config show           # Display resolved configuration
+aegisctx config validate       # Validate all config files
+aegisctx policy show           # Display resolved policy
+aegisctx policy check <cmd>    # Test a command against policy
+aegisctx audit show            # Recent audit events
+aegisctx audit verify          # Verify HMAC chain integrity
+aegisctx stats                 # Session statistics
+aegisctx purge [--expired]     # Clean up indexed content
 ```
 
 ## Configuration
 
 ```jsonc
-// ~/.aegis/config.json
+// ~/.aegisctx/config.json
 {
 	"version": 1,
 	"policy": {
@@ -117,7 +117,7 @@ aegis purge [--expired]     # Clean up indexed content
 }
 ```
 
-Precedence: CLI flags > env vars > project `.aegis/config.json` > user `~/.aegis/config.json` > built-in defaults.
+Precedence: CLI flags > env vars > project `.aegisctx/config.json` > user `~/.aegisctx/config.json` > built-in defaults.
 
 ## Development
 

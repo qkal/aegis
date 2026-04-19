@@ -85,8 +85,8 @@
 		"checkOnStart": false
 	},
 	"opencode": {
-		"_comment": "OpenCode plugin loaded from ~/.config/opencode/plugins/aegis.ts (global) or .opencode/plugins/aegis.ts (project). Subscribes to tool.execute.before, tool.execute.after, session.compacted, session.idle, permission.asked.",
-		"pluginPath": "~/.config/opencode/plugins/aegis.ts",
+		"_comment": "OpenCode plugin loaded from ~/.config/opencode/plugins/aegisctx.ts (global) or .opencode/plugins/aegisctx.ts (project). Subscribes to tool.execute.before, tool.execute.after, session.compacted, session.idle, permission.asked.",
+		"pluginPath": "~/.config/opencode/plugins/aegisctx.ts",
 		"hookEvents": [
 			"tool.execute.before",
 			"tool.execute.after",

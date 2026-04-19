@@ -6,9 +6,9 @@
  * `session.idle`, `permission.asked`, etc.).
  *
  * Integration surface (per ADR-0016):
- *  - Plugin file: `~/.config/opencode/plugins/aegis.ts` (global)
- *    or `<project>/.opencode/plugins/aegis.ts` (per-project), or an npm
- *    package referenced from `opencode.json` `"plugin": ["@aegis/opencode-plugin"]`.
+ *  - Plugin file: `~/.config/opencode/plugins/aegisctx.ts` (global)
+ *    or `<project>/.opencode/plugins/aegisctx.ts` (per-project), or an npm
+ *    package referenced from `opencode.json` `"plugin": ["@aegisctx/opencode-plugin"]`.
  *  - MCP registration: `opencode.json` (or `~/.config/opencode/opencode.json`).
  *
  * Implementation lands in M1.8.

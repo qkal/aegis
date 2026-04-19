@@ -5,7 +5,7 @@
  * matches `node:sqlite`'s "no native addon" property and is significantly
  * faster than better-sqlite3 in Bun's benchmarks.
  *
- * The module is loaded dynamically so importing `@aegis/storage` under
+ * The module is loaded dynamically so importing `@aegisctx/storage` under
  * Node doesn't trip over `bun:sqlite`.
  */
 

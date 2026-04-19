@@ -1,9 +1,9 @@
 /**
- * @aegis/adapters — Platform adapter package.
+ * @aegisctx/adapters — Platform adapter package.
  *
  * Provides platform-specific adapters for AI coding agent platforms.
  * Each adapter translates between platform hook I/O and Aegis's
- * normalized event model. Depends only on @aegis/core.
+ * normalized event model. Depends only on @aegisctx/core.
  */
 
 export { AMP_PLATFORM } from "./amp/index.js";

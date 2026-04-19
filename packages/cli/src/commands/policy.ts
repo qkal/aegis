@@ -1,10 +1,10 @@
 /**
- * aegis policy — Policy management commands.
+ * aegisctx policy — Policy management commands.
  *
  * Subcommands:
- * - aegis policy show    — Display resolved policy
- * - aegis policy check   — Test a command against policy
- * - aegis policy validate — Validate all policy files
+ * - aegisctx policy show    — Display resolved policy
+ * - aegisctx policy check   — Test a command against policy
+ * - aegisctx policy validate — Validate all policy files
  *
  * Implementation deferred to Phase 2.
  */
