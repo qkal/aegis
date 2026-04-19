@@ -5,6 +5,8 @@
  * SessionEventStore so the full "PostToolUse → append → PreCompact →
  * saveSnapshot → SessionStart → restore" loop is exercised end-to-end.
  */
+import assert from "node:assert/strict";
+
 import { claudeCodeAdapter } from "@aegisctx/adapters";
 import { postToolUseBashFailureFixture, postToolUseWriteFixture } from "@aegisctx/adapters/testing";
 import { type SessionId } from "@aegisctx/core";
