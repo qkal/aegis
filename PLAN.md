@@ -664,7 +664,7 @@ Plugins are loaded from `~/.aegisctx/plugins/` or `<project>/.aegisctx/plugins/`
 
 ### 7.7 Configuration Model
 
-```
+```text
 Precedence (highest to lowest):
 1. CLI flags (--policy, --timeout, etc.)
 2. Environment variables (AEGIS_*)

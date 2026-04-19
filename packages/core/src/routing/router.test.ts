@@ -6,7 +6,11 @@ import { type AegisctxTool, routeTool } from "./router.js";
 
 describe("routeTool", () => {
 	it("routes execution tools to the sandbox", () => {
-		const execTools: AegisctxTool[] = ["aegisctx_execute", "aegisctx_execute_file", "aegisctx_batch"];
+		const execTools: AegisctxTool[] = [
+			"aegisctx_execute",
+			"aegisctx_execute_file",
+			"aegisctx_batch",
+		];
 		for (const tool of execTools) {
 			expect(routeTool(tool)).toEqual({ route: "sandbox", language: "auto" });
 		}

@@ -57,7 +57,7 @@ plugin system.
 
 Every MVP adapter must:
 
-1. Implement `HookAdapter` from `@aegisctx/adapters/types`.
+1. Implement `HookAdapter` from `@aegisctx/adapters`.
 2. Report `capabilities()` honestly, including `interceptedTools` for Tier 1L.
 3. Provide an `aegisctx init <platform>` flow that writes the platform-native
    config snippet (and prints a diff before applying).
